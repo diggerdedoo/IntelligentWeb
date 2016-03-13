@@ -6,3 +6,35 @@ body {
 a {
   color: #00B7FF;
 }
+.effect-box.football {
+    padding-top: 56px;
+    background-color: #00cc9d;
+    background-image: 
+        repeating-linear-gradient(315deg, rgba(255,255,255,0.3), rgba(255,255,255,0.3) 7%, rgba(255,255,255,0) 7%, rgba(255,255,255,0) 14%);
+}
+.effect-box.football > h1 {
+    margin: 0px;
+
+    font-family: 'Changa One', Impact, sans-serif;
+    color: white;
+    font-size: 78px;
+    font-weight: normal;
+    text-shadow: 
+        0 1px 0 #e3e3e3,
+        0 3px 0 #c9c9c9,
+        0 5px 0 #b8b8b8,
+        0 7px 0 #ababab,
+        0 9px 0 #a1a1a1,
+        0 11px 0 #969696,
+        0 0 10px rgba(0,0,0,0.15),
+        0 7px 10px rgba(0,0,0,0.1),
+        0 11px 10px rgba(0,0,0,0.45);
+}
+@media (max-width: 480px) {
+    .effect-box.football {
+        padding-top: 63px;
+    }
+    .effect-box.football > h1 {
+        font-size: 65px;
+    }
+}
