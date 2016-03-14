@@ -1,32 +1,28 @@
-var http = require('http'),
-    fs = require('fs'),
-    // NEVER use a Sync function except at start-up!
-    index = fs.readFileSync(__dirname + '/index.html');
+var express = require('express');
+var app = express();
 
-// Send index.html to all requests
-var app = http.createServer(function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end(index);
-});
+app.use(express.static('public'));
 
-// Socket.io server listens to our app
-var io = require('socket.io').listen(app);
+app.get('/index.htm', function (req, res) {
+   res.sendFile( __dirname + "/" + "index.html" );
+})
 
-// Send current time to all connected clients
-function sendTime() {
-    io.emit('time', { time: new Date().toJSON() });
-}
+/*app.get('/process_get', function (req, res) {
 
-// Send current time every 10 secs
-setInterval(sendTime, 10000);
+   // Prepare output in JSON format
+   response = {
+       first_name:req.query.first_name,
+       last_name:req.query.last_name
+   };
+   console.log(response);
+   res.end(JSON.stringify(response));
+})*/
 
-// Emit welcome message on connection
-io.on('connection', function(socket) {
-    // Use socket to communicate with this particular client only, sending it it's own id
-    socket.emit('welcome', { message: 'Welcome!', id: socket.id });
+var server = app.listen(8081, function () {
 
-    socket.on('i am client', console.log);
-});
+  var host = server.address().address
+  var port = server.address().port
 
-app.listen(3000);
-app.use(express.static(__dirname + '/public'));
+  console.log("Example app listening at http://%s:%s", host, port)
+
+})

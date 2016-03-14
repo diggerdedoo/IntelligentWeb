@@ -1,0 +1,65 @@
+<!doctype html>
+<html class="home">
+    <head>
+        <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            function getTweets(){
+                  client.get('search/tweets', { q: 'Liverpool since:2011-11-11 lang:en', count: 100, from: 'manutd' },
+                              handleManUtdTweets)
+            }
+
+            function handleTweets(err, data){
+              if (err) {
+                console.error('Get error', err)
+              }  
+              else {
+                console.log('Get Tweets');
+                allData = allData.concat(data);
+                i += 1;
+                if (i == 3){
+                  console.log(allData);
+                  console.log('Finished');
+                }
+              }
+            }
+
+            function adjust_textarea(h) {
+                h.style.height = "20px";
+                h.style.height = (h.scrollHeight)+"px";
+            }
+        </script>
+    </head>
+    <body>
+        <h1> Welcome! </h1>
+        <p> This is we have to choose a group name?'s Intelligent Web assignment. </p>
+        <p> This Web application will allow you to query the social web, such as twitter, to track discussions on football. </p>
+        <form class="form-style-7">
+            <ul>
+            <li>
+                <label for="name">Name</label>
+                <input type="text" name="name" maxlength="100">
+                <span>Enter your full name here</span>
+            </li>
+            <li>
+                <label for="email">Email</label>
+                <input type="email" name="email" maxlength="100">
+                <span>Enter a valid email address</span>
+            </li>
+            <li>
+                <label for="url">Website</label>
+                <input type="url" name="url" maxlength="100">
+                <span>Your website address (eg: http://www.google.com)</span>
+            </li>
+            <li>
+                <label for="bio">About You</label>
+                <textarea name="bio" onkeyup="adjust_textarea(this)"></textarea>
+                <span>Say something about yourself</span>
+            </li>
+            <li>
+                <input type="submit" value="Send This" >
+            </li>
+            </ul>
+        </form>
+    </body>
+</html>

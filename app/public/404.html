@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+  	<title>404</title>
+    <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
+  	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+
+        	// function controls the fade in and out of the images located within the div
+            $(function() {
+            $('.fadein img:gt(0)').hide();
+
+            setInterval(function () {
+                $('.fadein :first-child').fadeOut()
+                                         .next('img')
+                                         .fadeIn()
+                                         .end()
+                                         .appendTo('.fadein');
+            }, 10000); // 10 seconds change
+            });
+    </script>
+  </head>
+  <body>
+    <h1> Looks like you've scored an own goal mate... page not found </h1>
+    <div class="fadein">
+            <img src="/images/baker-own-goal.jpg" alt="Own Goal" style="width:640px;height:400px;">
+            <img src="/images/Oops.jpg" style="width:640px;height:400px;">
+    </div>
+    <h1 href="index.html"> Would you like to return to the home page? </h1>
+  </body>
+</html>
