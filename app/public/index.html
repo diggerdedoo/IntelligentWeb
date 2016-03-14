@@ -4,24 +4,20 @@
         <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">
-            function getTweets(){
-                  client.get('search/tweets', { q: 'Liverpool since:2011-11-11 lang:en', count: 100, from: 'manutd' },
-                              handleManUtdTweets)
-            }
 
-            function handleTweets(err, data){
-              if (err) {
-                console.error('Get error', err)
-              }  
-              else {
-                console.log('Get Tweets');
-                allData = allData.concat(data);
-                i += 1;
-                if (i == 3){
-                  console.log(allData);
-                  console.log('Finished');
-                }
-              }
+            
+            //Array of images which you want to show: Use path you want.
+            var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg'),
+                nextimage = 0;
+            doSlideshow();
+
+            function doSlideshow(){
+                if (nextimage >= images.length) {nextimage=0;}
+                $('.home')
+                .css('background-image','url("'+images[nextimage++]+'")')
+                .fadeIn("slow", "swing", function(){
+                    setTimeout(doSlideshow,10000);
+                });
             }
 
             function adjust_textarea(h) {
@@ -34,32 +30,80 @@
         <h1> Welcome! </h1>
         <p> This is we have to choose a group name?'s Intelligent Web assignment. </p>
         <p> This Web application will allow you to query the social web, such as twitter, to track discussions on football. </p>
-        <form class="form-style-7">
-            <ul>
-            <li>
-                <label for="name">Name</label>
-                <input type="text" name="name" maxlength="100">
-                <span>Enter your full name here</span>
-            </li>
-            <li>
-                <label for="email">Email</label>
-                <input type="email" name="email" maxlength="100">
-                <span>Enter a valid email address</span>
-            </li>
-            <li>
-                <label for="url">Website</label>
-                <input type="url" name="url" maxlength="100">
-                <span>Your website address (eg: http://www.google.com)</span>
-            </li>
-            <li>
-                <label for="bio">About You</label>
-                <textarea name="bio" onkeyup="adjust_textarea(this)"></textarea>
-                <span>Say something about yourself</span>
-            </li>
-            <li>
-                <input type="submit" value="Send This" >
-            </li>
-            </ul>
+        <form action="" method="post" class="form">
+            <h1>Twitter Form </h1>
+            <label>
+                <span>Twitter Profile :</span>
+                <input id="name" type="text" name="name" placeholder="Example: manutd" />
+            </label>
+            
+            <label>
+                <span>Key words :</span>
+                <input id="email" type="email" name="email" placeholder="Example: man city" />
+            </label>
+            
+            <label>
+                <span>Count :</span>
+                <input id="message" type="text" name="message" placeholder="Example: 100" />
+            </label>    
+            <label>
+                <span>&nbsp;</span> 
+                <input type="button" class="button" value="Send" /> 
+            </label>    
         </form>
+        <script>
+
+            function sendAjaxQuery(url, data) {
+                $.ajax({
+                    type: 'POST',
+                    url: url+'postFile.html',
+                        data: data,
+                        dataType: 'json',
+                        success: function (data) {
+                        var ret = JSON.stringify(data);
+                        alert('success '+data);
+                    },
+                    error: function (xhr, status, error) {
+                       console.log('Error: ' + error.message);
+                       alert('error connecting' + error.message);
+                    }
+                });
+            }
+
+            function submitForm() {
+                var xhr;
+                try { xhr = new ActiveXObject('Msxml2.XMLHTTP'); }
+                catch (e) {
+                    try { xhr = new ActiveXObject('Microsoft.XMLHTTP'); }
+                    catch (e2) {
+                        try { xhr = new XMLHttpRequest(); }
+                        catch (e3) { xhr = false; }
+                } }
+                xhr.onreadystatechange = processChange;
+                xhr.open(POST, "data.txt", true);
+                xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+                var namevalue=encodeURIComponent(document.getElementById("name").value);
+                var agevalue=encodeURIComponent(document.getElementById("age").value);
+                var parameters="name="+namevalue+"&age="+agevalue;
+                xhr.send(parameters);
+
+            }
+
+            function processChange() {
+                if(xhr.readyState == 4) {
+                    if(xhr.status == 200)
+                        document.ajax.dyn="Received:" + xhr.responseText;
+                    else
+                        document.ajax.dyn="Error code " + xhr.status;
+            } }; 
+
+            function sendData() {
+                var form = document.getElementById('myForm'); 
+                sendAjaxQuery('http://127.0.0.1:8081/', JSON.stringify($('form')));
+            }
+
+            var sendButton = document.getElementById('sendButton');
+            sendButton.onclick = sendData;
+        </script>
     </body>
 </html>

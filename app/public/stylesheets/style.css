@@ -6,8 +6,19 @@ body {
 
 h1 {
 	text-align: center;
-	color: #333333;
-	font-family: Tahoma, Geneva, sans-serif;
+	color: white;
+    text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+	font: 500% "Trebuchet MS", Arial, Helvetica, sans-serif;
+    padding: 20px 20px 20px 40px;
+    display: block;
+    margin: -30px -30px 10px -30px;
+    border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
 }
 
 a {
@@ -16,7 +27,12 @@ a {
 
 h2 { 
     text-align: center;
-    color: #333333;
+    color: white;
+    text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
 	font-family: Tahoma, Geneva, sans-serif;
 }
 
@@ -27,8 +43,106 @@ img {
 
 p {
 	text-align: center;
-	color: #333333;
-	font-family: Tahoma, Geneva, sans-serif;
+    color: white;
+    text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+    font: 100% "Trebuchet MS", Arial, Helvetica, sans-serif;
+    padding: 20px 20px 20px 40px;
+    display: block;
+    margin: -30px -30px 10px -30px;
+    border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
+}
+
+form {
+	text-align: center;
+}
+.form {
+    margin-left:auto;
+    margin-right:auto;
+    max-width: 500px;
+    background: #F8F8F8;
+    padding: 30px 30px 20px 30px;
+    font: 12px Arial, Helvetica, sans-serif;
+    color: #666;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+.form h1 {
+    font: 24px "Trebuchet MS", Arial, Helvetica, sans-serif;
+    padding: 20px 20px 20px 40px;
+    display: block;
+    margin: -30px -30px 10px -30px;
+    color: #FFF;
+    background: #87cefa;
+    text-shadow: 1px 1px 1px #949494;
+    border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
+    border-bottom:1px solid #87cefa;
+
+}
+.smart-green h1>span {
+    display: block;
+    font-size: 11px;
+    color: #FFF;
+}
+
+.form label {
+    display: block;
+    margin: 0px 0px 5px;
+}
+.form label>span {
+    float: left;
+    margin-top: 10px;
+    color: #5E5E5E;
+}
+.form input[type="text"], .form input[type="email"], .form textarea, .form select {
+    color: #555;
+    height: 30px;
+    line-height:15px;
+    width: 100%;
+    padding: 0px 0px 0px 10px;
+    margin-top: 2px;
+    border: 1px solid #E5E5E5;
+    background: #FBFBFB;
+    outline: 0;
+    -webkit-box-shadow: inset 1px 1px 2px rgba(238, 238, 238, 0.2);
+    box-shadow: inset 1px 1px 2px rgba(238, 238, 238, 0.2);
+    font: normal 14px/14px Arial, Helvetica, sans-serif;
+}
+.form textarea{
+    height:100px;
+    padding-top: 10px;
+}
+.form select {
+    background: url('down-arrow.png') no-repeat right, -moz-linear-gradient(top, #FBFBFB 0%, #E9E9E9 100%);
+    background: url('down-arrow.png') no-repeat right, -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FBFBFB), color-stop(100%,#E9E9E9));
+   appearance:none;
+    -webkit-appearance:none; 
+   -moz-appearance: none;
+    text-indent: 0.01px;
+    text-overflow: '';
+    width:100%;
+    height:30px;
+}
+.form .button {
+    background-color: #87cefa;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-border-radius: 5px;
+    border: none;
+    padding: 10px 25px 10px 25px;
+    color: #FFF;
+    text-shadow: 1px 1px 1px #949494;
+}
+.form .button:hover {
+    background-color:#80A24A;
 }
 
 .home { 
@@ -82,115 +196,4 @@ p {
     .effect-box.football > h1 {
         font-size: 65px;
     }
-}
-<style type="text/css">
-.form-style-7{
-    max-width:400px;
-    margin:50px auto;
-    background:#fff;
-    border-radius:2px;
-    padding:20px;
-    font-family: Georgia, "Times New Roman", Times, serif;
-}
-.form-style-7 h1{
-    display: block;
-    text-align: center;
-    padding: 0;
-    margin: 0px 0px 20px 0px;
-    color: #5C5C5C;
-    font-size:x-large;
-}
-.form-style-7 ul{
-    list-style:none;
-    padding:0;
-    margin:0;   
-}
-.form-style-7 li{
-    display: block;
-    padding: 9px;
-    border:1px solid #DDDDDD;
-    margin-bottom: 30px;
-    border-radius: 3px;
-}
-.form-style-7 li:last-child{
-    border:none;
-    margin-bottom: 0px;
-    text-align: center;
-}
-.form-style-7 li > label{
-    display: block;
-    float: left;
-    margin-top: -19px;
-    background: #FFFFFF;
-    height: 14px;
-    padding: 2px 5px 2px 5px;
-    color: #B9B9B9;
-    font-size: 14px;
-    overflow: hidden;
-    font-family: Arial, Helvetica, sans-serif;
-}
-.form-style-7 input[type="text"],
-.form-style-7 input[type="date"],
-.form-style-7 input[type="datetime"],
-.form-style-7 input[type="email"],
-.form-style-7 input[type="number"],
-.form-style-7 input[type="search"],
-.form-style-7 input[type="time"],
-.form-style-7 input[type="url"],
-.form-style-7 input[type="password"],
-.form-style-7 textarea,
-.form-style-7 select 
-{
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    width: 100%;
-    display: block;
-    outline: none;
-    border: none;
-    height: 25px;
-    line-height: 25px;
-    font-size: 16px;
-    padding: 0;
-    font-family: Georgia, "Times New Roman", Times, serif;
-}
-.form-style-7 input[type="text"]:focus,
-.form-style-7 input[type="date"]:focus,
-.form-style-7 input[type="datetime"]:focus,
-.form-style-7 input[type="email"]:focus,
-.form-style-7 input[type="number"]:focus,
-.form-style-7 input[type="search"]:focus,
-.form-style-7 input[type="time"]:focus,
-.form-style-7 input[type="url"]:focus,
-.form-style-7 input[type="password"]:focus,
-.form-style-7 textarea:focus,
-.form-style-7 select:focus 
-{
-}
-.form-style-7 li > span{
-    background: #F3F3F3;
-    display: block;
-    padding: 3px;
-    margin: 0 -9px -9px -9px;
-    text-align: center;
-    color: #C0C0C0;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11px;
-}
-.form-style-7 textarea{
-    resize:none;
-}
-.form-style-7 input[type="submit"],
-.form-style-7 input[type="button"]{
-    background: #2471FF;
-    border: none;
-    padding: 10px 20px 10px 20px;
-    border-bottom: 3px solid #5994FF;
-    border-radius: 3px;
-    color: #D2E2FF;
-}
-.form-style-7 input[type="submit"]:hover,
-.form-style-7 input[type="button"]:hover{
-    background: #6B9FFF;
-    color:#fff;
 }
