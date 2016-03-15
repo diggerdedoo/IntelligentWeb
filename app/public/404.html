@@ -1,31 +1,52 @@
 <!doctype html>
-<html>
+<html class="home">
   <head>
   	<title>404</title>
     <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
   	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">
+        	// jQuery functions which control the fade in and out of the central image
+            $("#image1").mouseenter(function()
+			{
+			    $(this).fadeOut();
+			});
+			                   
+			$("#image2").mouseleave(function()
+			{
+			    $("#image1").fadeIn();
+			});
 
-        	// function controls the fade in and out of the images located within the div
-            $(function() {
-            $('.fadein img:gt(0)').hide();
+			//Array of background images
+            var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg'),
+                nextimage = 0;
+            doSlideshow();
 
-            setInterval(function () {
-                $('.fadein :first-child').fadeOut()
-                                         .next('img')
-                                         .fadeIn()
-                                         .end()
-                                         .appendTo('.fadein');
-            }, 10000); // 10 seconds change
-            });
+            //Function that handles the background images slideshow
+            function doSlideshow(){
+                if (nextimage >= images.length) {nextimage=0;}
+                $('.home')
+                .css('background-image','url("'+images[nextimage++]+'")')
+                .fadeIn("slow", "swing", function(){
+                    setTimeout(doSlideshow,20000);
+                });
+            }
+
+            function adjust_textarea(h) {
+                h.style.height = "20px";
+                h.style.height = (h.scrollHeight)+"px";
+            }
     </script>
   </head>
   <body>
-    <h1> Looks like you've scored an own goal mate... page not found </h1>
-    <div class="fadein">
-            <img src="/images/baker-own-goal.jpg" alt="Own Goal" style="width:640px;height:400px;">
-            <img src="/images/Oops.jpg" style="width:640px;height:400px;">
+  	<div class="title2">
+	    <h1> Looks like you've scored an own goal mate... Page not found. </h1>
+	</div>
+		<div class="fadeimage">
+			<img class="fadeOne image" src="/images/baker-own-goal.jpg" style="width:600px;height:400px;">
+		    <img class="fadeTwo image" src="/images/Oops.jpg" style="width:600px;height:400px;"/>
+		</div>
+	<div class="title2" style="position: relative; margin: auto;">
+	    <h1 href="/index.html"> Would you like to return to the home page? </h1>
     </div>
-    <h1 href="index.html"> Would you like to return to the home page? </h1>
   </body>
 </html>

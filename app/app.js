@@ -1,23 +1,15 @@
 var express = require('express');
 var app = express();
 
+//Allows the use of the public folder, for images etc
 app.use(express.static('public'));
 
+//Sends index.html by default
 app.get('/index.htm', function (req, res) {
    res.sendFile( __dirname + "/" + "index.html" );
 })
 
-/*app.get('/process_get', function (req, res) {
-
-   // Prepare output in JSON format
-   response = {
-       first_name:req.query.first_name,
-       last_name:req.query.last_name
-   };
-   console.log(response);
-   res.end(JSON.stringify(response));
-})*/
-
+//initalises the server to 8081 and logs when this has been done
 var server = app.listen(8081, function () {
 
   var host = server.address().address
@@ -25,4 +17,4 @@ var server = app.listen(8081, function () {
 
   console.log("Example app listening at http://%s:%s", host, port)
 
-})
+});
