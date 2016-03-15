@@ -1,111 +1,62 @@
-<!doctype html>
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]> <html class="lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]> <html class="lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
 <html class="home">
-    <head>
-        <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script type="text/javascript">
-            //Array of background images
-            var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg'),
-                nextimage = 0;
-            doSlideshow();
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Home</title>
+    <!--[if lt IE 9]><script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+         //Array of background images
+        var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg'),
+            nextimage = 0;
+        doSlideshow();
 
-            //Function that handles the background images slideshow
-            function doSlideshow(){
-                if (nextimage >= images.length) {nextimage=0;}
-                $('.home')
-                .css('background-image','url("'+images[nextimage++]+'")')
+        //Function that handles the background images slideshow
+        function doSlideshow(){
+            if (nextimage >= images.length) {nextimage=0;}
+            $('.home')
+            .css('background-image','url("'+images[nextimage++]+'")')
                 .fadeIn("slow", "swing", function(){
-                    setTimeout(doSlideshow,20000);
-                });
-            }
+                setTimeout(doSlideshow,20000);
+            });
+        }
 
-            function adjust_textarea(h) {
-                h.style.height = "20px";
-                h.style.height = (h.scrollHeight)+"px";
-            }
-        </script>
-    </head>
-    <body>
-        <div class="title">
-            <h1> Welcome! </h1>
-            <p> This is we have to choose a group name?'s Intelligent Web assignment. </p>
-            <p> This Web application will allow you to query the social web, such as twitter, to track discussions on football. </p> 
-        </div>
-            <!-- Form for the user input for querying the social web -->
-            <form action="" method="post" class="form"> 
-                <h1>Twitter Form </h1>
-                <label>
-                    <span>Twitter Profile :</span>
-                    <input id="name" type="text" name="name" placeholder="Example: manutd" />
-                </label>
-                
-                <label>
-                    <span>Key words :</span>
-                    <input id="email" type="email" name="email" placeholder="Example: man city" />
-                </label>
-                
-                <label>
-                    <span>Count :</span>
-                    <input id="message" type="text" name="message" placeholder="Example: 100" />
-                </label>    
-                <label>
-                    <span>&nbsp;</span> 
-                    <input type="button" class="button" value="Send" /> 
-                </label>    
-            </form>
-        <script>
-
-            function sendAjaxQuery(url, data) {
-                $.ajax({
-                    type: 'POST',
-                    url: url+'postFile.html',
-                        data: data,
-                        dataType: 'json',
-                        success: function (data) {
-                        var ret = JSON.stringify(data);
-                        alert('success '+data);
-                    },
-                    error: function (xhr, status, error) {
-                       console.log('Error: ' + error.message);
-                       alert('error connecting' + error.message);
-                    }
-                });
-            }
-
-            function submitForm() {
-                var xhr;
-                try { xhr = new ActiveXObject('Msxml2.XMLHTTP'); }
-                catch (e) {
-                    try { xhr = new ActiveXObject('Microsoft.XMLHTTP'); }
-                    catch (e2) {
-                        try { xhr = new XMLHttpRequest(); }
-                        catch (e3) { xhr = false; }
-                } }
-                xhr.onreadystatechange = processChange;
-                xhr.open(POST, "data.txt", true);
-                xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-                var namevalue=encodeURIComponent(document.getElementById("name").value);
-                var agevalue=encodeURIComponent(document.getElementById("age").value);
-                var parameters="name="+namevalue+"&age="+agevalue;
-                xhr.send(parameters);
-
-            }
-
-            function processChange() {
-                if(xhr.readyState == 4) {
-                    if(xhr.status == 200)
-                        document.ajax.dyn="Received:" + xhr.responseText;
-                    else
-                        document.ajax.dyn="Error code " + xhr.status;
-            } }; 
-
-            function sendData() {
-                var form = document.getElementById('myForm'); 
-                sendAjaxQuery('http://127.0.0.1:8081/', JSON.stringify($('form')));
-            }
-
-            var sendButton = document.getElementById('sendButton');
-            sendButton.onclick = sendData;
-        </script>
-    </body>
+        function adjust_textarea(h) {
+            h.style.height = "20px";
+            h.style.height = (h.scrollHeight)+"px";
+        }
+    </script>
+</head>
+<body>
+    <div class="title">
+        <h1> Welcome! </h1>
+        <p> This is we have to choose a group name?'s Intelligent Web assignment. </p>
+        <p> This Web application will allow you to query the social web, such as twitter, to track discussions on football. </p> 
+        <p> Please log in below to get started! </p>
+    </div>
+    <section class="container">
+    <div class="login">
+      <form method="post" action="queryInterface.html">
+        <p><input type="text" name="login" value="" placeholder="Username or Email"></p>
+        <p><input type="password" name="password" value="" placeholder="Password"></p>
+        <p class="remember_me">
+          <label>
+            <input type="checkbox" name="remember_me" id="remember_me">
+            Remember me on this computer
+          </label>
+        </p>
+        <p class="submit"><input type="submit" name="commit" value="Login"></p>
+      </form>
+    </div>
+    <div class="login-help">
+      <p>Forgot your password? <a href="index.html">Click here to reset it</a>.</p>
+    </div>
+    </section>
+</body>
 </html>

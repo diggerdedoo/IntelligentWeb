@@ -1,0 +1,110 @@
+<!doctype html>
+<html class="home">
+    <head>
+        <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            //Array of background images
+            var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg'),
+                nextimage = 0;
+            doSlideshow();
+
+            //Function that handles the background images slideshow
+            function doSlideshow(){
+                if (nextimage >= images.length) {nextimage=0;}
+                $('.home')
+                .css('background-image','url("'+images[nextimage++]+'")')
+                .fadeIn("slow", "swing", function(){
+                    setTimeout(doSlideshow,20000);
+                });
+            }
+
+            function adjust_textarea(h) {
+                h.style.height = "20px";
+                h.style.height = (h.scrollHeight)+"px";
+            }
+        </script>
+    </head>
+    <body>
+        <div class="title">
+            <h1> Excellent! </h1>
+            <p> Now you can use the form below to query the social web for whatever you want. </p>
+        </div>
+            <!-- Form for the user input for querying the social web -->
+            <form action="" method="post" class="form"> 
+                <h1>Twitter Form </h1>
+                <label>
+                    <span>Twitter Profile :</span>
+                    <input id="name" type="text" name="name" placeholder="Example: manutd" />
+                </label>
+                
+                <label>
+                    <span>Key words :</span>
+                    <input id="email" type="email" name="email" placeholder="Example: man city" />
+                </label>
+                
+                <label>
+                    <span>Count :</span>
+                    <input id="message" type="text" name="message" placeholder="Example: 100" />
+                </label>    
+                <label>
+                    <span>&nbsp;</span> 
+                    <input type="button" class="button" value="Send" /> 
+                </label>    
+            </form>
+        <script>
+
+            function sendAjaxQuery(url, data) {
+                $.ajax({
+                    type: 'POST',
+                    url: url+'postFile.html',
+                        data: data,
+                        dataType: 'json',
+                        success: function (data) {
+                        var ret = JSON.stringify(data);
+                        alert('success '+data);
+                    },
+                    error: function (xhr, status, error) {
+                       console.log('Error: ' + error.message);
+                       alert('error connecting' + error.message);
+                    }
+                });
+            }
+
+            function submitForm() {
+                var xhr;
+                try { xhr = new ActiveXObject('Msxml2.XMLHTTP'); }
+                catch (e) {
+                    try { xhr = new ActiveXObject('Microsoft.XMLHTTP'); }
+                    catch (e2) {
+                        try { xhr = new XMLHttpRequest(); }
+                        catch (e3) { xhr = false; }
+                } }
+                xhr.onreadystatechange = processChange;
+                xhr.open(POST, "data.txt", true);
+                xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+                var namevalue=encodeURIComponent(document.getElementById("name").value);
+                var agevalue=encodeURIComponent(document.getElementById("age").value);
+                var parameters="name="+namevalue+"&age="+agevalue;
+                xhr.send(parameters);
+
+            }
+
+            function processChange() {
+                if(xhr.readyState == 4) {
+                    if(xhr.status == 200)
+                        document.ajax.dyn="Received:" + xhr.responseText;
+                    else
+                        document.ajax.dyn="Error code " + xhr.status;
+            } }; 
+
+            function sendData() {
+                var form = document.getElementById('myForm'); 
+                sendAjaxQuery('http://127.0.0.1:8081/', JSON.stringify($('form')));
+            }
+
+            var sendButton = document.getElementById('sendButton');
+            sendButton.onclick = sendData;
+        </script>
+    </body>
+</html>
