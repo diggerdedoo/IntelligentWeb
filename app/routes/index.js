@@ -1,21 +1,32 @@
 /**
  * Module dependencies.
  */
-
 var express = require('express');
 var hash = require('./password-hash').hash;
 var bodyParser = require('body-parser');
 var session = require('express-session');
-
 var app = module.exports = express();
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+	host     : 'localhost',
+	user     : 'team078',
+	password : '0e90a044'
+});
+
+connection.connect();
+
+connection.query('SELECT 1 + 1 AS solution', function(err, rows, fields){
+	if (err) throw err;
+	console.log('The solution is: ', rows[0].solution);
+});
+
+connection.end();
 
 // config
-
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 // middleware
-
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   resave: false, // don't save session if unmodified
@@ -24,7 +35,6 @@ app.use(session({
 }));
 
 // Session-persisted message middleware
-
 app.use(function(req, res, next){
   var err = req.session.error;
   var msg = req.session.success;
@@ -37,14 +47,14 @@ app.use(function(req, res, next){
 });
 
 // dummy database
-
 var users = {
-  tj: { name: 'tj' }
+  tj: { name: 'tj' },
+  ryan: { name: 'ryan' },
+  david: { name: 'david' }
 };
 
 // when you create a user, generate a salt
 // and hash the password ('foobar' is the pass here)
-
 hash('foobar', function(err, salt, hash){
   if (err) throw err;
   // store the salt & hash in the "db"
@@ -128,3 +138,107 @@ if (!module.parent) {
   app.listen(8081);
   console.log('Express started on port 8081');
 }
+
+
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
+
+app.use(function(req, res, next){
+  var sess = req.session
+  if (sess.views) {
+    sess.views++
+    res.setHeader('Content-Type', 'text/html')
+    res.write('<p>views: ' = sess.views + '</p>')
+    res.write('<p>expires in: ' + (sess.cookie.maxAge / 1000) + 's</p>')
+    res.end()  
+  } else {
+    sess.views = 1
+    res.end('welcome to the session demo. refresh!')
+  }
+});
+
+req.session.regenerate(function(err) {
+  // will have a new session here
+})
+
+req.session.destroy(function(err) {
+  // cannot access session here
+})
+
+req.session.reload(function(err) {
+  // session updated
+})
+
+req.session.save(function(err) {
+  // session saved
+})
+
+app.use(session({
+ secret: 'shhhh, very secret'
+ // don't save session if unmodified resave: false,
+ // don't create session until something stored
+ saveUninitialized: false,
+}));
+
+// Session-persisted message middleware
+app.use(function(req, res, next){
+ var err = req.session.error;
+ var msg = req.session.success;
+ delete req.session.error;
+ delete req.session.success;
+ res.locals.message = '';
+ if (err)
+ res.locals.message = '<p class="msg error">'
+ + err + '</p>';
+ if (msg)
+ res.locals.message = '<p class="msg success">'
+ + msg + '</p>';
+ next();
+});
+
+app.get('/restricted', restrict, function(req, res){
+ res.send('Wahoo! you entered the restricted area');
+});
+
+//first callback
+function restrict(req, res, next) {
+ if (req.session.user) {
+ next();
+ } else {
+ req.session.error = 'Access denied!';
+ req.session.back= req.path;
+ res.redirect('login.html'); }}
+
+app.get('/logout', function(req, res){
+ // destroy the user's session to log them out
+ // will be re-created next request
+ req.session.destroy(function(){
+ res.redirect('/');
+ });
+});
+
+app.post('/login', function (req, res) {
+   authenticate(req.body.username, req.body.password,
+     function (err, user) {
+       if (user) {
+         var back= req.session.back||'/'
+         // Regenerate session when signing in
+         // to prevent fixation
+         req.session.regenerate(function () {
+         req.session.back=back;
+         // Store the user's primary key
+         // in the session store to be retrieved,
+         // or in this case the entire user object
+         req.session.user = user;
+         req.session.success = 'Logged in as ' + user.name
+         + ' click to <a href="/logout">logout</a>. ' +
+         ' You may now access ' +
+         ' <a href="/restricted">/restricted</a>.';
+         res.redirect(back);
+         });
+       } else {
+          req.session.error = 'Authentication failed, '
+          + ' please check your ' + ' username and password.';
+          res.redirect('/login.html?error='+req.session.error);
+       } 
+    });
+});
