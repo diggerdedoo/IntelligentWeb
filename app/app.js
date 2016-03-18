@@ -2,9 +2,9 @@
  * Module dependencies.
  */
 var express = require('express');
-var hash = require('password-hash').hash;
+var hash = require('./pass').hash;
 var bodyParser = require('body-parser');
-var session = require('express-sessions');
+var session = require('client-sessions');
 var app = module.exports = express();
 var mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -65,9 +65,7 @@ app.use(function (req, res, next){
 
 // dummy database
 var users = {
-  tj: { name: 'tj' },
-  ryan: { name: 'ryan' },
-  david: { name: 'david' }
+  tj: { name: 'tj' }
 };
 
 // when you create a user, generate a salt
@@ -165,29 +163,6 @@ app.use(function (req, res, next){
     res.end('welcome to the session demo. refresh!')
   }
 });
-
-req.session.regenerate(function (err) {
-  // will have a new session here
-})
-
-req.session.destroy(function (err) {
-  // cannot access session here
-})
-
-req.session.reload(function (err) {
-  // session updated
-})
-
-req.session.save(function (err) {
-  // session saved
-})
-
-app.use(session({
- secret: 'shhhh, very secret',
- // don't save session if unmodified resave: false,
- // don't create session until something stored
- saveUninitialized: false,
-}));
 
 // Session-persisted message middleware
 app.use(function (req, res, next){
