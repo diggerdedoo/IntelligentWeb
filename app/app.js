@@ -18,8 +18,21 @@ app.use(express.static('public'));
 
 //Sends index.html by default
 app.get('/index.html', function (req, res) {
+  console.log("GOT /index.html");
    res.sendFile( __dirname + "/" + "index.html" );
 })
+
+// config
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+
+// middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(session({
+  resave: false, // don't save session if unmodified
+  saveUninitialized: false, // don't create session until something stored
+  secret: 'shhhh, very secret'
+}));
 
 //initalises the server to 8081 and logs when this has been done
 var server = app.listen(8081, function () {
@@ -38,30 +51,6 @@ connection.query('SELECT 1 + 1 AS solution', function (err, rows, fields){
 });
 connection.end();
 */
-
-// config
-app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
-
-// middleware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(session({
-  resave: false, // don't save session if unmodified
-  saveUninitialized: false, // don't create session until something stored
-  secret: 'shhhh, very secret'
-}));
-
-// Session-persisted message middleware
-app.use(function (req, res, next){
-  var err = req.session.error;
-  var msg = req.session.success;
-  delete req.session.error;
-  delete req.session.success;
-  res.locals.message = '';
-  if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
-  if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
-  next();
-});
 
 // dummy database
 var users = {
@@ -105,6 +94,7 @@ function restrict(req, res, next) {
 }
 
 app.get('/', function (req, res){
+  console.log("GOT /")
   res.redirect('/login');
 });
 
@@ -113,6 +103,7 @@ app.get('/restricted', restrict, function (req, res){
 });
 
 app.get('/logout', function (req, res){
+  console.log("GOT /logout")
   // destroy the user's session to log them out
   // will be re-created next request
   req.session.destroy(function(){
@@ -121,10 +112,13 @@ app.get('/logout', function (req, res){
 });
 
 app.get('/login', function (req, res){
-  res.render('login');
+  console.log("GOT /login")
+  res.send("Got login")
 });
 
+
 app.post('/login', function (req, res){
+  console.log("POST /login")
   authenticate(req.body.username, req.body.password, function(err, user){
     if (user) {
       // Regenerate session when signing in
@@ -140,15 +134,13 @@ app.post('/login', function (req, res){
         res.redirect('back');
       });
     } else {
-      req.session.error = 'Authentication failed, please check your '
+      console.log('Authentication failed, please check your '
         + ' username and password.'
-        + ' (use "tj" and "foobar")';
-      res.redirect('/login');
+        + ' (use "tj" and "foobar")');
+      res.redirect('/');
     }
   });
 });
-
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
 
 app.use(function (req, res, next){
   var sess = req.session
@@ -178,52 +170,4 @@ app.use(function (req, res, next){
  res.locals.message = '<p class="msg success">'
  + msg + '</p>';
  next();
-});
-
-app.get('/restricted', restrict, function(req, res){
- res.send('Wahoo! you entered the restricted area');
-});
-
-//first callback
-function restrict(req, res, next) {
- if (req.session.user) {
- next();
- } else {
- req.session.error = 'Access denied!';
- req.session.back= req.path;
- res.redirect('login.html'); }}
-
-app.get('/logout', function(req, res){
- // destroy the user's session to log them out
- // will be re-created next request
- req.session.destroy(function(){
- res.redirect('/');
- });
-});
-
-app.post('/login', function (req, res) {
-   authenticate(req.body.username, req.body.password,
-     function (err, user) {
-       if (user) {
-         var back= req.session.back||'/'
-         // Regenerate session when signing in
-         // to prevent fixation
-         req.session.regenerate(function () {
-         req.session.back=back;
-         // Store the user's primary key
-         // in the session store to be retrieved,
-         // or in this case the entire user object
-         req.session.user = user;
-         req.session.success = 'Logged in as ' + user.name
-         + ' click to <a href="/logout">logout</a>. ' +
-         ' You may now access ' +
-         ' <a href="/restricted">/restricted</a>.';
-         res.redirect(back);
-         });
-       } else {
-          req.session.error = 'Authentication failed, '
-          + ' please check your ' + ' username and password.';
-          res.redirect('/login.html?error='+req.session.error);
-       } 
-    });
 });

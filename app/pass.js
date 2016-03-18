@@ -27,7 +27,6 @@ var iterations = 12000;
  * @param {Function} callback
  * @api public
  */
-
 exports.hash = function (pwd, salt, fn) {
   if (3 == arguments.length) {
     crypto.pbkdf2(pwd, salt, iterations, len, function(err, hash){
