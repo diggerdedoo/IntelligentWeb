@@ -19,9 +19,8 @@ var count = 10,
     search = keyword + " since:" + date + " lang:" + lan;
 
 var tweets = getTweets();
-//var profiles = getProfile();
+var profiles = getProfile();
 console.log('Started')
-console.log(tweets)
 
 function handleLondonTweets(err, data){
   if (err) {
@@ -92,10 +91,11 @@ function getManUtdProfile( callback ){
 }
 
 function getTweets(){
-  client.get('search/tweets', { q: search, count: count, from: profile })
+  return client.get('search/tweets', { q: search, count: count, from: profile },
+              handleTweets)
 }
 
 function getProfile( callback ){
-  client.get('friends/list', { screen_name: profile, count: count },
+  return client.get('friends/list', { screen_name: profile, count: count },
              handleFriends)
 }
