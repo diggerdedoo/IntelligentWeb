@@ -8,10 +8,20 @@ var client = new Twit({
 
 var allData = [];
 var i = 0;
-var manUtd = getManUtdTweets();
-var london = getLondonTweets();
-var manUtdProfile = getManUtdProfile();
+//var manUtd = getManUtdTweets();
+//var london = getLondonTweets();
+//var manUtdProfile = getManUtdProfile();
+var count = 10,
+    profile = 'manutd',
+    date = '2011-11-11',
+    keyword = 'man city',
+    lan = 'en',
+    search = keyword + " since:" + date + " lang:" + lan;
+
+var tweets = getTweets();
+//var profiles = getProfile();
 console.log('Started')
+console.log(tweets)
 
 function handleLondonTweets(err, data){
   if (err) {
@@ -43,17 +53,25 @@ function handleManUtdTweets(err, data){
   }
 }
 
+function handleTweets(err, data){
+  if (err) {
+    console.error('Get error', err)
+  }  
+  else {
+    console.log('Get Tweets');
+    console.log(tweets);
+    console.log('Finished');
+  }
+}
+
 function handleFriends(err, data){
   if (err) {
     console.error('Get error', err)
   }  
   else {
     console.log('Get Friends');
-    i += 1;
-    if (i == 3){
-      console.log(allData);
-      console.log('Finished');
-    }
+    console.log(profiles);
+    console.log('Finished');
   }
 }
 
@@ -73,3 +91,11 @@ function getManUtdProfile( callback ){
              handleFriends)
 }
 
+function getTweets(){
+  client.get('search/tweets', { q: search, count: count, from: profile })
+}
+
+function getProfile( callback ){
+  client.get('friends/list', { screen_name: profile, count: count },
+             handleFriends)
+}
