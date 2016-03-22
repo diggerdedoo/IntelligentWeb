@@ -95,7 +95,7 @@ function restrict(req, res, next) {
 
 app.get('/', function (req, res){
   console.log("GOT /")
-  res.redirect('/login');
+  res.redirect('/');
 });
 
 app.get('/restricted', restrict, function (req, res){
@@ -114,6 +114,7 @@ app.get('/logout', function (req, res){
 app.get('/login', function (req, res){
   console.log("GOT /login")
   res.send("Got login")
+  res.redirect("/");
 });
 
 
