@@ -35,76 +35,94 @@
                 <h1>Twitter Form </h1>
                 <label>
                     <span>Twitter Profile :</span>
-                    <input id="name" type="text" name="name" placeholder="Example: manutd" />
+                    <input id="profile" type="text" placeholder="Example: manutd" />
                 </label>
                 
                 <label>
                     <span>Key words :</span>
-                    <input id="email" type="email" name="email" placeholder="Example: man city" />
+                    <input id="key" type="text" placeholder="Example: man city" />
                 </label>
                 
                 <label>
                     <span>Count :</span>
-                    <input id="message" type="text" name="message" placeholder="Example: 100" />
-                </label>    
+                    <input id="count" type="text" placeholder="Example: 100" />
+                </label> 
+
+                <label>
+                    <span>Date :</span>
+                    <input id="message" type="text" placeholder="Example: 2011-11-11" />
+                </label>
+
                 <label>
                     <span>&nbsp;</span> 
                     <input type="button" class="button" value="Send" /> 
                 </label>    
             </form>
         <script>
+            var Twit = require('twit');
+            var client = new Twit({
+              consumer_key: 'aGvgbxGtSKTWdcxGf3paz90Kq',
+              consumer_secret: 'PJwjJPJFUuWuEvzyj3G2fxbfy7yvFb00mRd45rRrKtJ4Ea39rj',
+              access_token: '221331440-s4Bgw21Z9xhlGe8QuGphtKjx0ZXg4h3sEYNUERff',
+              access_token_secret: 'LlQCF7QCj5UOlli8LSU4BhAnF9ouiJliSZ7bFeOqm36p9',
+              timeout_ms: 60*1000,
+            });
 
-            function sendAjaxQuery(url, data) {
-                $.ajax({
-                    type: 'POST',
-                    url: url+'postFile.html',
-                        data: data,
-                        dataType: 'json',
-                        success: function (data) {
-                        var ret = JSON.stringify(data);
-                        alert('success '+data);
-                    },
-                    error: function (xhr, status, error) {
-                       console.log('Error: ' + error.message);
-                       alert('error connecting' + error.message);
-                    }
-                });
+            // placeholder variables
+            var profile = form.elements[0].value,
+                keyword = form.elements[1].value,
+                count = form.elements[2].value,
+                date = form.elements[3].value,
+                lan = 'en',
+                search = keyword + " since:" + date + " lang:" + lan;
+
+            var tweets = getTweets();
+            var profiles = getProfile();
+            console.log('Started')
+
+            // function for handling the tweets
+            function handleTweets(err, data){
+              if (err) {
+                console.error('Get error', err)
+              }  
+              else {
+                console.log('Get Tweets');
+                sortTweets(data);
+                console.log('Finished');
+              }
             }
 
-            function submitForm() {
-                var xhr;
-                try { xhr = new ActiveXObject('Msxml2.XMLHTTP'); }
-                catch (e) {
-                    try { xhr = new ActiveXObject('Microsoft.XMLHTTP'); }
-                    catch (e2) {
-                        try { xhr = new XMLHttpRequest(); }
-                        catch (e3) { xhr = false; }
-                } }
-                xhr.onreadystatechange = processChange;
-                xhr.open(POST, "data.txt", true);
-                xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-                var namevalue=encodeURIComponent(document.getElementById("name").value);
-                var agevalue=encodeURIComponent(document.getElementById("age").value);
-                var parameters="name="+namevalue+"&age="+agevalue;
-                xhr.send(parameters);
+            // fucntion for handling the friends/profiles
+            function handleFriends(err, data){
+              if (err) {
+                console.error('Get error', err)
+              }  
+              else {
+                console.log('Get Friends');
+                sortTweets(data);
+                console.log('Finished');
+              }
+            }
+
+            // function for sorting through the tweets to return relevant information
+            function sortTweets (data) {
+              for (var indx in data.statuses){
+                var tweet = data.statuses[indx];
+                console.log('on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'\n\n');
+              }
+            }
+
+            // function for searching through twitter using the specified data
+            function getTweets(){
+              return client.get('search/tweets', { q: search, count: count, from: profile },
+                          handleTweets)
 
             }
 
-            function processChange() {
-                if(xhr.readyState == 4) {
-                    if(xhr.status == 200)
-                        document.ajax.dyn="Received:" + xhr.responseText;
-                    else
-                        document.ajax.dyn="Error code " + xhr.status;
-            } }; 
-
-            function sendData() {
-                var form = document.getElementById('myForm'); 
-                sendAjaxQuery('http://127.0.0.1:8081/', JSON.stringify($('form')));
+            function getProfile( callback ){
+              return client.get('friends/list', { screen_name: profile, count: count },
+                         handleFriends)
             }
-
-            var sendButton = document.getElementById('sendButton');
-            sendButton.onclick = sendData;
         </script>
     </body>
 </html>

@@ -1,5 +1,5 @@
 /* 
-* General styles 
+* General styling
 */
 body {
   padding: 100px;
@@ -25,7 +25,8 @@ h2 {
 	font-family: Tahoma, Geneva, sans-serif;
 }
 /* 
-* styling for the 404 image - issue with centering the images on top of each other, currently displayed side by side
+* styling for the 404 image - issue with centering the images on top of each other, 
+* currently displayed side by side
 */
 .fadeimage {
     position: relative;
@@ -71,7 +72,6 @@ h2 {
     margin-right:auto;
     max-width: 500px;
 }
-
 /* 
 * styling for the queryInterface form - adapted from online resources 
 */
@@ -104,10 +104,7 @@ h2 {
 }
 .title {
     font: 24px "Trebuchet MS", Arial, Helvetica, sans-serif;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding: 5px 5px 5px 5px;
     display: block;
     margin: 10px 10px 10px 10px;
     color: #FFF;
@@ -135,7 +132,7 @@ h2 {
     margin-top: 10px;
     color: #5E5E5E;
 }
-.form input[type="text"], .form input[type="email"], .form textarea, .form select {
+.form input[type="text"], .form textarea, .form select {
     color: #555;
     height: 30px;
     line-height:15px;

@@ -7,57 +7,51 @@ var client = new Twit({
   timeout_ms: 60*1000,
 });
 
-var count = 10,
-    profile = 'manutd',
-    date = '2011-11-11',
-    keyword = 'man city',
+// placeholder variables
+var profile = form.elements[0].value,
+    keyword = form.elements[1].value,
+    count = form.elements[2].value,
+    date = form.elements[3].value,
     lan = 'en',
     search = keyword + " since:" + date + " lang:" + lan;
 
 var tweets = getTweets();
 var profiles = getProfile();
 console.log('Started')
-var sortedTweets = sortTweets(tweets);
-console.log(sortedTweets)
 
+// function for handling the tweets
 function handleTweets(err, data){
   if (err) {
     console.error('Get error', err)
   }  
   else {
     console.log('Get Tweets');
-    //console.log(data);
+    sortTweets(data);
     console.log('Finished');
   }
 }
 
+// fucntion for handling the friends/profiles
 function handleFriends(err, data){
   if (err) {
     console.error('Get error', err)
   }  
   else {
     console.log('Get Friends');
-    //console.log(data);
+    sortTweets(data);
     console.log('Finished');
   }
 }
 
-function sortTweets (err, data, response) {
-    if (err) {
-      console.error('Get error', err)
-    }
-    else if (getTweets.ready){
-      for (var indx in data.statuses){
-          var tweet = data.statuses[indx];
-          console.log('on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'\n\n');
-      }
-    }
-    else {
-      setTimeout(sortTweets,100);
-    }
+// function for sorting through the tweets to return relevant information
+function sortTweets (data) {
+  for (var indx in data.statuses){
+    var tweet = data.statuses[indx];
+    console.log('on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'\n\n');
+  }
 }
 
-
+// function for searching through twitter using the specified data
 function getTweets(){
   return client.get('search/tweets', { q: search, count: count, from: profile },
               handleTweets)
