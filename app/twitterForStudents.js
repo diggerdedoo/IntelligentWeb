@@ -7,11 +7,6 @@ var client = new Twit({
   timeout_ms: 60*1000,
 });
 
-var allData = [];
-var i = 0;
-//var manUtd = getManUtdTweets();
-//var london = getLondonTweets();
-//var manUtdProfile = getManUtdProfile();
 var count = 10,
     profile = 'manutd',
     date = '2011-11-11',
@@ -22,7 +17,8 @@ var count = 10,
 var tweets = getTweets();
 var profiles = getProfile();
 console.log('Started')
-//var sortedTweets = sortTweets(tweets);
+var sortedTweets = sortTweets(tweets);
+console.log(sortedTweets)
 
 function handleTweets(err, data){
   if (err) {
@@ -30,7 +26,7 @@ function handleTweets(err, data){
   }  
   else {
     console.log('Get Tweets');
-    console.log(data);
+    //console.log(data);
     console.log('Finished');
   }
 }
@@ -41,17 +37,26 @@ function handleFriends(err, data){
   }  
   else {
     console.log('Get Friends');
-    console.log(data);
+    //console.log(data);
     console.log('Finished');
   }
 }
 
-function sortTweets(err, data, response){
-  for (var indx in data.statuses){
-    var tweet = data.statuses[indx];
-    console.log('on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'\n\n');
-  }
+function sortTweets (err, data, response) {
+    if (err) {
+      console.error('Get error', err)
+    }
+    else if (getTweets.ready){
+      for (var indx in data.statuses){
+          var tweet = data.statuses[indx];
+          console.log('on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'\n\n');
+      }
+    }
+    else {
+      setTimeout(sortTweets,100);
+    }
 }
+
 
 function getTweets(){
   return client.get('search/tweets', { q: search, count: count, from: profile },
