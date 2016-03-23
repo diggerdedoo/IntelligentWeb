@@ -24,6 +24,29 @@ h2 {
     1px 1px 0 #000;
 	font-family: Tahoma, Geneva, sans-serif;
 }
+/*
+* images for the suggestions of twitter profiles
+*/
+select#suggestions option[value="Arsenal"]   { background-image:url('/images/A.jpg'); }
+select#suggestions option[value="AVFCOfficial"] { background-image:url('/images/AV.png'); }
+select#suggestions option[value="afcbournemouth"] { background-image:url('/images/BO.jpg'); }
+select#suggestions option[value="ChelseaFC"]   { background-image:url('/images/CH.jpg'); }
+select#suggestions option[value="CPFC"] { background-image:url('/images/CP.jpg'); }
+select#suggestions option[value="Everton"] { background-image:url('/images/EVE.jpg'); }
+select#suggestions option[value="LCFC"]   { background-image:url('/images/LC.jpg');  }
+select#suggestions option[value="LFC"] { background-image:url('/images/L.jpg');  }
+select#suggestions option[value="MCFC"] { background-image:url('/images/MC.jpg');  }
+select#suggestions option[value="ManUtd"]   { background-image:url('/images/MU.jpg');  }
+select#suggestions option[value="NUFC"] { background-image:url('/images/NU.jpg');  }
+select#suggestions option[value="NorwichCityFC"] { background-image:url('/images/NC.png');  }
+select#suggestions option[value="SouthamptonFC"]   { background-image:url('/images/S.png');  }
+select#suggestions option[value="stokecity"] { background-image:url('/images/SC.jpg');  }
+select#suggestions option[value="SunderlandAFC"] { background-image:url('/images/SUN.jpg');  }
+select#suggestions option[value="SwansOfficial"]   { background-image:url('/images/SW.jpg');  }
+select#suggestions option[value="SpursOfficial"] { background-image:url('/images/TH.jpg');  }
+select#suggestions option[value="WBAFCofficial"] { background-image:url('/images/WBA.jpg');  }
+select#suggestions option[value="whufc_official"] { background-image:url('/images/WH.jpg');  }
+select#suggestions option[value="WatfordFC"] { background-image:url('/images/W.jpg');  }
 /* 
 * styling for the 404 image - issue with centering the images on top of each other, 
 * currently displayed side by side
@@ -132,7 +155,7 @@ h2 {
     margin-top: 10px;
     color: #5E5E5E;
 }
-.form input[type="text"], .form textarea, .form select {
+.form input[type="text"], input[type="number"], .form textarea, .form select {
     color: #555;
     height: 30px;
     line-height:15px;

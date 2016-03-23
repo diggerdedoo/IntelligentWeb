@@ -15,9 +15,18 @@ var profile = form.elements[0].value,
     lan = 'en',
     search = keyword + " since:" + date + " lang:" + lan;
 
+checkCount(count);
 var tweets = getTweets();
 var profiles = getProfile();
 console.log('Started')
+
+function checkCount(count){
+  if (count > 100 ) {
+    count == 100;
+  } else {
+    count == count;
+  }
+}
 
 // function for handling the tweets
 function handleTweets(err, data){

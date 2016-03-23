@@ -4,8 +4,11 @@
 var express = require('express'),
     hash = require('./pass').hash,
     bodyParser = require('body-parser'),
-// session = require('client-sessions'),
-    session = require('express-sessions'),
+    favicon = require('serve-favicon'),
+    session = require('client-sessions'),
+    //session = require('express-sessions'),
+    router = express.Router(),
+    cookieParser = require('cookie-parser'),
     app = module.exports = express(),
     mysql = require('mysql'),
     connection = mysql.createConnection({
@@ -13,6 +16,9 @@ var express = require('express'),
 	   user     : 'team078',
 	   password : '0e90a044'
     });
+
+// load the cookie-parsing middleware
+app.use(cookieParser());
 
 //Allows the use of the public folder, for images etc
 app.use(express.static('public'));
@@ -29,6 +35,7 @@ app.set('views', __dirname + '/views');
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: false }));
+// cookie 
 app.use(session({
   cookieName: 'session',
   secret: 'shhhh, very secret',
@@ -40,6 +47,18 @@ app.use(session({
   secure: true,
   ephemeral: true
 }));
+
+// Session-persisted message middleware
+app.use(function(req, res, next){
+  var err = req.session.error;
+  var msg = req.session.success;
+  delete req.session.error;
+  delete req.session.success;
+  res.locals.message = '';
+  if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
+  if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
+  next();
+});
 
 //initalises the server to 8081 and logs when this has been done
 var server = app.listen(8081, function () {
@@ -102,7 +121,6 @@ function restrict(req, res, next) {
 /*
 * redirects
 */
-
 app.get('/', function (req, res){
   res.redirect('/');
 });
@@ -124,12 +142,13 @@ app.get('/queryInterface.html', requireLogin, function(req, res) {
   res.render('/queryInterface.html');
 });
 
-//The 404 Route 
+// The 404 Route 
 app.get('*', function(req, res){
   res.send('what???', 404);
   res.redirect('/404.html');
 });
 
+// login procedure on index.html
 app.post('/login', function (req, res){
   console.log("POST /login")
   authenticate(req.body.username, req.body.password, function(err, user){
@@ -141,9 +160,6 @@ app.post('/login', function (req, res){
         // in the session store to be retrieved,
         // or in this case the entire user object
         req.session.user = user;
-        /*req.session.success = 'Authenticated as ' + user.name
-          + ' click to <a href="/logout">logout</a>. '
-          + ' You may now access <a href="/restricted">/restricted</a>.';*/
         res.redirect('/queryInterface.html');
       });
     } else {
@@ -155,7 +171,6 @@ app.post('/login', function (req, res){
   });
 });
 
-/*
 app.use(function(req, res, next) {
   if (req.session && req.session.user) {
     User.findOne({ users: req.session.user }, function(err, user) {
@@ -171,7 +186,7 @@ app.use(function(req, res, next) {
   } else {
     next();
   }
-});*/
+});
 
 /* unsure if needed?
 app.use(function (req, res, next){
@@ -202,21 +217,5 @@ app.use(function (req, res, next){
  res.locals.message = '<p class="msg success">'
  + msg + '</p>';
  next();
-});
-
-app.post('/login', function(req, res) {
-  User.findOne({ users: req.body.user }, function(err, user) {
-    if (!user) {
-      res.render('login.jade', { error: 'Invalid email or password.' });
-    } else {
-      if (req.body.password === user.password) {
-        // sets a cookie with the user's info
-        req.session.user = user;
-        res.redirect('/queryInterface.html');
-      } else {
-        res.render('login.jade', { error: 'Invalid email or password.' });
-      }
-    }
-  });
 });
 */
