@@ -144,8 +144,8 @@ app.get('/queryInterface.html', requireLogin, function(req, res) {
 
 // The 404 Route 
 app.get('*', function(req, res){
-  res.send('what???', 404);
   res.redirect('/404.html');
+  res.status('Oops!').sendStatus(404);
 });
 
 // login procedure on index.html

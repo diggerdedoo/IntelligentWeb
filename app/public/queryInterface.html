@@ -25,17 +25,19 @@
             }
         </script>
     </head>
+    <script src="twitter.js"></script>
     <body>
         <div class="title">
             <h1> Excellent! </h1>
-            <p> Now you can use the form below to query the social web for whatever you want. </p>
+            <p> Now you can use the form below to query the social web. </p>
+            <p> This form works best with premier league teams, but feel free to search outside of the suggestions. </p>
         </div>
             <!-- Form for the user input for querying the social web -->
             <form action="" method="post" class="form"> 
                 <h1>Twitter Form </h1>
                 <label>
                     <span>Twitter Profile :</span>
-                    <input id="profile" type="text" list="suggestions"placeholder="Example: manutd" />
+                    <input id="profile" type="text" list="suggestions"placeholder="Example: MCFC" />
                     <datalist id="suggestions">
                         <option value="Arsenal">
                         <option value="AVFCOfficial">
@@ -59,15 +61,15 @@
                         <option value="WatfordFC">
                     </datalist>
                 </label>
-                
+
                 <label>
                     <span>Key words :</span>
-                    <input id="key" type="text" placeholder="Example: man city" />
+                    <input id="key" type="text" placeholder="Example: Man Utd" />
                 </label>
-                
+
                 <label>
                     <span>Count :</span>
-                    <input id="count" type="number" placeholder="Example: 100" min="1" max="100"/>
+                    <input id="count" type="text" placeholder="Example: 100" min="1" max="100"/>
                 </label> 
 
                 <label>
@@ -77,75 +79,9 @@
 
                 <label>
                     <span>&nbsp;</span> 
-                    <input type="button" class="button" value="Send" /> 
+                    <input type="button" class="button" value="Send" onclick="run();" /> 
                 </label>    
             </form>
             <div id='myform_errorloc' class='error_strings'></div>
-        <script>
-            var Twit = require('twit');
-            var client = new Twit({
-              consumer_key: 'aGvgbxGtSKTWdcxGf3paz90Kq',
-              consumer_secret: 'PJwjJPJFUuWuEvzyj3G2fxbfy7yvFb00mRd45rRrKtJ4Ea39rj',
-              access_token: '221331440-s4Bgw21Z9xhlGe8QuGphtKjx0ZXg4h3sEYNUERff',
-              access_token_secret: 'LlQCF7QCj5UOlli8LSU4BhAnF9ouiJliSZ7bFeOqm36p9',
-              timeout_ms: 60*1000,
-            });
-
-            // placeholder variables
-            var profile = form.elements[0].value,
-                keyword = form.elements[1].value,
-                count = form.elements[2].value,
-                date = form.elements[3].value,
-                lan = 'en',
-                search = keyword + " since:" + date + " lang:" + lan;
-
-            var tweets = getTweets();
-            var profiles = getProfile();
-            console.log('Started')
-
-            // function for handling the tweets
-            function handleTweets(err, data){
-              if (err) {
-                console.error('Get error', err)
-              }  
-              else {
-                console.log('Get Tweets');
-                sortTweets(data);
-                console.log('Finished');
-              }
-            }
-
-            // fucntion for handling the friends/profiles
-            function handleFriends(err, data){
-              if (err) {
-                console.error('Get error', err)
-              }  
-              else {
-                console.log('Get Friends');
-                sortTweets(data);
-                console.log('Finished');
-              }
-            }
-
-            // function for sorting through the tweets to return relevant information
-            function sortTweets (data) {
-              for (var indx in data.statuses){
-                var tweet = data.statuses[indx];
-                console.log('on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'\n\n');
-              }
-            }
-
-            // function for searching through twitter using the specified data
-            function getTweets(){
-              return client.get('search/tweets', { q: search, count: count, from: profile },
-                          handleTweets)
-
-            }
-
-            function getProfile( callback ){
-              return client.get('friends/list', { screen_name: profile, count: count },
-                         handleFriends)
-            }
-        </script>
     </body>
 </html>
