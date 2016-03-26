@@ -33,14 +33,15 @@ var teams = {
 // placeholder variables
 var profile = 'MCFC',
     keyword = '',
-    count = 100,
+    count = 10,
     date = '2015-11-11',
     lan = 'en',
     search = keyword + " since:" + date + " lang:" + lan;
+    tweettxt = [ ];
 
 checkCount(count);
-var tweets = getTweets();
-var pTweets = getPlayerTweets();
+console.log(getTweets().done(countString));
+//var pTweets = getPlayerTweets();
 
 function run(){
   // variables to use with the html form
@@ -52,8 +53,8 @@ function run(){
       search = keyword + " since:" + date + " lang:" + lan;
 
   checkCount(count);
-  var tweets = getTweets();
-  var pTweets = getPlayerTweets();
+  getTweets();
+  getPlayerTweets();
 }
 
 // function to make sure count is 100 or less, to not return to many tweets
@@ -102,7 +103,9 @@ function handleFriends(err, data){
 function sortTweets (data) {
   for (var indx in data.statuses){
     var tweet = data.statuses[indx];
-    console.log('<p>on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'</p>\n\n');
+    //console.log('on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'\n\n');
+    tweettxt.push(tweet.text); // push the tweet text so it can be sorted for the most frequent words
+    //console.log(tweettxt);
   }
 }
 
@@ -130,9 +133,9 @@ function getProfile( callback ){
 // function for returning the tweets of the players returned 
 function getPlayerTweets(){
   var players = checkTeam(profile);
-  for ( var i = 0; i <= players.length; players[i]){
+  for (var i = 0; i <= players.length; players[i]){
     profile = players[i]; // change the profile to the players
-    count = 1 // change count to 1 so as to get only the most recent tweet
+    count = 1; // change count to 1 so as to get only the most recent tweet
     getTweets(); // getTweets with the new variables
     i += 1;
   }

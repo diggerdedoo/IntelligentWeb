@@ -27,6 +27,7 @@ app.use(express.static('public'));
 app.get('/index.html', function (req, res) {
   console.log("GOT /index.html");
   res.sendFile( __dirname + "/" + "index.html" );
+  next();
 })
 
 // config
@@ -65,7 +66,7 @@ var server = app.listen(8081, function () {
 
   var host = server.address().address
   var port = server.address().port
-  console.log("Example app listening at http://%s:%s", host, port)
+  console.log("Listening at http://%s:%s", host, port)
 
 });
 
@@ -101,7 +102,7 @@ function authenticate(name, pass, fn) {
   // apply the same algorithm to the POSTed password, applying
   // the hash against the pass / salt, if there is a match we
   // found the user
-  hash(pass, user.salt, function(err, hash){
+  hash(pass, user.salt, function (err, hash){
     if (err) return fn(err);
     if (hash == user.hash) return fn(null, user);
     fn(new Error('invalid password'));
@@ -121,37 +122,53 @@ function restrict(req, res, next) {
 /*
 * redirects
 */
-app.get('/', function (req, res){
-  res.redirect('/');
+app.get('/', function (req, res, next){
+  res.render('/index.html');
+  next();
 });
 
-app.get('/logout', function(req, res) {
+app.get('/index', function (req, res, next){
+  res.render('/index.html');
+  next();
+});
+
+app.get('/index.html', function (req, res, next){
+  res.render('/index.html');
+  next();
+});
+
+app.get('/login', requireLogin, function (req, res, next) {
+  res.render('/queryInterface.html');
+  next();
+});
+
+app.get('/logout', function (req, res) {
   req.session.reset();
-  res.redirect('/');
+  res.render('/index.html');
+  response.end();
 });
 
-app.get('/login', requireLogin, function(req, res) {
+app.get('/queryInterface', requireLogin, function (req, res, next) {
   res.render('/queryInterface.html');
+  next();
 });
 
-app.get('/queryInterface', requireLogin, function(req, res) {
+app.get('/queryInterface.html', requireLogin, function (req, res, next) {
   res.render('/queryInterface.html');
-});
-
-app.get('/queryInterface.html', requireLogin, function(req, res) {
-  res.render('/queryInterface.html');
+  next();
 });
 
 // The 404 Route 
-app.get('*', function(req, res){
+app.get('*', function (req, res){
   res.redirect('/404.html');
   res.status('Oops!').sendStatus(404);
+  response.end();
 });
 
 // login procedure on index.html
-app.post('/login', function (req, res){
+app.post('/login', function (req, res, next){
   console.log("POST /login")
-  authenticate(req.body.username, req.body.password, function(err, user){
+  authenticate(req.body.username, req.body.password, function (err, user){
     if (user) {
       // Regenerate session when signing in
       // to prevent fixation
@@ -161,19 +178,21 @@ app.post('/login', function (req, res){
         // or in this case the entire user object
         req.session.user = user;
         res.redirect('/queryInterface.html');
+        next();
       });
     } else {
       console.log('Authentication failed, please check your '
         + ' username and password.'
         + ' (use "tj" and "foobar")');
-      res.redirect('/');
+      res.redirect('/index.html');
+      next();
     }
   });
 });
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   if (req.session && req.session.user) {
-    User.findOne({ users: req.session.user }, function(err, user) {
+    User.findOne({ users: req.session.user }, function (err, user) {
       if (user) {
         req.user = user;
         delete req.user.password; // delete the password from the session
@@ -187,35 +206,3 @@ app.use(function(req, res, next) {
     next();
   }
 });
-
-/* unsure if needed?
-app.use(function (req, res, next){
-  var sess = req.session
-  if (sess.views) {
-    sess.views++
-    res.setHeader('Content-Type', 'text/html')
-    res.write('<p>views: ' + sess.views + '</p>')
-    res.write('<p>expires in: ' + (sess.cookie.maxAge / 1000) + 's</p>')
-    res.end()  
-  } else {
-    sess.views = 1
-    res.end('welcome to the session demo. refresh!')
-  }
-});
-
-// Session-persisted message middleware
-app.use(function (req, res, next){
- var err = req.session.error;
- var msg = req.session.success;
- delete req.session.error;
- delete req.session.success;
- res.locals.message = '';
- if (err)
- res.locals.message = '<p class="msg error">'
- + err + '</p>';
- if (msg)
- res.locals.message = '<p class="msg success">'
- + msg + '</p>';
- next();
-});
-*/
