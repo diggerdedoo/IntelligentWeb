@@ -36,11 +36,13 @@ var profile = 'MCFC',
     count = 10,
     date = '2015-11-11',
     lan = 'en',
-    search = keyword + " since:" + date + " lang:" + lan;
-    tweettxt = [ ];
+    search = keyword + " since:" + date + " lang:" + lan,
+    tweettxt = ["hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye"],
+    string = "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye";
 
 checkCount(count);
-console.log(getTweets().done(countString));
+//console.log(getTweets().done(getFrequsers()));
+console.log(getFreqword());
 //var pTweets = getPlayerTweets();
 
 function run(){
@@ -57,12 +59,12 @@ function run(){
   getPlayerTweets();
 }
 
-// function to make sure count is 100 or less, to not return to many tweets
+// function to make sure count is 300 or less, so as not return to many tweets
 function checkCount(count){
-  if (count > 100 ) {
-    count == 100;
+  if (count > 300 ) {
+    count = 300;
   } else {
-    count == count;
+    count = count;
   }
 }
 
@@ -81,9 +83,7 @@ function handleTweets(err, data){
     console.error('Get error', err)
   }  
   else {
-    //console.log('Get Tweets');
     sortTweets(data);
-    //console.log('Finished');
   }
 }
 
@@ -105,7 +105,6 @@ function sortTweets (data) {
     var tweet = data.statuses[indx];
     //console.log('on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'\n\n');
     tweettxt.push(tweet.text); // push the tweet text so it can be sorted for the most frequent words
-    //console.log(tweettxt);
   }
 }
 
@@ -117,11 +116,37 @@ function sortProfile (data) {
   }
 }
 
+// function for searching for the mentions of a profile
+function getMentions(){
+  if ( profile = ""){
+    // do nothing, user has not provided a profile to search
+  } else {
+    keyword = '@' + profile; // change the keyword to be the profile that the user wishes to search
+    getTweets(); 
+  }
+}
+
+
+// function for getting the frequency of each word within a string
+function getFreqword(){
+  var string = tweettxt.toString(),
+      split = string.split(" "), 
+      words = {};
+
+  for (var i=0; i<split.length; i++){
+    if(owords[split[i]]===undefined){
+      words[split[i]]=1;
+    } else {
+      words[split[i]]++;
+    }
+  }
+  return words;
+}
+
 // function for searching through twitter using the specified data
 function getTweets(){
   return client.get('search/tweets', { q: search, count: count, from: profile },
               handleTweets)
-
 }
 
 // function for searching through twitter profiles using the specified data
