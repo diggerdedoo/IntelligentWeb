@@ -37,8 +37,8 @@ var profile = 'MCFC',
     date = '2015-11-11',
     lan = 'en',
     search = keyword + " since:" + date + " lang:" + lan,
-    tweettxt = ["hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye", "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye"],
-    string = "hello hello hello hellow bye bye bye hello hello hello hellow bye bye bye";
+    tweettxt = ["hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye"],
+
 
 checkCount(count);
 //console.log(getTweets().done(getFrequsers()));
@@ -129,18 +129,30 @@ function getMentions(){
 
 // function for getting the frequency of each word within a string
 function getFreqword(){
-  var string = tweettxt.toString(),
-      split = string.split(" "), 
-      words = {};
+  var string = tweettxt.toString(), // turn the array into a string
+      changedString = string.replace(/,/g, " "), // remove the array elements 
+      split = changedString.split(" "), // split the string 
+      words = []; // array for the words
 
   for (var i=0; i<split.length; i++){
-    if(owords[split[i]]===undefined){
+    if(words[split[i]]===undefined){
       words[split[i]]=1;
     } else {
       words[split[i]]++;
     }
   }
   return words;
+}
+
+// function for returning the top 20 words from getFreqword()
+function getTopwords(){
+  var topwords = getFreqword(),
+      toptwenty = [];
+
+  for (var i=0; i<=20; i++){
+    toptwenty.push(topwords[i])
+  }
+  return toptwenty
 }
 
 // function for searching through twitter using the specified data
