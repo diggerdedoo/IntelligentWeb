@@ -31,20 +31,19 @@ var teams = {
   'WatfordFC': ['hdgomes', 'AdleneGUEDIOURA', 'ValonBera', 'tommiehoban05', 'LDX2012', 'T_Deeney', 'G_byers', 'Mensah_23', 'Jurado10Marin', 'AllanNyom', 'original_kaspa', 'JorellJohnson', 'JoshDoherty96', 'IkechiAnya', 'ighalojude', 'belkalem04', 'AlmenAbdi', 'AlexJakubiak'],
 }
 // placeholder variables
-var profile = 'MCFC',
-    keyword = '',
-    count = 10,
+var profile = '',
+    keyword = 'MCFC',
+    count = 300,
     date = '2015-11-11',
     lan = 'en',
     search = keyword + " since:" + date + " lang:" + lan,
-    tweettxt = ["hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye", "hello hello hello hello bye bye bye hello hello hello hello bye bye bye"],
-
+    tweettxt = new Array(),
+    users = new Array();
 
 checkCount(count);
-//console.log(getTweets().done(getFrequsers()));
-console.log(getFreqword());
-//var pTweets = getPlayerTweets();
+getTweets();
 
+// function to be called when the form is submitted 
 function run(){
   // variables to use with the html form
   var profile = form.elements[0].value,
@@ -54,7 +53,7 @@ function run(){
       lan = 'en',
       search = keyword + " since:" + date + " lang:" + lan;
 
-  checkCount(count);
+  checkCount(count);  
   getTweets();
   getPlayerTweets();
 }
@@ -83,7 +82,13 @@ function handleTweets(err, data){
     console.error('Get error', err)
   }  
   else {
-    sortTweets(data);
+    sortTweets(data); // sort the tweet data
+    //freqwords = getFreqword();
+    top = getTopwords(); // then find the most frequent words in the data
+    topu = getTopusers(); // then find the most frequent users
+    //console.log(freqwords);
+    console.log(top);
+    console.log(topu);
   }
 }
 
@@ -93,9 +98,7 @@ function handleFriends(err, data){
     console.error('Get error', err)
   }  
   else {
-    //console.log('Get Friends');
-    console.log(data);
-    //console.log('Finished');
+    sortProfile(data);
   }
 }
 
@@ -103,8 +106,9 @@ function handleFriends(err, data){
 function sortTweets (data) {
   for (var indx in data.statuses){
     var tweet = data.statuses[indx];
-    //console.log('on: ' + tweet.created_at + ' : @' + tweet.user.screen_name + ' : ' + tweet.text+'\n\n');
     tweettxt.push(tweet.text); // push the tweet text so it can be sorted for the most frequent words
+    users.push(tweet.user.screen_name); // push the twitter user screen name so it can be sorted to find the most frequent users
+    // users = Object.keys(topwords).map(function (k) { return { word: k, num: topwords[k] }; }),
   }
 }
 
@@ -116,23 +120,12 @@ function sortProfile (data) {
   }
 }
 
-// function for searching for the mentions of a profile
-function getMentions(){
-  if ( profile = ""){
-    // do nothing, user has not provided a profile to search
-  } else {
-    keyword = '@' + profile; // change the keyword to be the profile that the user wishes to search
-    getTweets(); 
-  }
-}
-
-
 // function for getting the frequency of each word within a string
 function getFreqword(){
   var string = tweettxt.toString(), // turn the array into a string
       changedString = string.replace(/,/g, " "), // remove the array elements 
       split = changedString.split(" "), // split the string 
-      words = []; // array for the words
+      words = [];
 
   for (var i=0; i<split.length; i++){
     if(words[split[i]]===undefined){
@@ -147,33 +140,97 @@ function getFreqword(){
 // function for returning the top 20 words from getFreqword()
 function getTopwords(){
   var topwords = getFreqword(),
+      topwords = Object.keys(topwords).map(function (k) { return { word: k, num: topwords[k] }; }),
       toptwenty = [];
 
-  for (var i=0; i<=20; i++){
-    toptwenty.push(topwords[i])
+  // sort in decending order
+  topwords = topwords.sort(function (a, b){
+    return b.num - a.num
+  });
+
+  if (topwords.length < 20){
+    topwords = toptwenty; // if topwords doesnt have 20 elements 
+    return toptwenty;
+  } else {
+    for (var i=0; i<=20; i++){
+      toptwenty.push(topwords[i]); // push the first 20 elements in topusers to the topten array
+    }
+    return toptwenty;
   }
-  return toptwenty
+}
+
+// function for getting the most frequent users for a search
+function getFrequsers(){
+  var string = users.toString(), // turn the array into a string
+      changedString = string.replace(/,/g, " "), // remove the array elements 
+      split = changedString.split(" "), // split the string 
+      freqUsers = []; // array for the freqent users to be pushed too
+
+  for (var i=0; i<split.length; i++){
+    if(freqUsers[split[i]]===undefined){
+      freqUsers[split[i]]=1;
+    } else {
+      freqUsers[split[i]]++;
+    }
+  }
+  return freqUsers;
+}
+
+// function for returning the top 10 users from getFrequsers()
+function getTopusers(){
+  var topusers = getFrequsers(),
+      topusers = Object.keys(topusers).map(function (k) { return { user: k, num: topusers[k] }; }),
+      topten = [];
+
+  topusers = topusers.sort(function (a, b){
+    return b.num - a.num
+  });
+  if ( topusers.length < 10 ) { 
+    topten = topusers;
+    return topten;
+  } else {
+    for (var i=0; i<=10; i++){
+      topten.push(topusers[i]); // push the first 10 elements in topusers to the topten array
+    }
+    return topten;
+  }
 }
 
 // function for searching through twitter using the specified data
 function getTweets(){
-  return client.get('search/tweets', { q: search, count: count, from: profile },
-              handleTweets)
+  client.get('search/tweets', { 
+    q: search, 
+    count: count, 
+    from: profile 
+  },
+  handleTweets);
 }
 
 // function for searching through twitter profiles using the specified data
 function getProfile( callback ){
-  return client.get('friends/list', { screen_name: profile, count: count },
-             handleFriends)
+  return client.get('friends/list', { 
+    screen_name: profile, 
+    count: count 
+  },
+  handleFriends);
 }
 
 // function for returning the tweets of the players returned 
 function getPlayerTweets(){
   var players = checkTeam(profile);
-  for (var i = 0; i <= players.length; players[i]){
+  for (var i = 0; i <= players.length; i++){
     profile = players[i]; // change the profile to the players
     count = 1; // change count to 1 so as to get only the most recent tweet
     getTweets(); // getTweets with the new variables
-    i += 1;
+  }
+}
+
+// function for searching for the mentions of a profile
+function getMentions(){
+  if ( profile = ""){
+    // do nothing, user has not provided a profile to search
+  } else {
+    keyword = '@' + profile; // change the keyword to be the profile that the user wishes to search
+    getTweets(); 
   }
 }
