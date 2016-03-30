@@ -41,7 +41,7 @@ app.use(session({
   cookieName: 'session',
   secret: 'shhhh, very secret',
   duration: 30 * 60 * 1000,
-  activeDuration: 5 * 60 * 1000,
+  activeDuration: 10 * 60 * 1000,
   resave: false, // don't save session if unmodified
   saveUninitialized: false, // don't create session until something stored
   httpOnly: true,
@@ -165,6 +165,10 @@ app.get('*', function (req, res){
   response.end();
 });
 
+function regenerateSession(){
+
+}
+
 // login procedure on index.html
 app.post('/login', function (req, res, next){
   console.log("POST /login")
@@ -172,15 +176,10 @@ app.post('/login', function (req, res, next){
     if (user) {
       // Regenerate session when signing in
       // to prevent fixation
-      req.sessions.regenerate(function(){
-        // Store the user's primary key
-        // in the session store to be retrieved,
-        // or in this case the entire user object
-        req.session.user = user;
-        res.redirect('/queryInterface.html');
-        next();
-      });
-    } else {
+            req.session.user = user;
+      res.redirect('/queryInterface.html');
+      next();
+          } else {
       console.log('Authentication failed, please check your '
         + ' username and password.'
         + ' (use "tj" and "foobar")');
