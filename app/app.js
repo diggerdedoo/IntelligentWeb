@@ -54,6 +54,23 @@ app.use(function(req, res, next){
   next();
 });
 
+app.use(function (req, res, next) {
+  if (req.session && req.session.user) {
+    User.findOne({ users: req.session.user }, function (err, user) {
+      if (user) {
+        req.user = user;
+        delete req.user.password; // delete the password from the session
+        req.session.user = user;  //refresh the session value
+        res.locals.user = user;
+      }
+      // finishing processing the middleware and run the route
+      next();
+    });
+  } else {
+    next();
+  }
+});
+
 //initalises the server to 8081 and logs when this has been done
 var server = app.listen(8081, function () {
 
@@ -115,26 +132,14 @@ function restrict(req, res, next) {
 /*
 * redirects
 */
-
-//Sends index.html by default
-app.get('/index.html', function (req, res) {
-  console.log("GOT /index.html");
-  res.sendFile( __dirname + "/" + "index.html" );
-  next();
-})
-
 app.get('/', function (req, res, next){
-  res.render('/index.html');
-  next();
-});
-
-app.get('/index', function (req, res, next){
+  console.log("GOT '/'")
   res.render('/index.html');
   next();
 });
 
 app.get('/index.html', function (req, res, next){
-  res.render('/index.html');
+  res.render('/404.html');
   next();
 });
 
@@ -143,10 +148,9 @@ app.get('/login', requireLogin, function (req, res, next) {
   next();
 });
 
-app.get('/logout', function (req, res) {
+app.get('/logout', function (req, res, next) {
   req.session.reset();
-  res.render('/index.html');
-  response.end();
+  res.redirect('/');
 });
 
 app.get('/queryInterface', requireLogin, function (req, res, next) {
@@ -169,37 +173,19 @@ app.post('/login', function (req, res, next){
       req.session.user = this.user;
       res.redirect('/queryInterface.html');
       next();
-          } else {
+    } else {
       console.log('Authentication failed, please check your '
         + ' username and password.'
         + ' (use "tj" and "foobar")');
-      res.redirect('/index.html');
+      res.redirect('/');
       next();
     }
   });
 });
 
-app.use(function (req, res, next) {
-  if (req.session && req.session.user) {
-    User.findOne({ users: req.session.user }, function (err, user) {
-      if (user) {
-        req.user = user;
-        delete req.user.password; // delete the password from the session
-        req.session.user = user;  //refresh the session value
-        res.locals.user = user;
-      }
-      // finishing processing the middleware and run the route
-      next();
-    });
-  } else {
-    next();
-  }
-});
-
 // The 404 Route
 // This should be last
 app.get('*', function (req, res){
+  res.statuscode = 404;
   res.redirect('/404.html');
-  res.status('Oops!').sendStatus(404);
-  response.end();
 });
