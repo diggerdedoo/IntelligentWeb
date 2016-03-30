@@ -9,6 +9,7 @@ var express = require('express'),
     //session = require('express-sessions'),
     router = express.Router(),
     cookieParser = require('cookie-parser'),
+    cons = require('consolidate');
     app = module.exports = express(),
     mysql = require('mysql'),
     connection = mysql.createConnection({
@@ -21,11 +22,9 @@ var express = require('express'),
 app.use(cookieParser());
 
 //Allows the use of the public folder, for images etc
-app.use(express.static('public'));
-
-//Config
-app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
+app.use(express.static(__dirname + 'public'));
+app.use("/stylesheets",  express.static(__dirname + '/public/stylesheets'));
+app.use("/images",  express.static(__dirname + '/public/images'));
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -54,18 +53,23 @@ app.use(function(req, res, next){
   next();
 });
 
+// dummy database
+var users = {
+  tj: { name: 'tj' }
+};
+
 app.use(function (req, res, next) {
   if (req.session && req.session.user) {
-    User.findOne({ users: req.session.user }, function (err, user) {
-      if (user) {
-        req.user = user;
-        delete req.user.password; // delete the password from the session
-        req.session.user = user;  //refresh the session value
-        res.locals.user = user;
-      }
+
+    user = req.session.user
+    if (user) {
+      req.user = user;
+      delete req.user.password; // delete the password from the session
+      req.session.user = user;  //refresh the session value
+      res.locals.user = user;
+    }
       // finishing processing the middleware and run the route
-      next();
-    });
+    next();
   } else {
     next();
   }
@@ -79,11 +83,6 @@ var server = app.listen(8081, function () {
   console.log("Listening at http://%s:%s", host, port)
 
 });
-
-// dummy database
-var users = {
-  tj: { name: 'tj' }
-};
 
 // when you create a user, generate a salt
 // and hash the password ('foobar' is the pass here)
@@ -125,7 +124,7 @@ function restrict(req, res, next) {
     next();
   } else {
     req.session.error = 'Access denied!';
-    res.redirect('/login');
+    res.redirect('/');
   }
 }
 
@@ -133,19 +132,19 @@ function restrict(req, res, next) {
 * redirects
 */
 app.get('/', function (req, res, next){
-  console.log("GOT '/'")
-  res.render('/index.html');
-  next();
+  res.sendFile(__dirname+'/public/index.html');
+});
+
+app.get('/index', function (req, res, next){
+  res.sendFile(__dirname+'/public/index.html');
 });
 
 app.get('/index.html', function (req, res, next){
-  res.render('/404.html');
-  next();
+  res.sendFile(__dirname+'/public/index.html');
 });
 
-app.get('/login', requireLogin, function (req, res, next) {
-  res.render('/queryInterface.html');
-  next();
+app.get('/login', restrict, function (req, res, next) {
+  res.redirect('/queryInterface.html');
 });
 
 app.get('/logout', function (req, res, next) {
@@ -153,14 +152,12 @@ app.get('/logout', function (req, res, next) {
   res.redirect('/');
 });
 
-app.get('/queryInterface', requireLogin, function (req, res, next) {
-  res.render('/queryInterface.html');
-  next();
+app.get('/queryInterface', restrict, function (req, res, next) {
+  res.sendFile(__dirname+'/public/queryInterface.html');
 });
 
-app.get('/queryInterface.html', requireLogin, function (req, res, next) {
-  res.render('/queryInterface.html');
-  next();
+app.get('/queryInterface.html', restrict, function (req, res, next) {
+  res.sendFile(__dirname+'/public/queryInterface.html');
 });
 
 // login procedure on index.html
@@ -170,7 +167,7 @@ app.post('/login', function (req, res, next){
     if (user) {
       // Regenerate session when signing in
       // to prevent fixation
-      req.session.user = this.user;
+      req.session.user = user;
       res.redirect('/queryInterface.html');
       next();
     } else {
@@ -187,5 +184,5 @@ app.post('/login', function (req, res, next){
 // This should be last
 app.get('*', function (req, res){
   res.statuscode = 404;
-  res.redirect('/404.html');
+  res.sendFile(__dirname+'/public/404.html');
 });

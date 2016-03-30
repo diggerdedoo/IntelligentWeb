@@ -130,8 +130,7 @@ function checkSearch(){
 function handleTweets(err, data){
   if (err) {
     console.error('Get error', err)
-  }  
-  else {
+  } else {
     sortTweets(data); // sort the tweet data
     top = getTopwords(); // then find the most frequent words in the data
     topu = getTopusers(); // then find the most frequent users
