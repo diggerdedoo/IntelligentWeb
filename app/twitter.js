@@ -59,16 +59,16 @@ var locations = {
 var profile = '',
     keyword = 'MCFC',
     count = 300,
-    date = '2015-11-11',
+    date = '2011-11-11',
     lan = 'en',
     loc = checkLocation(profile),
-    geo = 200,
-    search = "'" + keyword + " since:" + date + " lang:" + lan,
-    geosearch = "'" + keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + geo + "km" + "'",
+    geo = 400,
+    search = '',
     tweettxt = new Array(),
     users = new Array(),
     tweetloc = new Array();
 
+checkSearch();
 console.log(search);
 checkCount(count);
 getTweets();
@@ -111,8 +111,18 @@ function checkTeam(profile){
 function checkLocation(profile){
   if (locations[profile]){
     return locations[profile]; // match the location with the team name
+  } else if (locations[keyword]){
+    return locations[keyword];
   } else {
-    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + geo; // if the profile searched isnt in locations, then don't include geocode coordinates
+    return null // if the profile searched isnt in locations, then don't include geocode coordinates
+  }
+}
+
+function checkSearch(){
+  if ( checkLocation(profile)==null){
+    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + geo + "km";
+  } else {
+    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + geo + "km";
   }
 }
 
