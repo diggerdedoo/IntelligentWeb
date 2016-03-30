@@ -71,7 +71,7 @@ var profile = '',
 checkSearch();
 console.log(search);
 checkCount(count);
-getTweets();
+//getTweets();
 
 // function to be called when the form is submitted 
 function run(){
@@ -266,6 +266,7 @@ function getProfile( callback ){
   },
   handleFriends);
 }
+
 
 // function for returning the tweets of the players returned 
 function getPlayerTweets(){

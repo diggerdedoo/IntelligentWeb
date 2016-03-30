@@ -1,6 +1,14 @@
 /* 
 * General styling
 */
+
+.map-canvas{
+    display: block;
+    text-align: center;
+    background-color:#FFD700;
+    width:50%;
+    height:300pt;
+}
 body {
     /*padding: 50px;*/
     color: #333333;

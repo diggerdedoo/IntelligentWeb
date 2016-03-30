@@ -9,8 +9,15 @@ var express = require('express'),
     //session = require('express-sessions'),
     router = express.Router(),
     cookieParser = require('cookie-parser'),
-    cons = require('consolidate');
     app = module.exports = express(),
+    Twit = require('twit'),
+    client = new Twit({
+      consumer_key: 'aGvgbxGtSKTWdcxGf3paz90Kq',
+      consumer_secret: 'PJwjJPJFUuWuEvzyj3G2fxbfy7yvFb00mRd45rRrKtJ4Ea39rj',
+      access_token: '221331440-s4Bgw21Z9xhlGe8QuGphtKjx0ZXg4h3sEYNUERff',
+      access_token_secret: 'LlQCF7QCj5UOlli8LSU4BhAnF9ouiJliSZ7bFeOqm36p9',
+      timeout_ms: 60*1000,
+    }),
     mysql = require('mysql'),
     connection = mysql.createConnection({
 	   host     : 'localhost',
@@ -25,6 +32,7 @@ app.use(cookieParser());
 app.use(express.static(__dirname + 'public'));
 app.use("/stylesheets",  express.static(__dirname + '/public/stylesheets'));
 app.use("/images",  express.static(__dirname + '/public/images'));
+app.use("/javascripts",  express.static(__dirname + '/public/javascripts'));
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -160,6 +168,14 @@ app.get('/queryInterface.html', restrict, function (req, res, next) {
   res.sendFile(__dirname+'/public/queryInterface.html');
 });
 
+app.get('/map', restrict, function (req, res, next) {
+  res.sendFile(__dirname+'/public/map.html');
+});
+
+app.get('/map.html', restrict, function (req, res, next) {
+  res.sendFile(__dirname+'/public/map.html');
+});
+
 // login procedure on index.html
 app.post('/login', function (req, res, next){
   console.log("POST /login")
@@ -180,9 +196,10 @@ app.post('/login', function (req, res, next){
   });
 });
 
+/*
 // The 404 Route
 // This should be last
 app.get('*', function (req, res){
   res.statuscode = 404;
   res.sendFile(__dirname+'/public/404.html');
-});
+});*/
