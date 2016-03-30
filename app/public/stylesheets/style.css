@@ -2,7 +2,7 @@
 * General styling
 */
 body {
-    padding: 100px;
+    /*padding: 50px;*/
     color: #333333;
     font-family: Tahoma, Geneva, sans-serif;
 }
@@ -131,9 +131,9 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
 }
 .title {
     font: 24px "Trebuchet MS", Arial, Helvetica, sans-serif;
-    padding: 5px 5px 5px 5px;
+    padding: 1px 10px 1px 10px;
     display: block;
-    margin: 10px 10px 10px 10px;
+    margin: 50px 200px 10px 200px;
     color: #FFF;
     background: #87cefa;
     text-shadow: 1px 1px 1px #949494;
@@ -220,7 +220,7 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
 .login {
   position: relative;
   margin: 0 auto;
-  padding: 20px 20px 20px;
+  padding: 5px 0px 5px 20px;
   width: 310px;
   background: white;
   border-radius: 3px;

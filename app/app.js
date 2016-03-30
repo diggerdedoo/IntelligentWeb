@@ -17,20 +17,13 @@ var express = require('express'),
 	   password : '0e90a044'
     });
 
-// load the cookie-parsing middleware
+//Load the cookie-parsing middleware
 app.use(cookieParser());
 
 //Allows the use of the public folder, for images etc
 app.use(express.static('public'));
 
-//Sends index.html by default
-app.get('/index.html', function (req, res) {
-  console.log("GOT /index.html");
-  res.sendFile( __dirname + "/" + "index.html" );
-  next();
-})
-
-// config
+//Config
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
@@ -122,6 +115,14 @@ function restrict(req, res, next) {
 /*
 * redirects
 */
+
+//Sends index.html by default
+app.get('/index.html', function (req, res) {
+  console.log("GOT /index.html");
+  res.sendFile( __dirname + "/" + "index.html" );
+  next();
+})
+
 app.get('/', function (req, res, next){
   res.render('/index.html');
   next();
@@ -158,17 +159,6 @@ app.get('/queryInterface.html', requireLogin, function (req, res, next) {
   next();
 });
 
-// The 404 Route 
-app.get('*', function (req, res){
-  res.redirect('/404.html');
-  res.status('Oops!').sendStatus(404);
-  response.end();
-});
-
-function regenerateSession(){
-
-}
-
 // login procedure on index.html
 app.post('/login', function (req, res, next){
   console.log("POST /login")
@@ -176,7 +166,7 @@ app.post('/login', function (req, res, next){
     if (user) {
       // Regenerate session when signing in
       // to prevent fixation
-            req.session.user = user;
+      req.session.user = this.user;
       res.redirect('/queryInterface.html');
       next();
           } else {
@@ -204,4 +194,12 @@ app.use(function (req, res, next) {
   } else {
     next();
   }
+});
+
+// The 404 Route
+// This should be last
+app.get('*', function (req, res){
+  res.redirect('/404.html');
+  res.status('Oops!').sendStatus(404);
+  response.end();
 });
