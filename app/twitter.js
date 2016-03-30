@@ -30,16 +30,46 @@ var teams = {
   'whufc_official': ['WinstonReid2', 'diegopoyet7', 'AndyTCarroll', 'Aaron_Cresswell', 'ElliotLee9', 'Reeceoxford_', 'Obiang14', 'AdriSanMiguel', 'VictorMoses', 'HendrieStephen', 'EnnerValencia14', 'dimpayet17', 'TvBecko', 'OgbonnaOffical', 'iamdiafrasakho', 'maanuulanzini10', 'mau_zeta'],
   'WatfordFC': ['hdgomes', 'AdleneGUEDIOURA', 'ValonBera', 'tommiehoban05', 'LDX2012', 'T_Deeney', 'G_byers', 'Mensah_23', 'Jurado10Marin', 'AllanNyom', 'original_kaspa', 'JorellJohnson', 'JoshDoherty96', 'IkechiAnya', 'ighalojude', 'belkalem04', 'AlmenAbdi', 'AlexJakubiak'],
 }
+
+// array contain the longitude and latitude location of each teams stadium to localise tweet results
+var locations = {
+  'Arsenal': ['51.555757,-0.108298'],
+  'AVFCOfficial': ['52.509007,-1.884826'],
+  'afcbournemouth': ['50.735238,-1.838293'],
+  'ChelseaFC': ['51.481660,-0.190949'],
+  'CPFC': ['51.398253,-0.085485'],
+  'Everton': ['53.438764,-2.966324'],
+  'LCFC': ['52.620301,-1.143208'],
+  'LFC': ['53.430829,-2.960830'],
+  'MCFC': ['53.483125,-2.200406'],
+  'ManUtd': ['53.463037,-2.291342'],
+  'NUFC': ['54.975350,-1.622575'],
+  'NorwichCityFC': ['52.622042,1.309107'], 
+  'SouthamptonFC': ['50.905739,-1.389905'],
+  'stokecity': ['52.988264,-2.175518'],
+  'SunderlandAF': ['54.914542,-1.388435'],
+  'SwansOfficial': ['51.642730,-3.934489'],
+  'SpursOfficial': ['51.603165,-0.065739'],
+  'WBAFCofficial': ['52.509045,-1.963949'],
+  'whufc_official': ['51.531950,0.039392'],
+  'WatfordFC': ['51.649871,-0.401363'],
+}
+
 // placeholder variables
 var profile = '',
     keyword = 'MCFC',
     count = 300,
     date = '2015-11-11',
     lan = 'en',
-    search = keyword + " since:" + date + " lang:" + lan,
+    loc = checkLocation(profile),
+    geo = 200,
+    search = "'" + keyword + " since:" + date + " lang:" + lan,
+    geosearch = "'" + keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + geo + "km" + "'",
     tweettxt = new Array(),
-    users = new Array();
+    users = new Array(),
+    tweetloc = new Array();
 
+console.log(search);
 checkCount(count);
 getTweets();
 
@@ -50,8 +80,9 @@ function run(){
       keyword = form.elements[1].value,
       count = form.elements[2].value,
       date = form.elements[3].value,
+      geo = form.elements[4].value,
       lan = 'en',
-      search = keyword + " since:" + date + " lang:" + lan;
+      search = keyword + " since:" + date + " lang:" + lan + " geocode:" + geo;
 
   checkCount(count);  
   getTweets();
@@ -70,9 +101,18 @@ function checkCount(count){
 // function to check which team is being search so as to return the players of that team on twitter
 function checkTeam(profile){
   if (teams[profile]) {
-    return teams[profile];
+    return teams[profile]; // match the profile with the team and its players 
   } else {
-    return profile;
+    return profile; // if the profile doesn't match with a team return the profile
+  }
+}
+
+// function to check which team is being searched so the geocode location for the teams stadium can be returned
+function checkLocation(profile){
+  if (locations[profile]){
+    return locations[profile]; // match the location with the team name
+  } else {
+    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + geo; // if the profile searched isnt in locations, then don't include geocode coordinates
   }
 }
 
@@ -83,12 +123,11 @@ function handleTweets(err, data){
   }  
   else {
     sortTweets(data); // sort the tweet data
-    //freqwords = getFreqword();
     top = getTopwords(); // then find the most frequent words in the data
     topu = getTopusers(); // then find the most frequent users
-    //console.log(freqwords);
     console.log(top);
     console.log(topu);
+    console.log(tweetloc);
   }
 }
 
@@ -108,7 +147,11 @@ function sortTweets (data) {
     var tweet = data.statuses[indx];
     tweettxt.push(tweet.text); // push the tweet text so it can be sorted for the most frequent words
     users.push(tweet.user.screen_name); // push the twitter user screen name so it can be sorted to find the most frequent users
-    // users = Object.keys(topwords).map(function (k) { return { word: k, num: topwords[k] }; }),
+    if (tweet.geo != null){
+      tweetloc.push(tweet.geo); // push the twitter geo location so that the locations can be displayed on a map, if geocode is present
+    } else {
+      // do nothing 
+    }
   }
 }
 
@@ -218,9 +261,9 @@ function getProfile( callback ){
 // function for returning the tweets of the players returned 
 function getPlayerTweets(){
   var players = checkTeam(profile);
+  count = 1; // change count to 1 so as to get only the most recent tweet
   for (var i = 0; i <= players.length; i++){
     profile = players[i]; // change the profile to the players
-    count = 1; // change count to 1 so as to get only the most recent tweet
     getTweets(); // getTweets with the new variables
   }
 }
