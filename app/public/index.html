@@ -7,10 +7,13 @@
     <title>Home</title>
     <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<body>
     <script type="text/javascript">
-         //Array of background images
-        var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg'),
+        //Array of background images
+        var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg', '/images/Toure.jpg', '/images/Ozil.jpg', '/images/Hazard.jpg', '/images/Aguero.jpg', '/images/Klopp.jpg', '/images/Rooney.jpg', '/images/Spurs.jpg', '/images/Vardy.jpg' ),
             nextimage = 0;
+
         doSlideshow();
 
         //Function that handles the background images slideshow
@@ -18,41 +21,44 @@
             if (nextimage >= images.length) {nextimage=0;}
             $('.home')
             .css('background-image','url("'+images[nextimage++]+'")')
-                .fadeIn("slow", "swing", function(){
+            .fadeIn("slow", "swing", function(){
                 setTimeout(doSlideshow,20000);
             });
         }
-
         function adjust_textarea(h) {
             h.style.height = "20px";
             h.style.height = (h.scrollHeight)+"px";
         }
+        function validateForm(){
+            var x = document.forms["login"]["username"].value;
+            if (x==null || x==""){
+                alert("Please enter your username.")
+                return false;
+            }
+        }
     </script>
-</head>
-<body>
-    <div class="title">
-        <h1> Welcome! </h1>
-        <p> This is "We Have To Choose A Group Name?" Intelligent Web assignment. </p>
-        <p> This Web application will allow you to query the social web, such as twitter, to track discussions about football. </p> 
-        <p> Please log in below to get started! </p>
+    <div class="wrapper">
+        <div class="title">
+            <h1><span>Welcome!<span></h1>
+            <h2><span>This is "We Have To Choose A Group Name?" Intelligent Web assignment. This Web application will allow you to query the social web, to track discussions about football. Please log in below to get started!<span></h2>
+        </div>
+        <section class="loginform cf">
+            <form name="login" method="post" action="/login" accept-charset="utf-8">
+                <ul>
+                    <li>
+                        <label for="username">Username:</label>
+                        <input type="text" name="username" placeholder="tj" required>
+                    </li>
+                    <li>
+                        <label for="password">Password:</label>
+                        <input type="password" name="password" placeholder="foobar" required>
+                    </li>
+                    <li>
+                        <input type="submit" value="Login">
+                    </li>
+                </ul>
+            </form>
+        </section>
     </div>
-    <section class="container">
-    <div class="login">
-      <form method="post" action="/login">
-        <p><input type="text" name="username" value="" placeholder="Username"></p>
-        <p><input type="password" name="password" value="" placeholder="Password"></p>
-        <p class="submit"><input type="submit" name="commit" value="Login"></p>
-        <p class="remember_me">
-          <label>
-            <input type="checkbox" name="remember_me" id="remember_me">
-            Remember me on this computer
-          </label>
-        </p>
-      </form>
-    </div>
-    <div class="login-help">
-      <p>Forgot your password? <a href="/">Click here to reset it</a>.</p>
-    </div>
-    </section>
 </body>
 </html>
