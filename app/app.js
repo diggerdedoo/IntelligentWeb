@@ -172,14 +172,6 @@ app.get('/queryInterface.html', restrict, function (req, res, next) {
   res.sendFile(__dirname+'/public/queryInterface.html');
 });
 
-app.get('/map', restrict, function (req, res, next) {
-  res.sendFile(__dirname+'/public/map.html');
-});
-
-app.get('/map.html', restrict, function (req, res, next) {
-  res.sendFile(__dirname+'/public/map.html');
-});
-
 // login procedure on index.html
 app.post('/login', function (req, res, next){
   console.log("POST /login")

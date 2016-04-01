@@ -37,7 +37,34 @@
             $(document).ready(function() {
                 initialize();
             });
+
             //google.maps.event.addDomListener(window, 'load', initialize);
+
+            coord = [ { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
+                      { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
+                      { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                      { type: 'Point', coordinates: [ 53.4809685, -2.2328403 ] },
+                      { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                      { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                      { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
+                      { type: 'Point', coordinates: [ 53.430645, -2.309451 ] },
+                      { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
+                      { type: 'Point', coordinates: [ 53.25648692, -2.12422065 ] },
+                      { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                      { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                      { type: 'Point', coordinates: [ 53.28846045, -3.47088026 ] },
+                      { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                      { type: 'Point', coordinates: [ 53.41481911, -2.26520875 ] },
+                      { type: 'Point', coordinates: [ 53.5061265, -2.0240911 ] },
+                      { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
+                      { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] },
+                      { type: 'Point', coordinates: [ 53.4667, -2.2333 ] },
+                      { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
+                      { type: 'Point', coordinates: [ 52.809, -1.756 ] },
+                      { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                      { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                      { type: 'Point', coordinates: [ 53.4822464, -2.2339807 ] } ];
+
 
             $(document).ready(function () {
         
@@ -61,9 +88,6 @@
     <body>
     <div class="wrapper">
         <div class="left-wrapper">
-            <div class="title">
-                <h2><span>Now you can use the form below to query the social web. This form works best with teams in the premier league, but feel free to set the criteria to whatever you wish.</span></h2>
-            </div>
             <ul id="toggle-view">
                 <li>
                     <h2>First time using this form?</h2>
@@ -73,6 +97,9 @@
                     </div>
                 </li>
             </ul>
+            <div class="title">
+                <h2><span>Now you can use the form below to query the social web. This form works best with teams in the premier league, but feel free to set the criteria to whatever you wish.</span></h2>
+            </div>
                 <!-- Form for the user input for querying the social web -->
                 <form action="" method="post" class="form"> 
                     <h1>Twitter Form</h1>
