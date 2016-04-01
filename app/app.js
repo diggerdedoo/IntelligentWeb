@@ -151,6 +151,10 @@ app.get('/index.html', function (req, res, next){
   res.sendFile(__dirname+'/public/index.html');
 });
 
+app.get('/home', function (req, res, next){
+  res.sendFile(__dirname+'/public/index.html');
+});
+
 app.get('/login', restrict, function (req, res, next) {
   res.redirect('/queryInterface.html');
 });
@@ -196,10 +200,10 @@ app.post('/login', function (req, res, next){
   });
 });
 
-/*
+
 // The 404 Route
 // This should be last
 app.get('*', function (req, res){
   res.statuscode = 404;
   res.sendFile(__dirname+'/public/404.html');
-});*/
+});

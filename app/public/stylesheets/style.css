@@ -2,7 +2,7 @@
 * General styling
 */
 br {
-   line-height: 150%;
+  line-height: 150%;
 }
 label {
   display: block;
@@ -15,27 +15,75 @@ h1 {
   font-weight: 300;
 }
 h2 { 
-    top: 200px; 
-    left: 0; 
-    width: 100%;
+  top: 200px; 
+  left: 0; 
+  width: 100%;
 }
 h2 span { 
-   font-size: 25px;
-   color: white; 
-   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-   font-weight: 300; 
+  font-size: 25px;
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
 }
 h2 span.spacer {
-    padding:0 5px;
-    background: rgb(0, 0, 0); /* fallback color */
-    background: rgba(0, 0, 0, 0.7);
+  padding:0 5px;
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
 }
-.wrapper{
+h3 { 
+  font-size: 25px;
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+}
+.wrapper{ 
+  margin: 0 auto;
+  margin-top: 75px;
+  padding: 10px;
+  width:1600px;
+  height:1000px;
+}
+.left-wrapper{
+  float: left;
+  margin-left: 5px;
+  margin-right: 5px;
+  width:500px;
+  letter-spacing: 1px;  
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
+  padding: 50px; 
+}
+.right-wrapper{
+  float: right;
+  max-height: inherit;   
+}
+.bottom-right{
+  float: right;
+  margin-top: 10px;
+  width: 800px;
+  height: 400px;
+  letter-spacing: 1px;  
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
+  padding: 50px; 
+}
+.index-wrapper{
   margin-top: 100px;
   margin-right: 300px;
   margin-left: 300px;
   margin-bottom: 100px;
-  position: relative;
+  letter-spacing: 1px;  
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
+  padding: 50px; 
+}
+.oops-wrapper{
+  margin-top: 100px;
+  margin-right: 100px;
+  margin-left: 100px;
+  margin-bottom: 100px;
   letter-spacing: 1px;  
   background: rgb(0, 0, 0); /* fallback color */
   background: rgba(0, 0, 0, 0.7);
@@ -49,6 +97,16 @@ h2 span.spacer {
 }
 a {
   color: #00B7FF;
+  text-align: center;
+  display: inherit;
+  font-size: x-large;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  display: block;
+}
+#map-canvas {
+  background-color:#FFD700; 
+  width:100%; 
+  height:200pt;
 }
 /*
 * images for the suggestions of twitter profiles
@@ -140,54 +198,22 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
 * styling for the 404 image - issue with centering the images on top of each other, 
 * currently displayed side by side
 */
-.fadeimage {
-    position: relative;
-    display: block;
-    text-align: center;
+#cycler{
+  position: relative; 
+  text-align: center; 
+  margin: auto;  
+  width:640px;
+  height:480px;
 }
-.fadeOne {
-    z-index: 0;
-    position: relative;
-    left: 0;
-    transition: opacity 1s;
+#cycler img{
+  position: relative;
+  z-index: 1;
+  display: none;
 }
-.fadeTwo {
-    z-index: 1;
-    position: relative;
-    left: 0;
-    transition: opacity 1s;
+#cycler img.active{
+  z-index: 3;
+  display: inline-block;
 }
-.fadeOne:hover {
-    opacity: 0;
-}
-.fadeTwo:hover {
-    opacity: 0;
-}
-.image {
-    text-align: center;
-    width: 100px;
-    height: 100px;
-}
-/*
-.title2 {
-    font: 10px "Trebuchet MS", Arial, Helvetica, sans-serif;
-    padding: 20px 20px 20px 40px;
-    display: block;
-    margin: -30px -30px 10px -30px;
-    color: #FFF;
-    background: #87cefa;
-    text-shadow: 1px 1px 1px #949494;
-    border-radius: 5px 5px 0px 0px;
-    -webkit-border-radius: 5px 5px 0px 0px;
-    -moz-border-radius: 5px 5px 0px 0px;
-    text-align: center;
-    margin-left:auto;
-    margin-right:auto;
-    max-width: 500px;
-}
-.title2 a {
-    font: 20px "Trebuchet MS", Arial, Helvetica, sans-serif;
-}*/
 /* 
 * styling for the queryInterface - adapted from online resources 
 */
@@ -297,7 +323,7 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
     width:100%;
     height:30px;
 }
-.form.button {
+.form button {
     background-color: #87cefa;
     border-radius: 5px;
     -webkit-border-radius: 5px;
@@ -311,9 +337,10 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
 * Style for creating the backgorund to all the HTML pages 
 */
 .home { 
-    background: url('/images/Etihad-Stadium.jpg') no-repeat center center fixed; 
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
+  background: url('/images/Etihad-Stadium.jpg') no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  transition: background 1s linear;
 }

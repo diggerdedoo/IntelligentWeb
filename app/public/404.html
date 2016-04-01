@@ -1,50 +1,46 @@
 <!DOCTYPE html>
-<html class="home">
+<html class="home" lang="en">
   <head>
   	<title>404</title>
     <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
   	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">
-        	// jQuery functions which control the fade in and out of the central image
-            $("#image1").mouseenter(function()
-			{
-			    $(this).fadeOut();
-			});
-			                   
-			$("#image2").mouseleave(function()
-			{
-			    $("#image1").fadeIn();
-			});
+          //Array of background images
+          var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg', '/images/Toure.jpg', '/images/Ozil.jpg', '/images/Hazard.jpg', '/images/Aguero.jpg', '/images/Klopp.jpg', '/images/Rooney.jpg', '/images/Spurs.jpg', '/images/Vardy.jpg' ),
+              nextimage = 0;
 
-			//Array of background images
-            var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg'),
-                nextimage = 0;
-            doSlideshow();
+          doSlideshow();
 
-            //Function that handles the background images slideshow
-            function doSlideshow(){
-                if (nextimage >= images.length) {nextimage=0;}
-                $('.home')
-                .css('background-image','url("'+images[nextimage++]+'")')
-                .fadeIn("slow", "swing", function(){
-                    setTimeout(doSlideshow,20000);
-                });
-            }
+          //Function that handles the background images slideshow
+          function doSlideshow(){
+              if (nextimage >= images.length) {nextimage=0;}
+              $('.home')
+              .css('background-image','url("'+images[nextimage++]+'")')
+              .fadeIn("slow", "swing", function(){
+                  setTimeout(doSlideshow,20000);
+              });
+          }
+          setInterval(function()
+          {
+              // Remove .active class from the active li, select next li sibling.
+              var next = $('img.active').removeClass('active').next('img');
 
-            function adjust_textarea(h) {
-                h.style.height = "20px";
-                h.style.height = (h.scrollHeight)+"px";
-            }
-    </script>
+              // Did we reach the last element? Of so: select first sibling
+              if (!next.length) next = next.prevObject.siblings(':first');
+
+              // Add .active class to the li next in line.
+              next.addClass('active');
+          }, 5000);
+        </script>
   </head>
   <body>
-  	<div class="title2">
-	    <h1> Looks like you've scored an own goal mate... Page not found. </h1>
-      <a href="/"> Would you like to return to the home page? </a>
-	</div>
-		<div class="fadeimage">
-			<img class="fadeOne image" src="/images/baker-own-goal.jpg" style="width:600px;height:400px;">
-		    <img class="fadeTwo image" src="/images/Oops.jpg" style="width:600px;height:400px;"/>
-		</div>
+    <div class="oops-wrapper">
+  	    <h3>Looks like you've scored an own goal mate... Page not found.</h3>
+          <div id="cycler">
+            <img class="active" src="/images/baker-own-goal.jpg" alt="My image" style="width:600px;height:400px;"/>
+            <img src="/images/Oops.jpg" alt="My image" style="width:600px;height:400px;"/>    
+          </div>
+        <a href="/"> Would you like to return to the home page? </a>
+    </div>
   </body>
 </html>
