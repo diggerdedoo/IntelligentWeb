@@ -63,14 +63,14 @@ var profile = '',
     lan = 'en',
     loc = checkLocation(profile),
     geo = 400,
-    search = '',
+    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + geo + "km";
     tweettxt = new Array(),
     users = new Array(),
     tweetloc = new Array();
 
-checkSearch();
-console.log(search);
-checkCount(count);
+//checkSearch();
+//console.log(search);
+//checkCount(count);
 getTweets();
 
 // function to be called when the form is submitted 

@@ -38,6 +38,13 @@ h3 {
   font-weight: 300; 
   text-align: center;
 }
+h4 {
+  font-size: 25px;
+  color: black; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+}
 .wrapper{ 
   margin: 0 auto;
   margin-top: 75px;
@@ -93,7 +100,6 @@ h3 {
   text-align: center;
   width: 100%; /* for IE 6 */
   padding-bottom: 10px;
-  padding-top: 25px;
 }
 a {
   color: #00B7FF;

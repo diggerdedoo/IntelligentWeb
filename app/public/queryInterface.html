@@ -7,7 +7,7 @@
         <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
         <script src="/javascripts/twitter.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_t3_wvQ1AxaFSDjZMifE7kVaPIvHEhSA"></script>
+        <!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_t3_wvQ1AxaFSDjZMifE7kVaPIvHEhSA"></script>-->
         <script type="text/javascript">
             //Array of background images
             var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg', '/images/Toure.jpg', '/images/Ozil.jpg', '/images/Hazard.jpg', '/images/Aguero.jpg', '/images/Klopp.jpg', '/images/Rooney.jpg', '/images/Spurs.jpg', '/images/Vardy.jpg' ),
@@ -24,48 +24,198 @@
                     setTimeout(doSlideshow,20000);
                 });
             }
-            function initialize() {
-                var myLatlng = new google.maps.LatLng(53.483125,-2.200406);
-                var mapOptions = {
-                    zoom: 15,
-                    center: myLatlng,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
-                };
-                var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-            }
-
-            $(document).ready(function() {
-                initialize();
+            jQuery(function($) {
+                // Asynchronously Load the map API 
+                var script = document.createElement('script');
+                script.src = "http://maps.googleapis.com/maps/api/js?key=AIzaSyBhdAk0Ki3azlEwLYPnBIDFyGWoFxH4Zb0&Asensor=false&callback=initialize";
+                document.body.appendChild(script);
             });
 
-            //google.maps.event.addDomListener(window, 'load', initialize);
+            // function for initalizing google maps on the page
+            function initialize() {
+                var map;
+                var bounds = new google.maps.LatLngBounds();
+                var mapOptions = {
+                    mapTypeId: 'roadmap'
+                };
+                                
+                // Display a map on the page
+                map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+                map.setTilt(45);
+                    
+                // mock array for plotting the locations of the geocoded tweets
+                var coord = [ 
+                  { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
+                  { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
+                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                  { type: 'Point', coordinates: [ 53.4809685, -2.2328403 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
+                  { type: 'Point', coordinates: [ 53.430645, -2.309451 ] },
+                  { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
+                  { type: 'Point', coordinates: [ 53.25648692, -2.12422065 ] },
+                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                  { type: 'Point', coordinates: [ 53.28846045, -3.47088026 ] },
+                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                  { type: 'Point', coordinates: [ 53.41481911, -2.26520875 ] },
+                  { type: 'Point', coordinates: [ 53.5061265, -2.0240911 ] },
+                  { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
+                  { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] },
+                  { type: 'Point', coordinates: [ 53.4667, -2.2333 ] },
+                  { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
+                  { type: 'Point', coordinates: [ 52.809, -1.756 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.4822464, -2.2339807 ] },
+                  { type: 'Point', coordinates: [ 53.24289639, -2.12678539 ] },
+                  { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
+                  { type: 'Point', coordinates: [ 50.73873874, -1.82213708 ] },
+                  { type: 'Point', coordinates: [ 50.73410011, -1.83927035 ] },
+                  { type: 'Point', coordinates: [ 50.375254, -4.1124781 ] },
+                  { type: 'Point', coordinates: [ 50.72072072, -1.84989633 ] },
+                  { type: 'Point', coordinates: [ 50.3775494, -4.109164 ] },
+                  { type: 'Point', coordinates: [ 53.38683461, -2.26890536 ] },
+                  { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
+                  { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
+                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                  { type: 'Point', coordinates: [ 53.4809685, -2.2328403 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
+                  { type: 'Point', coordinates: [ 53.430645, -2.309451 ] },
+                  { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
+                  { type: 'Point', coordinates: [ 53.25648692, -2.12422065 ] },
+                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                  { type: 'Point', coordinates: [ 53.28846045, -3.47088026 ] },
+                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                  { type: 'Point', coordinates: [ 53.41481911, -2.26520875 ] },
+                  { type: 'Point', coordinates: [ 53.5061265, -2.0240911 ] },
+                  { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
+                  { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] } 
+                ];
 
-            coord = [ { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
-                      { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
-                      { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
-                      { type: 'Point', coordinates: [ 53.4809685, -2.2328403 ] },
-                      { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                      { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                      { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
-                      { type: 'Point', coordinates: [ 53.430645, -2.309451 ] },
-                      { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
-                      { type: 'Point', coordinates: [ 53.25648692, -2.12422065 ] },
-                      { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
-                      { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
-                      { type: 'Point', coordinates: [ 53.28846045, -3.47088026 ] },
-                      { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
-                      { type: 'Point', coordinates: [ 53.41481911, -2.26520875 ] },
-                      { type: 'Point', coordinates: [ 53.5061265, -2.0240911 ] },
-                      { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
-                      { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] },
-                      { type: 'Point', coordinates: [ 53.4667, -2.2333 ] },
-                      { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
-                      { type: 'Point', coordinates: [ 52.809, -1.756 ] },
-                      { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                      { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                      { type: 'Point', coordinates: [ 53.4822464, -2.2339807 ] } ];
+                // array for pushing the coordinates
+                var coords = [];
 
+                // function to check that coordinates have been returned by getTweets()
+                function checkCoord(){
+                    if (coordAr == []){
+                        return null;
+                    } else {
+                        return coordAr;
+                    }
+                }
 
+                // function for turning coords into just an array of coordinates
+                var coordAr = coord.map(function(o) {
+                  return o.coordinates;
+                })
+                
+                // array containing the locations of each premier league football teams stadium for markers
+                var markers = [
+                  ['Arsenal', 51.555757,-0.108298],
+                  ['AVFCOfficial', 52.509007,-1.884826],
+                  ['afcbournemouth', 50.735238,-1.838293],
+                  ['ChelseaFC', 51.481660,-0.190949],
+                  ['CPFC', 51.398253,-0.085485],
+                  ['Everton', 53.438764,-2.966324],
+                  ['LCFC', 52.620301,-1.143208],
+                  ['LFC', 53.430829,-2.960830],
+                  ['MCFC', 53.483125,-2.200406],
+                  ['ManUtd', 53.463037,-2.291342],
+                  ['NUFC', 54.975350,-1.622575],
+                  ['NorwichCityFC', 52.622042,1.309107], 
+                  ['SouthamptonFC', 50.905739,-1.389905],
+                  ['stokecity', 52.988264,-2.175518],
+                  ['SunderlandAF', 54.914542,-1.388435],
+                  ['SwansOfficial', 51.642730,-3.934489],
+                  ['SpursOfficial', 51.603165,-0.065739],
+                  ['WBAFCofficial', 52.509045,-1.963949],
+                  ['whufc_official', 51.531950,0.039392],
+                  ['WatfordFC', 51.649871,-0.401363],
+                ]
+
+                // Info Window Content for each of the markers 
+                var infoWindowContent = [
+                    ['<div class="info_content">' + '<h4>Emirates Stadium</h4>' + '<p>Home of Arsenal Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Villa Park</h4>' + '<p>Home of Aston Villa Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Dean Court</h4>' + '<p>Home of Bournemouth Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Stamford Bridge</h4>' + '<p>Home of Chelsea Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Selhurst Park</h4>' + '<p>Home of Crystal Palace Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Goodison Park</h4>' + '<p>Home of Everton Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>King Power Stadium</h4>' + '<p>Home of Leicester City Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Anfield</h4>' + '<p>Home of Liverpool Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Etihad Stadium</h4>' + '<p>Home of Manchester City Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Old Trafford</h4>' + '<p>Home of Manchester United Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h3>St James Park </h4>' + '<p>Home of Newcastle United Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Carrow Road</h4>' + '<p>Home of Norwich City Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>St Marys Stadium</h4>' + '<p>Home of Southampton Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Britania Stadium</h4>' + '<p>Home of Stoke City Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Stadium Of Light</h4>' + '<p>Home of Sunderland Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Liberty Stadium</h4>' + '<p>Home of Swansea City Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>White Hart Lane</h4>' + '<p>Home of Tottenham Hotspur Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>The Hawthorns</h4>' + '<p>Home of West Bromich Albion Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Upton Park</h4>' + '<p>Home of West Ham Football Club.</p>' + '</div>'],
+                    ['<div class="info_content">' + '<h4>Vicarage Road</h4>' + '<p>Home of Watford Football Club.</p>' + '</div>']
+                ];
+                    
+                // Display multiple markers on a map
+                var infoWindow = new google.maps.InfoWindow(), markers, i;
+                var infoWindowt = new google.maps.InfoWindow(), coordAr, i;
+
+                // Loop through the array of markers for stadiums & place each one on the map  
+                for( i = 0; i < markers.length; i++ ) {
+                    var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
+                    bounds.extend(position);
+                    marker = new google.maps.Marker({
+                        position: position,
+                        map: map,
+                        title: markers[i][0]
+                    });
+                    
+                    // Allow each marker to have an info window    
+                    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                        return function() {
+                            infoWindow.setContent(infoWindowContent[i][0]);
+                            infoWindow.open(map, marker);
+                        }
+                    })(marker, i));
+
+                    // Automatically center the map fitting all markers on the screen
+                    map.fitBounds(bounds);
+                }
+
+                // Loop through the array of tweet coords & place each one on the map  
+                for( i = 0; i < coordAr.length; i++ ) {
+                    var position = new google.maps.LatLng(coordAr[i][0], coordAr[i][1]);
+                    bounds.extend(position);
+                    marker = new google.maps.Marker({
+                        position: position,
+                        map: map
+                    });
+
+                    // Allow each marker to have an info window    
+                    google.maps.event.addListener(coordAr, 'click', (function(coordAr, i) {
+                        return function() {
+                            infoWindow.open(map, coordAr);
+                        }
+                    })(coordAr, i));
+
+                    // Automatically center the map fitting all markers on the screen
+                    map.fitBounds(bounds);
+                }
+
+                // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
+                var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+                    this.setZoom(6);
+                    google.maps.event.removeListener(boundsListener);
+                });
+            }
+
+            // JQuery for the toggleable text window
             $(document).ready(function () {
         
                 $('#toggle-view li').click(function () {
@@ -81,7 +231,6 @@
                     }
                     
                 });
-
             });
         </script>
     </head>
@@ -93,7 +242,7 @@
                     <h2>First time using this form?</h2>
                     <span>+</span>
                     <div class="panel">
-                        <p>Twitter profile: This field is for specifying the twitter profile that you want to return tweets for. For example, 'MCFC' will return tweets from the offical Manchester city twitter account.<br>Key Words: This field is for specifying a key word you want the tweets returned to contain. For example, 'ref' will return all tweets that contain the word ref.<br>Count: This field is for specifying how many tweets you wish to return, note that the maximum is 300.<br>Date: This field is for specifying the date from which to get tweets from. For example, '2015-11-11' will only return tweets after the 11th of novemeber 2015.<br>Distance: This field is for specifying the distance from point in which to eturn tweets. For example, 100km will return tweets from a 100km radius of location, note that if you have entered a premier league teams twitter profile this point is set to the teams stadium.</p>
+                        <p>Twitter profile: This field is for specifying the twitter profile that you want to return tweets for. For example, 'MCFC' will return tweets from the offical Manchester city twitter account.<br>Key Words: This field is for specifying a key word you want the tweets returned to contain. For example, 'ref' will return all tweets that contain the word ref.<br>Count: This field is for specifying how many tweets you wish to return, note that the maximum is 300.<br>Date: This field is for specifying the date from which to get tweets from. For example, '2015-11-11' will only return tweets after the 11th of novemeber 2015.<br>Distance: This field is for specifying the distance from point in which to eturn tweets. For example, 100km will return tweets from a 100km radius of location, note that if you have entered a premier league teams twitter profile this point is set to the teams stadium.<br>Geo-location: This field is for specifying the longitude and latitude of your search of tweets, this field sets the centeral location of the radius set in the Distance field</p>
                     </div>
                 </li>
             </ul>
@@ -148,6 +297,11 @@
                     <label>
                         <span>Distance :</span>
                         <input id="message" type="text" placeholder="Example: 100km" />
+                    </label>
+
+                    <label>
+                        <span>Geo-location :</span>
+                        <input id="message" type="text" placeholder="Example: 53.483125,-2.200406" />
                     </label>
 
                     <label>
