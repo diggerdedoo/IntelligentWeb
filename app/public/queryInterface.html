@@ -39,11 +39,11 @@
                     mapTypeId: 'roadmap'
                 };
                                 
-                // Display a map on the page
+                // Display the map on the page
                 map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
                 map.setTilt(45);
                     
-                // mock array for plotting the locations of the geocoded tweets
+                // Dummy array for plotting the locations of the geocoded tweets, will be removed as getTweets will provide this data
                 var coord = [ 
                   { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
                   { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
@@ -183,9 +183,6 @@
                             infoWindow.open(map, marker);
                         }
                     })(marker, i));
-
-                    // Automatically center the map fitting all markers on the screen
-                    map.fitBounds(bounds);
                 }
 
                 // Loop through the array of tweet coords & place each one on the map  
@@ -204,14 +201,14 @@
                             infoWindow.open(map, coordAr);
                         }
                     })(coordAr, i));
-
-                    // Automatically center the map fitting all markers on the screen
-                    map.fitBounds(bounds);
                 }
 
-                // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
+                // Center the map fitting all markers on the screen
+                map.fitBounds(bounds);
+
+                // Set the zoom level once the fitBounds function runs
                 var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
-                    this.setZoom(6);
+                    this.setZoom(5);
                     google.maps.event.removeListener(boundsListener);
                 });
             }
@@ -243,14 +240,13 @@
                     <h2>First time using this form?</h2>
                     <span>+</span>
                     <div class="panel">
-                        <p>Twitter profile: This field is for specifying the twitter profile that you want to return tweets for. For example, 'MCFC' will return tweets from the offical Manchester city twitter account.<br>Key Words: This field is for specifying a key word you want the tweets returned to contain. For example, 'ref' will return all tweets that contain the word ref.<br>Count: This field is for specifying how many tweets you wish to return, note that the maximum is 300.<br>Date: This field is for specifying the date from which to get tweets from. For example, '2015-11-11' will only return tweets after the 11th of novemeber 2015.<br>Distance: This field is for specifying the distance from point in which to eturn tweets. For example, 100km will return tweets from a 100km radius of location, note that if you have entered a premier league teams twitter profile this point is set to the teams stadium.<br>Geo-location: This field is for specifying the longitude and latitude of your search of tweets, this field sets the centeral location of the radius set in the Distance field</p>
+                        <p>Twitter profile: This field is for specifying the twitter profile that you want to return tweets for. For example, 'MCFC' will return tweets from the offical Manchester city twitter account.<br>Key Words: This field is for specifying a key word you want the tweets returned to contain. For example, 'ref' will return all tweets that contain the word ref.<br>Count: This field is for specifying how many tweets you wish to return, note that the maximum is 300.<br>Date: This field is for specifying the date from which to get tweets from. For example, '2015-11-11' will only return tweets after the 11th of novemeber 2015.<br>Distance: This field is for specifying the distance from point in which to eturn tweets. For example, 100km will return tweets from a 100km radius of location, note that if you have entered a premier league teams twitter profile this point is set to the teams stadium.<br>Geo-location: This field is for specifying the longitude and latitude of your search of tweets, this field sets the centeral location of the radius set in the Distance field<br> Map: The map on the right hand side of the screen will display all the tweets that returned a location as a marker on the map. The map also displays the location of all the Premier League teams stadiums.</p>
                     </div>
                 </li>
             </ul>
             <div class="title">
                 <h2><span>Now you can use the form below to query the social web. This form works best with teams in the premier league, but feel free to set the criteria to whatever you wish.</span></h2>
             </div>
-                <!-- Form for the user input for querying the social web -->
                 <form action="" method="post" class="form"> 
                     <h1>Twitter Form</h1>
                     <label>

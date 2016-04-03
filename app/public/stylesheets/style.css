@@ -32,7 +32,7 @@ h2 span.spacer {
   background: rgba(0, 0, 0, 0.7);
 }
 h3 { 
-  font-size: 25px;
+  font-size: 45px;
   color: white; 
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
   font-weight: 300; 
@@ -45,6 +45,17 @@ h4 {
   font-weight: 300; 
   text-align: center;
 }
+a {
+  color: #00B7FF;
+  text-align: center;
+  display: inherit;
+  font-size: 45px;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  display: block;
+}
+/*
+* Interface wraps
+*/ 
 .wrapper{ 
   margin: 0 auto;
   margin-top: 75px;
@@ -101,21 +112,16 @@ h4 {
   width: 100%; /* for IE 6 */
   padding-bottom: 10px;
 }
-a {
-  color: #00B7FF;
-  text-align: center;
-  display: inherit;
-  font-size: x-large;
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-  display: block;
-}
+/*
+* Map canvas styling
+*/
 #map-canvas {
   background-color:#FFD700; 
   width:100%; 
   height:200pt;
 }
 /*
-* images for the suggestions of twitter profiles
+* Iages for the suggestions of twitter profiles
 */
 datalist#suggestions option[value="Arsenal"]   { background-image:url('/images/A.jpg'); }
 datalist#suggestions option[value="AVFCOfficial"] { background-image:url('/images/AV.png'); }
@@ -138,9 +144,8 @@ datalist#suggestions option[value="WBAFCofficial"] { background-image:url('/imag
 datalist#suggestions option[value="whufc_official"] { background-image:url('/images/WH.jpg');  }
 datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W.jpg');  }
 /* 
-* index.html styles - mainly for the log in form - adapted from online resources
+* Index.html styles - mainly for the log in form
 */
-/* new form */ 
 .cf:before,
 .cf:after {
     content: ""; 
@@ -201,8 +206,7 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
 }
 /* 
-* styling for the 404 image - issue with centering the images on top of each other, 
-* currently displayed side by side
+* styling for the 404 page
 */
 #cycler{
   position: relative; 
@@ -221,7 +225,7 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
   display: inline-block;
 }
 /* 
-* styling for the queryInterface - adapted from online resources 
+* styling for the queryInterface - form adapted from online resources 
 */
 #toggle-view {
   position: relative;
@@ -343,10 +347,10 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
 * Style for creating the backgorund to all the HTML pages 
 */
 .home { 
-  background: url('/images/Etihad-Stadium.jpg') no-repeat center center fixed; 
+  background: url('/images/Etihad-Stadium.jpg') center fixed; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  transition: background 1s linear;
+  transition: background 2s linear;
 }

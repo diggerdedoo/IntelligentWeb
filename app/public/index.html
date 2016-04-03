@@ -8,13 +8,13 @@
         <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>
-            //Array of background images
+            // Array of background images
             var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg', '/images/Toure.jpg', '/images/Ozil.jpg', '/images/Hazard.jpg', '/images/Aguero.jpg', '/images/Klopp.jpg', '/images/Rooney.jpg', '/images/Spurs.jpg', '/images/Vardy.jpg' ),
                 nextimage = 0;
 
             doSlideshow();
 
-            //Function that handles the background images slideshow
+            // Function that handles the background images slideshow
             function doSlideshow(){
                 if (nextimage >= images.length) {nextimage=0;}
                 $('.home')
@@ -23,6 +23,8 @@
                     setTimeout(doSlideshow,20000);
                 });
             }
+
+            // Function for validating the user input in the form
             function validateForm(){
                 var x = document.forms["login"]["username"].value;
                 if (x==null || x==""){
