@@ -200,6 +200,7 @@
                     // Allow each marker to have an info window    
                     google.maps.event.addListener(coordAr, 'click', (function(coordAr, i) {
                         return function() {
+                            infoWindow.setContent('<div class="info_content">' + '<h4>Tweet</h4>' + '<p>Location of one of the tweets returned.</p>' + '</div>');
                             infoWindow.open(map, coordAr);
                         }
                     })(coordAr, i));

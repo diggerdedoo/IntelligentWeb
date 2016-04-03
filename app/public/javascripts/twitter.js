@@ -7,7 +7,7 @@ var client = new Twit({
   timeout_ms: 60*1000,
 });
 
-// array containing the players on twitter for each premier league football club
+// object containing the players on twitter for each premier league football club
 var teams = {
   'Arsenal': ['mertesacker', 'HectorBellerin', 'aaronramsey', 'Alex_OxChambo', 'joel_campbell12', 'SergeGnabry', 'MesutOzil1088', '_OlivierGiroud_', 'JackWilshere', 'm8arteta', '19SCazorla', 'D_Ospina1', 'Alexis_Sanchez', 'CalumChambers95', 'KieranGibbs', 'theowalcott', 'gpaulista5', '6_LKOSCIELNY', '_nachomonreal', 'MatDebuchy', 'PetrCech'],
   'AVFCOfficial': ['bguzan', 'Scotty_Sinclair', 'Bakesy23', 'CharlesNzo', '22Gards', 'SanchezCarlosA', 'AndreGreen_30', 'JackGrealish1', 'JoleonLescott', 'C_Clark_6', 'JoresOkore', 'Philsend4', 'Lewis_kinsella', 'Libor_Kozak', 'JordanAmavi', 'MicahRichards', 'ARWesty15', 'MBGKA', 'allumRobbo37', ],
@@ -31,7 +31,7 @@ var teams = {
   'WatfordFC': ['hdgomes', 'AdleneGUEDIOURA', 'ValonBera', 'tommiehoban05', 'LDX2012', 'T_Deeney', 'G_byers', 'Mensah_23', 'Jurado10Marin', 'AllanNyom', 'original_kaspa', 'JorellJohnson', 'JoshDoherty96', 'IkechiAnya', 'ighalojude', 'belkalem04', 'AlmenAbdi', 'AlexJakubiak'],
 }
 
-// array contain the longitude and latitude location of each teams stadium to localise tweet results
+// object contain the longitude and latitude location of each teams stadium to localise tweet results
 var locations = {
   'Arsenal': ['51.555757,-0.108298'],
   'AVFCOfficial': ['52.509007,-1.884826'],
@@ -66,7 +66,8 @@ var profile = '',
     search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + geo + "km";
     tweettxt = new Array(),
     users = new Array(),
-    tweetloc = new Array();
+    tweetloc = new Array(),
+    tweetobj = {};
 
 //checkSearch();
 //console.log(search);
@@ -137,6 +138,7 @@ function handleTweets(err, data){
     console.log(top);
     console.log(topu);
     console.log(tweetloc);
+    console.log(tweetobj);
   }
 }
 
@@ -150,12 +152,20 @@ function handleFriends(err, data){
   }
 }
 
+// function for creating an object of users tweets
+function pushToobject(obj, key, data) {
+   if (!Array.isArray(obj[key])) obj[key] = [];
+   return obj[key].push(data);
+}
+
 // function for sorting through the tweets to return relevant information
 function sortTweets (data) {
   for (var indx in data.statuses){
     var tweet = data.statuses[indx];
+    //console.log('@' + tweet.user.screen_name +'\n\n'); needs to be some way of displaying the tweets in html
     tweettxt.push(tweet.text); // push the tweet text so it can be sorted for the most frequent words
     users.push(tweet.user.screen_name); // push the twitter user screen name so it can be sorted to find the most frequent users
+    pushToobject(tweetobj, tweet.user.screen_name, tweet.text);
     if (tweet.geo != null){
       tweetloc.push(tweet.geo); // push the twitter geo location so that the locations can be displayed on a map, if geocode is present
     } else {
@@ -170,6 +180,27 @@ function sortProfile (data) {
     var tweet = data.statuses[indx];
     console.log('@' + tweet.user.screen_name +'\n\n');
   }
+}
+
+// function for getting the most frequent users for a search
+function getUsersfreqwords(){
+  var array =  for(var key in tweetobj) {
+                    var value = tweetobj[key];
+                    array.push(value);
+                },
+      array = array.toString(), // turn the array into a string
+      changedString = string.replace(/,/g, " "), // remove the array elements 
+      split = changedString.split(" "), // split the string 
+      freqUserswords = []; // array for the freqent users to be pushed too
+
+  for (var i=0; i<split.length; i++){
+    if(freqUsers[split[i]]===undefined){
+      freqUsers[split[i]]=1;
+    } else {
+      freqUsers[split[i]]++;
+    }
+  }
+  return freqUserswords;
 }
 
 // function for getting the frequency of each word within a string
@@ -259,7 +290,7 @@ function getTweets(){
 }
 
 // function for searching through twitter profiles using the specified data
-function getProfile( callback ){
+function getProfile(){
   return client.get('friends/list', { 
     screen_name: profile, 
     count: count 
