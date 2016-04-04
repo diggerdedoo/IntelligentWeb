@@ -178,9 +178,28 @@ app.get('/queryInterface.html', restrict, function (req, res, next) {
   res.redirect('/queryInterface');
 });
 
+app.get('/register', function (req, res, next) {
+  res.sendFile(__dirname+'/public/register.html');
+});
+
+app.get('/register.html', function (req, res, next) {
+  res.redirect('/register');
+});
+
+// create a new user when asked
+app.post('/register', function (req, res, next) {
+  if (req.body.password == req.body.passwordconfirmation) {
+    createUser(req.body.username, req.body.password);
+    res.redirect('/');
+  } else {
+    //ALERT DO IT AGAIN
+    res.redirect('/register');
+  }
+});
+
+
 // login procedure on index.html
 app.post('/login', function (req, res, next){
-  console.log("POST /login")
   authenticate(req.body.username, req.body.password, function (err, user){
     if (user) {
       // Regenerate session when signing in

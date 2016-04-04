@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html class="home" lang="en">
+<html>
+    <head>
+        <title>Home</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script>
+            // Array of background images
+            var images = new Array('/images/Etihad-Stadium.jpg', '/images/emirates-stadium.jpg', '/images/Wembley.jpg', '/images/Toure.jpg', '/images/Ozil.jpg', '/images/Hazard.jpg', '/images/Aguero.jpg', '/images/Klopp.jpg', '/images/Rooney.jpg', '/images/Spurs.jpg', '/images/Vardy.jpg' ),
+                nextimage = 0;
+
+            doSlideshow();
+
+            // Function that handles the background images slideshow
+            function doSlideshow(){
+                if (nextimage >= images.length) {nextimage=0;}
+                $('.home')
+                .css('background-image','url("'+images[nextimage++]+'")')
+                .fadeIn("slow", "swing", function(){
+                    setTimeout(doSlideshow,20000);
+                });
+            }
+
+            // Function for validating the user input in the form
+            function validateForm(){
+                var x = document.forms["login"]["username"].value;
+                if (x==null || x==""){
+                    alert("Please enter your username.")
+                    return false;
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div class="index-wrapper">
+            <div class="title">
+                <h2><span>Register a new user below!<span></h2>
+            </div>
+            <section class="registerform">
+                <form name="register" method="post" action="/register" accept-charset="utf-8">
+                    <ul>
+                        <li>
+                            <label for="username">Username:</label>
+                            <input type="text" name="username" placeholder="Username" required>
+                        </li>
+                        <li>
+                            <label for="password">Password:</label>
+                            <input type="password" name="password" placeholder="Password" required>
+                        </li>
+                        <li>
+                            <label for="passwordconfirmation">Password Confirmation:</label>
+                            <input type="password" name="passwordconfirmation" placeholder="Type your password again here:" required>
+                        </li>
+                        <li>
+                            <input type="submit" value="Register">
+                        </li>
+                    </ul>
+                </form>
+            </section>
+        </div>
+    </body>
+</html>
