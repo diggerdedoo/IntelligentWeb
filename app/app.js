@@ -85,7 +85,7 @@ var server = app.listen(8081, function () {
   console.log("Listening at http://localhost:%s", port);
 });
 
-// stupid plaintext database
+// stupid plaintext users database
 var users = {};
 
 //Initialise some test users
@@ -186,7 +186,7 @@ app.post('/login', function (req, res, next){
       // Regenerate session when signing in
       // to prevent fixation
       req.session.user = user;
-      res.redirect('/queryInterface.html');
+      res.redirect('/queryInterface');
       next();
     } else {
       console.log('Authentication failed, please check your '

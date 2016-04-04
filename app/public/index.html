@@ -45,16 +45,22 @@
                     <ul>
                         <li>
                             <label for="username">Username:</label>
-                            <input type="text" name="username" placeholder="tj" required>
+                            <input type="text" name="username" placeholder="Username" required>
                         </li>
                         <li>
                             <label for="password">Password:</label>
-                            <input type="password" name="password" placeholder="foobar" required>
+                            <input type="password" name="password" placeholder="Password" required>
                         </li>
                         <li>
                             <input type="submit" value="Login">
                         </li>
                     </ul>
+                </form>
+                <form name="register" action="http://localhost:8081/register">
+                    <input type="submit" value="Register New User">
+                </form>
+                <form name="logout" action="http://localhost:8081/logout">
+                    <input type="submit" value="Log Out">
                 </form>
             </section>
         </div>

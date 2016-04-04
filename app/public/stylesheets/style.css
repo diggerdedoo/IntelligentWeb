@@ -200,7 +200,7 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64c8ef', endColorstr='#00a2e2',GradientType=0 ); /* IE6-9 */
   color: #fff;
   padding: 5px 15px;
-  margin-right: 0;
+  margin-right: 10px;
   margin-top: 15px;
   border-radius: 3px;
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
