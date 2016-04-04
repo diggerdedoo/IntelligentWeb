@@ -61,11 +61,6 @@ app.use(function(req, res, next){
   next();
 });
 
-// dummy database
-var users = {
-  tj: { name: 'tj' }
-};
-
 app.use(function (req, res, next) {
   if (req.session && req.session.user) {
 
@@ -85,21 +80,32 @@ app.use(function (req, res, next) {
 
 //initalises the server to 8081 and logs when this has been done
 var server = app.listen(8081, function () {
-
-  var host = server.address().address
-  var port = server.address().port
-  console.log("Listening at http://%s:%s", host, port)
-
+  var host = server.address().address;
+  var port = server.address().port;
+  console.log("Listening at http://localhost:%s", port);
 });
 
-// when you create a user, generate a salt
-// and hash the password ('foobar' is the pass here)
-hash('foobar', function (err, salt, hash){
-  if (err) throw err;
-  // store the salt & hash in the "db"
-  users.tj.salt = salt;
-  users.tj.hash = hash;
-});
+// stupid plaintext database
+var users = {};
+
+//Initialise some test users
+createUser('tj', 'foobar');
+createUser('a', 'a');
+
+//add a new user to the database *NEED TO SQL MAGIC THIS AT SOME POINT*
+function createUser(name, pass){
+  //intialise the user
+  users[name] = {};
+  users[name].name = name;
+  // when you create a user, generate a salt
+  // and hash the password
+  hash(pass, function (err, salt, hash){
+    if (err) throw err;
+    // store the salt & hash in the plain text db *SQL NEEDED*
+    users[name].salt = salt;
+    users[name].hash = hash;
+  });
+};
 
 // check if user is logged in, if not redirect them to the index
 function requireLogin (req, res, next) {
@@ -112,7 +118,7 @@ function requireLogin (req, res, next) {
 
 // Authenticate using our plain-object database
 function authenticate(name, pass, fn) {
-  if (!module.parent) console.log('Authenticating %s:%s', name, pass);
+  if (!module.parent) console.log('app.js Authenticating %s:%s', name, pass);
   var user = users[name];
   // query the db for the given username
   if (!user) return fn(new Error('cannot find user'));
@@ -148,7 +154,7 @@ app.get('/index', function (req, res, next){
 });
 
 app.get('/index.html', function (req, res, next){
-  res.sendFile(__dirname+'/public/index.html');
+  res.redirect('/index');
 });
 
 app.get('/home', function (req, res, next){
@@ -169,7 +175,7 @@ app.get('/queryInterface', restrict, function (req, res, next) {
 });
 
 app.get('/queryInterface.html', restrict, function (req, res, next) {
-  res.sendFile(__dirname+'/public/queryInterface.html');
+  res.redirect('/queryInterface');
 });
 
 // login procedure on index.html
@@ -191,7 +197,6 @@ app.post('/login', function (req, res, next){
     }
   });
 });
-
 
 // The 404 Route
 // This should be last

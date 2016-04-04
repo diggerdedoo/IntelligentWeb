@@ -1,19 +1,16 @@
 /**
  * Module dependencies.
  */
-
 var crypto = require('crypto');
 
 /**
  * Bytesize.
  */
-
 var len = 128;
 
 /**
  * Iterations. ~300ms
  */
-
 var iterations = 12000;
 
 /**
