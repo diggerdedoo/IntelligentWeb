@@ -247,7 +247,7 @@
             <div class="title">
                 <h2><span>Now you can use the form below to query the social web. This form works best with teams in the premier league, but feel free to set the criteria to whatever you wish.</span></h2>
             </div>
-                <form action="" method="post" class="form"> 
+                <form name="query" action="/queryinterface" method="post" class="form" accept-charset="utf-8"> 
                     <h1>Twitter Form</h1>
                     <label>
                         <span>Twitter Profile :</span>
@@ -304,6 +304,7 @@
                     <label>
                         <span>&nbsp;</span> 
                         <input type="button" class="button" value="Get Tweets" onclick="run();" /> 
+                        <input type="submit" value="POST form">
                     </label>    
                 </form>
                 <form name="logout" action="http://localhost:8081/logout">

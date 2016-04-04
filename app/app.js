@@ -6,7 +6,6 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     favicon = require('serve-favicon'),
     session = require('client-sessions'),
-    //session = require('express-sessions'),
     router = express.Router(),
     cookieParser = require('cookie-parser'),
     app = module.exports = express(),
@@ -22,7 +21,7 @@ var express = require('express'),
     connection = mysql.createConnection({
 	   host     : 'localhost',
 	   user     : 'team078',
-	   password : '0e90a044'
+     password : '0e90a044'
     });
 
 //Load the cookie-parsing middleware
@@ -176,6 +175,10 @@ app.get('/queryInterface', restrict, function (req, res, next) {
 
 app.get('/queryInterface.html', restrict, function (req, res, next) {
   res.redirect('/queryInterface');
+});
+
+app.post('/queryinterface', restrict, function (req, res, next) {
+  console.log("You posted the form I dunno what next");
 });
 
 app.get('/register', function (req, res, next) {
