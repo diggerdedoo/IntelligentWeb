@@ -191,6 +191,7 @@ app.get('/register.html', function (req, res, next) {
 
 // create a new user when asked
 app.post('/register', function (req, res, next) {
+  //check the password matches the confirmation
   if (req.body.password == req.body.passwordconfirmation) {
     createUser(req.body.username, req.body.password);
     res.redirect('/');
