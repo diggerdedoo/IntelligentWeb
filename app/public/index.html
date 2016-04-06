@@ -35,6 +35,9 @@
         </script>
     </head>
     <body>
+        <form class="logout" name="logout" action="http://localhost:8081/logout" style="position:fixed;right:10px;top:5px;">
+            <input type="submit" value="Log Out">
+        </form>
         <div class="index-wrapper">
             <div class="title">
                 <h1><span>Welcome!<span></h1>
@@ -53,14 +56,9 @@
                         </li>
                         <li>
                             <input type="submit" value="Login">
+                            <a class="register"href="/register">Don't have an account? Click here.</a>
                         </li>
                     </ul>
-                </form>
-                <form name="register" action="http://localhost:8081/register">
-                    <input type="submit" value="Register New User">
-                </form>
-                <form name="logout" action="http://localhost:8081/logout">
-                    <input type="submit" value="Log Out">
                 </form>
             </section>
         </div>

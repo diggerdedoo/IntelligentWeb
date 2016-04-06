@@ -233,93 +233,96 @@
         </script>
     </head>
     <body>
-    <div class="wrapper">
-        <div class="left-wrapper">
-            <ul id="toggle-view">
-                <li>
-                    <h2>First time using this form?</h2>
-                    <span>+</span>
-                    <div class="panel">
-                        <p>Twitter profile: This field is for specifying the twitter profile that you want to return tweets for. For example, 'MCFC' will return tweets from the offical Manchester city twitter account.<br>Key Words: This field is for specifying a key word you want the tweets returned to contain. For example, 'ref' will return all tweets that contain the word ref.<br>Count: This field is for specifying how many tweets you wish to return, note that the maximum is 300.<br>Date: This field is for specifying the date from which to get tweets from. For example, '2015-11-11' will only return tweets after the 11th of novemeber 2015.<br>Distance: This field is for specifying the distance from point in which to eturn tweets. For example, 100km will return tweets from a 100km radius of location, note that if you have entered a premier league teams twitter profile this point is set to the teams stadium.<br>Geo-location: This field is for specifying the longitude and latitude of your search of tweets, this field sets the centeral location of the radius set in the Distance field<br> Map: The map on the right hand side of the screen will display all the tweets that returned a location as a marker on the map. The map also displays the location of all the Premier League teams stadiums.</p>
-                    </div>
-                </li>
-            </ul>
-            <div class="title">
-                <h2><span>Now you can use the form below to query the social web. This form works best with teams in the premier league, but feel free to set the criteria to whatever you wish.</span></h2>
+      <form class="logout" name="logout" action="http://localhost:8081/logout" style="position:fixed;right:10px;top:5px;">
+          <input type="submit" value="Log Out">
+      </form>
+        <div class="wrapper">
+            <div class="left-wrapper">
+                <ul id="toggle-view">
+                    <li>
+                        <h2>First time using this form?</h2>
+                        <span>+</span>
+                        <div class="panel">
+                            <p>Twitter profile: This field is for specifying the twitter profile that you want to return tweets for. For example, 'MCFC' will return tweets from the offical Manchester city twitter account.<br>Key Words: This field is for specifying a key word you want the tweets returned to contain. For example, 'ref' will return all tweets that contain the word ref.<br>Count: This field is for specifying how many tweets you wish to return, note that the maximum is 300.<br>Date: This field is for specifying the date from which to get tweets from. For example, '2015-11-11' will only return tweets after the 11th of novemeber 2015.<br>Distance: This field is for specifying the distance from point in which to eturn tweets. For example, 100km will return tweets from a 100km radius of location, note that if you have entered a premier league teams twitter profile this point is set to the teams stadium.<br>Geo-location: This field is for specifying the longitude and latitude of your search of tweets, this field sets the centeral location of the radius set in the Distance field<br> Map: The map on the right hand side of the screen will display all the tweets that returned a location as a marker on the map. The map also displays the location of all the Premier League teams stadiums.</p>
+                        </div>
+                    </li>
+                </ul>
+                <div class="title">
+                    <h2><span>Now you can use the form below to query the social web. This form works best with teams in the premier league, but feel free to set the criteria to whatever you wish.</span></h2>
+                </div>
+                    <form name="query" action="/queryinterface" method="post" class="form" accept-charset="utf-8"> 
+                        <h1>Twitter Form</h1>
+                        <label>
+                            <span>Twitter Profile :</span>
+                            <input id="profile" type="text" list="suggestions"placeholder="Example: MCFC" />
+                            <datalist id="suggestions">
+                                <option value="Arsenal">
+                                <option value="AVFCOfficial">
+                                <option value="afcbournemouth">
+                                <option value="ChelseaFC">
+                                <option value="CPFC">
+                                <option value="Everton">
+                                <option value="LCFC">
+                                <option value="LFC">
+                                <option value="MCFC">
+                                <option value="ManUtd">
+                                <option value="NUFC">
+                                <option value="NorwichCityFC">
+                                <option value="SouthamptonFC">
+                                <option value="stokecity">
+                                <option value="SunderlandAFC">
+                                <option value="SwansOfficial">
+                                <option value="SpursOfficial">
+                                <option value="WBAFCofficial">
+                                <option value="whufc_official">
+                                <option value="WatfordFC">
+                            </datalist>
+                        </label>
+
+                        <label>
+                            <span>Key words :</span>
+                            <input id="keywords" name="keywords" type="text" placeholder="Example: Man Utd" />
+                        </label>
+
+                        <label>
+                            <span>Count :</span>
+                            <input id="count" name="count" type="number" placeholder="Example: 100" min="1" max="500"/>
+                        </label> 
+
+                        <label>
+                            <span>Date :</span>
+                            <input id="message" name="date" type="date" placeholder="Example: 2011-11-11" />
+                        </label>
+
+                        <label>
+                            <span>Distance :</span>
+                            <input id="message" name="distance" type="text" placeholder="Example: 100km" />
+                        </label>
+
+                        <label>
+                            <span>Geo-location :</span>
+                            <input id="message" type="text" placeholder="Example: 53.483125,-2.200406" />
+                        </label>
+
+                        <label>
+                            <span>&nbsp;</span> 
+                            <input type="button" class="button" value="Get Tweets" onclick="run();" /> 
+                            <input type="submit" value="POST form">
+                        </label>    
+                    </form>
+                    <form name="logout" action="http://localhost:8081/logout">
+                      <input type="submit" value="Log Out">
+                    </form>
+
+                <div id='myform_errorloc' class='error_strings'></div>
+                <img src="/images/ajax-loader.gif" id="img" style="display:none"/ >
             </div>
-                <form name="query" action="/queryinterface" method="post" class="form" accept-charset="utf-8"> 
-                    <h1>Twitter Form</h1>
-                    <label>
-                        <span>Twitter Profile :</span>
-                        <input id="profile" type="text" list="suggestions"placeholder="Example: MCFC" />
-                        <datalist id="suggestions">
-                            <option value="Arsenal">
-                            <option value="AVFCOfficial">
-                            <option value="afcbournemouth">
-                            <option value="ChelseaFC">
-                            <option value="CPFC">
-                            <option value="Everton">
-                            <option value="LCFC">
-                            <option value="LFC">
-                            <option value="MCFC">
-                            <option value="ManUtd">
-                            <option value="NUFC">
-                            <option value="NorwichCityFC">
-                            <option value="SouthamptonFC">
-                            <option value="stokecity">
-                            <option value="SunderlandAFC">
-                            <option value="SwansOfficial">
-                            <option value="SpursOfficial">
-                            <option value="WBAFCofficial">
-                            <option value="whufc_official">
-                            <option value="WatfordFC">
-                        </datalist>
-                    </label>
-
-                    <label>
-                        <span>Key words :</span>
-                        <input id="keywords" name="keywords" type="text" placeholder="Example: Man Utd" />
-                    </label>
-
-                    <label>
-                        <span>Count :</span>
-                        <input id="count" name="count" type="number" placeholder="Example: 100" min="1" max="500"/>
-                    </label> 
-
-                    <label>
-                        <span>Date :</span>
-                        <input id="message" name="date" type="date" placeholder="Example: 2011-11-11" />
-                    </label>
-
-                    <label>
-                        <span>Distance :</span>
-                        <input id="message" name="distance" type="text" placeholder="Example: 100km" />
-                    </label>
-
-                    <label>
-                        <span>Geo-location :</span>
-                        <input id="message" type="text" placeholder="Example: 53.483125,-2.200406" />
-                    </label>
-
-                    <label>
-                        <span>&nbsp;</span> 
-                        <input type="button" class="button" value="Get Tweets" onclick="run();" /> 
-                        <input type="submit" value="POST form">
-                    </label>    
-                </form>
-                <form name="logout" action="http://localhost:8081/logout">
-                  <input type="submit" value="Log Out">
-                </form>
-
-            <div id='myform_errorloc' class='error_strings'></div>
-            <img src="/images/ajax-loader.gif" id="img" style="display:none"/ >
+            <div class="right-wrapper">
+                <div id="map-canvas" style="width: 100%; height: 332px;"/>
+            </div>
+            <div class="bottom-right">
+                <h2><span>Tweets:</span></h2>
+            </div>
         </div>
-        <div class="right-wrapper">
-            <div id="map-canvas" style="width: 100%; height: 332px;"/>
-        </div>
-        <div class="bottom-right">
-            <h2><span>Tweets:</span></h2>
-        </div>
-    </div>
     </body>
 </html>
