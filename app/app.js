@@ -91,7 +91,7 @@ var users = {};
 createUser('tj', 'foobar');
 createUser('a', 'a');
 
-//add a new user to the database *NEED TO SQL MAGIC THIS AT SOME POINT*
+//add a new user to the database *TO BE SQL'ED*
 function createUser(name, pass){
   //intialise the user
   users[name] = {};
@@ -205,6 +205,8 @@ app.post('/register', function (req, res, next) {
 // login procedure on index.html
 app.post('/login', function (req, res, next){
   authenticate(req.body.username, req.body.password, function (err, user){
+    //delete the password as soon as we're done with it
+    req.body.password.delete;
     if (user) {
       // Regenerate session when signing in
       // to prevent fixation
