@@ -12,7 +12,6 @@ h1 {
   font-size: 100px;
   color: white; 
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-  font-weight: 300;
 }
 h2 { 
   top: 200px; 
@@ -99,6 +98,18 @@ a {
   display: inline-block;
   text-align: center;
 }
+.register-wrapper{
+  margin-top: 100px;
+  margin-right: 300px;
+  margin-left: 300px;
+  margin-bottom: 100px;
+  letter-spacing: 1px;  
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
+  padding: 50px; 
+  display: inherit;
+  text-align: center;
+}
 .oops-wrapper{
   margin-top: 100px;
   margin-right: 400px;
@@ -111,28 +122,66 @@ a {
 }
 .title { 
   text-align: center;
-  width: 100%; /* for IE 6 */
-  padding-bottom: 10px;
 }
 /*
 * Log out button
 */
-.logout{
+.logout input[type=submit] {
   border: 1px solid rgba(0, 0, 0, 0.3);
-  background: #64c8ef; /* Old browsers */
-  background: -moz-linear-gradient(top,  #64c8ef 0%, #00a2e2 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#64c8ef), color-stop(100%,#00a2e2)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #64c8ef 0%,#00a2e2 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #64c8ef 0%,#00a2e2 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #64c8ef 0%,#00a2e2 100%); /* IE10+ */
-  background: linear-gradient(to bottom,  #64c8ef 0%,#00a2e2 100%); /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64c8ef', endColorstr='#00a2e2',GradientType=0 ); /* IE6-9 */
+  background: #87cefa;
+  color: #fff;
+  padding: 5px 15px;
+  margin-right: 20px;
+  margin-top: 15px;
+  border-radius: 10px;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+/*
+* Register styling
+*/
+.registerform input:not([type=submit]) {
+    color: #555;
+    height: 30px;
+    line-height:15px;
+    width: 100%;
+    padding: 0px 0px 0px 10px;
+    margin-top: 2px;
+    border: 1px solid #E5E5E5;
+    background: #FBFBFB;
+    outline: 0;
+    -webkit-box-shadow: inset 1px 1px 2px rgba(238, 238, 238, 0.2);
+    box-shadow: inset 1px 1px 2px rgba(238, 238, 238, 0.2);
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    padding: 10px;
+    margin-right: 15px;
+    border: 3px solid rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    box-shadow: inset 0px 1px 3px 0px rgba(0, 0, 0, 0.1), 
+          0px 1px 0px 0px rgba(250, 250, 250, 0.5) ;
+}
+.registerform input[type=submit] {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  background: #87cefa;
   color: #fff;
   padding: 5px 15px;
   margin-right: 10px;
+  margin-left: 10px;
   margin-top: 15px;
   border-radius: 3px;
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+.registerform label{
+  text-align: left;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  margin-top: 10px;
+}
+.registerform li {
+  list-style: none;
+}
+.registerform{
+  margin-right: 50px;
 }
 /*
 * Map canvas styling
@@ -209,23 +258,18 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
   border-radius: 3px;
   box-shadow: inset 0px 1px 3px 0px rgba(0, 0, 0, 0.1), 
         0px 1px 0px 0px rgba(250, 250, 250, 0.5) ;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 .loginform input[type=submit] {
   border: 1px solid rgba(0, 0, 0, 0.3);
-  background: #64c8ef; /* Old browsers */
-  background: -moz-linear-gradient(top,  #64c8ef 0%, #00a2e2 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#64c8ef), color-stop(100%,#00a2e2)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #64c8ef 0%,#00a2e2 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #64c8ef 0%,#00a2e2 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #64c8ef 0%,#00a2e2 100%); /* IE10+ */
-  background: linear-gradient(to bottom,  #64c8ef 0%,#00a2e2 100%); /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64c8ef', endColorstr='#00a2e2',GradientType=0 ); /* IE6-9 */
+  background: #64c8ef;
   color: #fff;
   padding: 5px 15px;
   margin-right: 10px;
   margin-top: 15px;
   border-radius: 3px;
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 .register{
   color: #00B7FF;
@@ -299,7 +343,7 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
     max-width: 500px;
     background: #F8F8F8;
     padding: 30px 30px 20px 30px;
-    font: 12px Arial, Helvetica, sans-serif;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
     color: #666;
     border-radius: 5px;
     -webkit-border-radius: 5px;
@@ -334,7 +378,7 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
     margin-top: 10px;
     color: #5E5E5E;
 }
-.form input[type="text"], input[type="number"], .form textarea, .form select {
+.form input[type="text"], input[type="number"], input[type="date"], .form textarea, .form select {
     color: #555;
     height: 30px;
     line-height:15px;
@@ -346,7 +390,7 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
     outline: 0;
     -webkit-box-shadow: inset 1px 1px 2px rgba(238, 238, 238, 0.2);
     box-shadow: inset 1px 1px 2px rgba(238, 238, 238, 0.2);
-    font: normal 14px/14px Arial, Helvetica, sans-serif;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 .form textarea{
     height:100px;
@@ -363,15 +407,25 @@ datalist#suggestions option[value="WatfordFC"] { background-image:url('/images/W
     width:100%;
     height:30px;
 }
-.form button {
-    background-color: #87cefa;
-    border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -moz-border-border-radius: 5px;
-    border: none;
-    padding: 10px 25px 10px 25px;
-    color: #FFF;
-    text-shadow: 1px 1px 1px #949494;
+.twitterform input:not([type=submit]) {
+  padding: 10px;
+  margin-right: 15px;
+  border: 3px solid rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  box-shadow: inset 0px 1px 3px 0px rgba(0, 0, 0, 0.1), 
+        0px 1px 0px 0px rgba(250, 250, 250, 0.5) ;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+.twitterform input[type=submit] {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  background: #87cefa;
+  color: #fff;
+  padding: 5px 15px;
+  margin-right: 10px;
+  margin-top: 15px;
+  border-radius: 3px;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 /* 
 * Style for creating the backgorund to all the HTML pages 

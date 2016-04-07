@@ -303,17 +303,15 @@
                             <span>Geo-location :</span>
                             <input id="message" type="text" placeholder="Example: 53.483125,-2.200406" />
                         </label>
-
-                        <label>
-                            <span>&nbsp;</span> 
-                            <input type="button" class="button" value="Get Tweets" onclick="run();" /> 
-                            <input type="submit" value="POST form">
-                        </label>    
+                        
+                        <section class="twitterform">
+                          <label>
+                              <span>&nbsp;</span> 
+                              <input type="submit" value="Get Tweets" onclick="run();" /> 
+                              <input type="submit" value="POST form">
+                          </label>    
+                        </section>
                     </form>
-                    <form name="logout" action="http://localhost:8081/logout">
-                      <input type="submit" value="Log Out">
-                    </form>
-
                 <div id='myform_errorloc' class='error_strings'></div>
                 <img src="/images/ajax-loader.gif" id="img" style="display:none"/ >
             </div>
