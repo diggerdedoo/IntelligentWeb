@@ -62,9 +62,9 @@ var profile = '',
     count = 300,
     date = '2011-11-11',
     lan = 'en',
-    loc = checkLocation(profile),
-    geo = 400,
-    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + geo + "km";
+    loc = '',
+    dist = 400,
+    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
     tweettxt = new Array(), // array that will contain the returned tweet texts
     users = new Array(), // array that will contain the returned twitter users
     tweetloc = new Array(), // array that will contain the returned tweet locations
@@ -73,6 +73,7 @@ var profile = '',
 //checkSearch();
 //console.log(search);
 //checkCount(count);
+checkUserLoc(loc);
 getTweets();
 
 // Function to be called when the form is submitted 
@@ -82,10 +83,11 @@ function run(){
       keyword = form.elements[1].value,
       count = form.elements[2].value,
       date = form.elements[3].value,
-      geo = form.elements[4].value,
+      dist = form.elements[4].value,
+      loc = form.elements[5].value,
       lan = 'en',
-      search = keyword + " since:" + date + " lang:" + lan + " geocode:" + geo;
-      search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + geo + "km";
+      search = keyword + " since:" + date + " lang:" + lan + " geocode:" + dist + "km";
+      search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
       tweettxt = new Array(),
       users = new Array(),
       tweetloc = new Array(),
@@ -93,7 +95,7 @@ function run(){
 
   // Run order of all the social web queries for twitter
   checkSearch();
-  checkLocation(profile);
+  checkUserLoc(loc);
   checkCount(count);  
   getTweets();
   getPlayerTweets();
@@ -117,27 +119,38 @@ function checkTeam(profile){
   }
 }
 
-// function to check which team is being searched so the geocode location for the teams stadium can be returned
+// Function for checking a location was provided
+function checkUserLoc(loc){
+  if ( loc == ''){
+    checkLocation(profile); // If not location has been provided check it against locations 
+  } else {
+    return loc; // If a location has been provided, just use that
+  }
+}
+
+// Function to check which team is being searched so the geocode location for the teams stadium can be returned
 function checkLocation(profile){
   if (locations[profile]){
     return locations[profile]; // match the location with the team name
   } else if (locations[keyword]){
-    return locations[keyword];
+    return locations[keyword]; // if no match then match with the keyword used
   } else {
-    return null // if the profile searched isnt in locations, then don't include geocode coordinates
+    return null // if the profile searched isnt in locations, then return null
   }
 }
 
-// function for checking the search criteria and if it matches a location of a stadium 
+// Function for checking the search criteria and if it matches a location of a stadium 
 function checkSearch(){
   if ( checkLocation(profile)==null){
-    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + geo + "km";
+    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + dist + "km";
+  } else if ( loc == null) {
+    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + dist + "km";
   } else {
-    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + geo + "km";
+    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
   }
 }
 
-// function for handling the tweets
+// Function for handling the tweets
 function handleTweets(err, data){
   if (err) {
     console.error('Get error', err)
@@ -163,7 +176,7 @@ function handleFriends(err, data){
   }
 }
 
-// Function for creating an object of users tweets
+// Function for creating an object of users tweets, takes the object the key and the data asociated with that key and returns an object 
 function pushToobject(obj, key, data) {
    if (!Array.isArray(obj[key])) obj[key] = [];
    return obj[key].push(data);
@@ -298,13 +311,16 @@ function getPlayerTweets(){
   count = 1; // change count to 1 so as to get only the most recent tweet
   for (var i = 0; i <= players.length; i++){
     profile = players[i]; // change the profile to the players
+    keepcount = count; // store the count value
+    count = 5; // Change count to 5 to get the players 5 most recent tweets
     getTweets(); // getTweets with the new variables
+    count = keepcount; // change count back to its original value
   }
 }
 
 // Function for searching for the mentions of a profile
 function getMentions(){
-  if ( profile = ""){
+  if ( profile = ''){
     console.log('No profile provided.');// user has not provided a profile to search
   } else {
     keyword = '@' + profile; // change the keyword to be the profile that the user wishes to search
