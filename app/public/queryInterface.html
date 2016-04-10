@@ -248,13 +248,13 @@
                     </li>
                 </ul>
                 <div class="title">
-                    <h2><span>Now you can use the form below to query the social web. This form works best with teams in the premier league, but feel free to set the criteria to whatever you wish.</span></h2>
+                    <h2><span>Now you can use the form below to query the social web. This form works best with teams in the premier league, but feel free to set the criteria to whatever you wish. All fields marked with a * are required fields.</span></h2>
                 </div>
                     <form name="query" action="/queryinterface" method="post" class="form" accept-charset="utf-8"> 
                         <h1>Twitter Form</h1>
                         <label>
-                            <span>Twitter Profile :</span>
-                            <input id="profile" type="text" list="suggestions"placeholder="Example: MCFC" />
+                            <span>Twitter Profile*:</span>
+                            <input id="profile" type="text" list="suggestions"placeholder="Example: MCFC" required/>
                             <datalist id="suggestions">
                                 <option value="Arsenal">
                                 <option value="AVFCOfficial">
@@ -280,27 +280,32 @@
                         </label>
 
                         <label>
-                            <span>Key words :</span>
-                            <input id="keywords" name="keywords" type="text" placeholder="Example: Man Utd" />
+                            <span>Key words*:</span>
+                            <input id="keywords" name="keywords" type="text" placeholder="Example: Man Utd" required/>
                         </label>
 
                         <label>
-                            <span>Count :</span>
+                            <span>HashTags*:</span>
+                            <input id="hashtags" name="hashtags" type="text" placeholder="Example: #premierleague" />
+                        </label>
+
+                        <label>
+                            <span>Count:</span>
                             <input id="count" name="count" type="number" placeholder="Example: 100" min="1" max="500"/>
                         </label> 
 
                         <label>
-                            <span>Date :</span>
+                            <span>Date:</span>
                             <input id="message" name="date" type="date" placeholder="Example: 2011-11-11" />
                         </label>
 
                         <label>
-                            <span>Distance :</span>
+                            <span>Distance:</span>
                             <input id="message" name="distance" type="text" placeholder="Example: 100km" />
                         </label>
 
                         <label>
-                            <span>Geo-location :</span>
+                            <span>Geo-location:</span>
                             <input id="message" type="text" placeholder="Example: 53.483125,-2.200406" />
                         </label>
                         

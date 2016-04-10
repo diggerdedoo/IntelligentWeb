@@ -60,7 +60,7 @@ var locations = {
 var profile = '',
     keyword = 'MCFC',
     count = 300,
-    date = '2011-11-11',
+    date = '2015-11-11',
     lan = 'en',
     loc = '',
     dist = 400,
@@ -69,11 +69,14 @@ var profile = '',
     users = new Array(), // array that will contain the returned twitter users
     tweetloc = new Array(), // array that will contain the returned tweet locations
     tweetobj = {}; // object that contains both the users and their collection of tweets
+    userobj = {};
 
 //checkSearch();
 //console.log(search);
 //checkCount(count);
-checkUserLoc(loc);
+loc = checkUserLoc(loc);
+checkSearch();
+console.log(search);
 getTweets();
 
 // Function to be called when the form is submitted 
@@ -92,6 +95,7 @@ function run(){
       users = new Array(),
       tweetloc = new Array(),
       tweetobj = {};
+      userobj = {};
 
   // Run order of all the social web queries for twitter
   checkSearch();
@@ -101,9 +105,9 @@ function run(){
   getPlayerTweets();
 }
 
-// function to make sure count is 300 or less, so as not return to many tweets
+// function to make sure count is at least 300, so as not return to few tweets
 function checkCount(count){
-  if (count > 300 ) {
+  if (count < 300 ) {
     count = 300;
   } else {
     count = count;
@@ -122,9 +126,13 @@ function checkTeam(profile){
 // Function for checking a location was provided
 function checkUserLoc(loc){
   if ( loc == ''){
-    checkLocation(profile); // If not location has been provided check it against locations 
+    if ( checkLocation(profile) != null){
+      return checkLocation(profile); // If no location has been provided check it against locations 
+    } else {
+      return ''; // else keep loc as empty
+    }
   } else {
-    return loc; // If a location has been provided, just use that
+    console.log("No location provided.")// If a location has been provided, just use that
   }
 }
 
@@ -155,14 +163,18 @@ function handleTweets(err, data){
   if (err) {
     console.error('Get error', err)
   } else {
-    sortTweets(data); // sort the tweet data
-    top = getTopwords(); // then find the most frequent words in the data
-    topu = getTopusers(); // then find the most frequent users
-    // used for testing 
-    console.log(top);
-    console.log(topu);
-    console.log(tweetloc);
-    console.log(tweetobj);
+    if ( tweetobj == {}){
+      Console.log("Not enough tweets returned in the date range, please change the date.")
+    } else {
+      sortTweets(data); // sort the tweet data
+      top = getTopwords(); // then find the most frequent words in the data
+      topu = getTopusers(); // then find the most frequent users
+      getUserswords();
+      // used for testing 
+      console.log(top);
+      console.log(topu);
+      console.log(userobj);
+    }
   }
 }
 
@@ -285,6 +297,47 @@ function getTopusers(){
   }
 }
 
+// Function for returning the most frequently used words for each user
+function getUserswords(){
+  for (var key in tweetobj) {
+    if (tweetobj.hasOwnProperty(key)) {
+      var obj = tweetobj[key],
+          string = obj + "", // turn the array into a string
+          changedString = string.replace(/,/g, " "), // remove the array elements 
+          split = changedString.split(" "), // split the string 
+          words = [];
+
+      // Loop through each word and count its occurance
+      for (var i=0; i<split.length; i++){
+        if(words[split[i]]===undefined){
+          words[split[i]]=1;
+        } else {
+          words[split[i]]++;
+        }
+      }
+      words = Object.keys(words).map(function (k) { return { word: k, num: words[k] }; });// create an object with the key, word which is the word taken from getFreqword() and the key, num which is the number of occurances of that word 
+      var toptenu = [];
+
+      // Sort in descending order by the key num:
+      words = words.sort(function (a, b){
+        return b.num - a.num
+      });
+
+      if (words.length <= 10){
+        words = toptenu; // if topwords doesn't have 20 elements then just make toptwenty equal to topwords
+      } else {
+        for (var i=0; i<=10; i++){
+          toptenu.push(words[i]); // if topwords has more than 20 elements then push the first 20 elements in topwords to the toptwenty array
+        }
+      }
+      pushToobject(userobj, key, toptenu);
+    } else {
+      console.log("No tweets to check");
+      continue;
+    }
+  }
+}
+
 // Function for searching through twitter using the specified data
 function getTweets(){
   client.get('search/tweets', { 
@@ -312,7 +365,7 @@ function getPlayerTweets(){
   for (var i = 0; i <= players.length; i++){
     profile = players[i]; // change the profile to the players
     keepcount = count; // store the count value
-    count = 5; // Change count to 5 to get the players 5 most recent tweets
+    count = 10; // Change count to 10 to get the players 10 most recent tweets
     getTweets(); // getTweets with the new variables
     count = keepcount; // change count back to its original value
   }
