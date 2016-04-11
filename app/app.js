@@ -168,12 +168,12 @@ connection.query('SELECT 1 FROM querys LIMIT 1', function (err, res){
       if(err) {
           console.log(err);
       } else {
-          console.log("Table tweets Created");
+          console.log("Table querys Created");
       }
     });
   //else do nothing
   } else {
-    console.log('Table tweets already exists.');
+    console.log('Table querys already exists.');
   }
 });
 
