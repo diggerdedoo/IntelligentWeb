@@ -7,6 +7,14 @@ var client = new Twit({
   access_token_secret: 'LlQCF7QCj5UOlli8LSU4BhAnF9ouiJliSZ7bFeOqm36p9',
   timeout_ms: 60*1000,
 });
+var mysql = require('mysql'),
+    connection = mysql.createConnection({
+      host     : 'stusql.dcs.shef.ac.uk',
+      user     : 'team078',
+      password : '0e90a044',
+      database : 'team078',
+      port     : 3306,
+    });
 
 // Object containing the players on twitter for each premier league football club
 var teams = {
@@ -58,7 +66,7 @@ var locations = {
 
 // Placeholder variables
 var profile = '',
-    keyword = 'pep',
+    keyword = 'trump',
     count = 300,
     date = '2015-11-11',
     lan = 'en',
@@ -166,6 +174,7 @@ function handleTweets(err, data){
     if ( tweetobj == {}){
       Console.log("Not enough tweets returned in the date range, please change the date.")
     } else {
+      storeTweets(data); // store the tweets in the SQL database
       sortTweets(data); // sort the tweet data
       top = getTopwords(); // then find the most frequent words in the data
       topu = getTopusers(); // then find the most frequent users
@@ -173,8 +182,8 @@ function handleTweets(err, data){
       var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
       str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
       // used for testing 
-      console.log(top);
-      console.log(topu);
+      //console.log(top);
+      //console.log(topu);
     }
   }
 }
@@ -209,6 +218,14 @@ function sortTweets (data) {
       console.log('No Tweet location available.'); // If no tweet location log it in the console. 
     }
   }
+}
+
+//Store the tweets in the SQL database
+function storeTweets(data){
+  //Store the first tweet for now
+  var tweet = data.statuses[0];
+  tweetData = {id: tweet.id, userName: tweet.user.screen_name, userHandle: tweet.user.name}
+  console.log("STORING "+tweetData);
 }
 
 // Function for sorting through the twitter profile to return relevant information

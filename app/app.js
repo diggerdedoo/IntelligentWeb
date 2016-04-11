@@ -87,16 +87,33 @@ var server = app.listen(8081, function () {
 });
 
 
-//DROP TABLE function if you want to reset the data or something
-/*
-connection.query('DROP TABLE tweets', function (err, res){
-  if(err) {
-    console.log(err);
-  } else {
-    console.log("Table tweets Dropped");
-  }
-})
-*/
+//Uncomment the below function if you want to reset the data or something
+//dropTables();
+
+//Drops all the tables
+function dropTables(){
+  connection.query('DROP TABLE tweets', function (err, res){
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("Table tweets Dropped");
+    }
+  });
+  connection.query('DROP TABLE users', function (err, res){
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("Table users Dropped");
+    }
+  });
+  connection.query('DROP TABLE querys', function (err, res){
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("Table querys Dropped");
+    }
+  });
+}
 
 //Check if the sql table 'users' exists, if not, create it.
 connection.query('SELECT 1 FROM users LIMIT 1', function (err, res){
@@ -105,14 +122,14 @@ connection.query('SELECT 1 FROM users LIMIT 1', function (err, res){
     //Create the table
     connection.query('CREATE TABLE users ('+
       ' id int NOT NULL AUTO_INCREMENT,'+
-      ' username VARCHAR(30) NOT NULL,'+
+      ' name VARCHAR(30) NOT NULL,'+
       ' salt VARCHAR(1000),'+
       ' hash VARCHAR(1000),'+
       ' PRIMARY KEY(id))', function (err, res){
       if(err) {
         console.log(err);
       } else {
-        console.log("Table users created");
+        console.log("Table users Created");
         //Initialise intial database values
         createUserSQL('tj', 'foobar');
         createUserSQL('a', 'a');
@@ -130,9 +147,9 @@ connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
   if(err) {
     connection.query('CREATE TABLE tweets ('+
       'id int NOT NULL,'+
-      ' authorName VARCHAR(20),'+
-      ' authorHandle VARCHAR(15),'+
-      ' authorProfilePicture VARCHAR(200),'+
+      ' userName VARCHAR(20),'+
+      ' userHandle VARCHAR(15),'+
+      ' userProfilePicture VARCHAR(200),'+
       ' retweetedBy VARCHAR(15),'+
       ' createdAt DATETIME,'+
       ' tweetText VARCHAR(140),'+
@@ -204,12 +221,12 @@ function createUser(name, pass){
 //Create a new user, push it onto the sql server
 function createUserSQL(name, pass){
   //Check if the username has already been taken
-  connection.query('SELECT 1 FROM users WHERE username = ? LIMIT 1;', name, function (err, result){
+  connection.query('SELECT 1 FROM users WHERE name = ? LIMIT 1;', name, function (err, result){
     if (err) {
       console.log(err);
     } else if (result.length == 1){
       //User already exists, do nothing
-      console.log("User %s already exists!", name);
+      console.log("User '%s' already exists!", name);
     } else {
       // User doesn't exist, create it
       // when you create a user, generate a salt
@@ -217,12 +234,12 @@ function createUserSQL(name, pass){
       hash(pass, function (err, salt, hash){
         if (err) throw err;
         // insert the user data into the sql server 
-        data = {username: name, salt: salt, hash: hash};
+        data = {name: name, salt: salt, hash: hash};
         connection.query('INSERT INTO users SET ?', data, function (err, res){
           if(err) {
             console.log(err);
           } else {
-            console.log("User Created");
+            console.log("User '%s' Created", name);
           }
         });
       });  
