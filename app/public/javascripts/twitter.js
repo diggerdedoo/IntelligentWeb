@@ -220,6 +220,7 @@ function sortTweets (data) {
   }
 }
 
+/* SHIT DON'T WORK, TBD
 //Store the tweets in the SQL database
 function storeTweets(data){
   //Store the first tweet for now
@@ -250,18 +251,27 @@ function storeTweets(data){
     userMentionsData = null;
   }
 
+  //get the coordinates
   if (tweet.coordinates != null){
     coordinatesData = tweet.coordinates.coordinates[0]+','+tweet.coordinates.coordinates[1];
   } else {
     coordinatesData = null;
   }
 
-  //get the coordinates
-  console.log("STORING "+coordinates);
+  connection.query('DELETE FROM tweets WHERE id = ?', tweet.id, function (err, res){
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("Tweet successfully deleted from the db");
+    }
+  });
 
+  usernameData = "\""+tweet.user.screen_name+"\""
+
+  //Prepare the tweet data
   tweetData = {
     id: tweet.id,
-    userName: tweet.user.screen_name,
+    userName: 'test'
     userHandle: tweet.user.name,
     userProfilePicture: tweet.user.profile_image_url,
     //createdAt: 
@@ -272,7 +282,17 @@ function storeTweets(data){
     coordinates: coordinatesData
   };
 
+  qryStr = ('INSERT INTO users (id, userName) VALUES (%s, \'%s\')', [tweet.id, "test"])
+  //Add the tweetData to the database
+  connection.query(qryStr, function (err, res){
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("Tweet succesfully added to the db");
+    }
+  });
 }
+*/
 
 // Function for sorting through the twitter profile to return relevant information
 function sortProfile (data) {

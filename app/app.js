@@ -194,16 +194,14 @@ connection.query('SELECT 1 FROM querys LIMIT 1', function (err, res){
   }
 });
 
-
-
-// plaintext users database
+// plaintext users database, for use before we set up the SQL for it, will then be deleted
 var users = {};
 
 //Initialise some test users
 createUser('tj', 'foobar');
 createUser('a', 'a');
 
-//add a new user to the database *TO BE SQL'ED*
+//add a new user to the database SQL'ed version below
 function createUser(name, pass){
   //intialise the user
   users[name] = {};
