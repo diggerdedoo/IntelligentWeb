@@ -19,11 +19,11 @@ var express = require('express'),
     }),
     mysql = require('mysql'),
     connection = mysql.createConnection({
-	   host     : 'stusql.dcs.shef.ac.uk',
-	   user     : 'team078',
-     password : '0e90a044',
-     database : 'team078',
-     port     : 3306,
+      host     : 'stusql.dcs.shef.ac.uk',
+      user     : 'team078',
+      password : '0e90a044',
+      database : 'team078',
+      port     : 3306,
     });
 
 //Load the cookie-parsing middleware

@@ -58,7 +58,7 @@ var locations = {
 
 // Placeholder variables
 var profile = '',
-    keyword = 'MCFC',
+    keyword = 'pep',
     count = 300,
     date = '2015-11-11',
     lan = 'en',
@@ -71,9 +71,7 @@ var profile = '',
     tweetobj = {}; // object that contains both the users and their collection of tweets
     userobj = {};
 
-//checkSearch();
-//console.log(search);
-//checkCount(count);
+// run outside of run function
 loc = checkUserLoc(loc);
 checkSearch();
 console.log(search);
@@ -98,11 +96,13 @@ function run(){
       userobj = {};
 
   // Run order of all the social web queries for twitter
+  loc = checkUserLoc(loc);
   checkSearch();
   checkUserLoc(loc);
   checkCount(count);  
   getTweets();
   getPlayerTweets();
+  getMentions();
 }
 
 // function to make sure count is at least 300, so as not return to few tweets
@@ -150,9 +150,9 @@ function checkLocation(profile){
 // Function for checking the search criteria and if it matches a location of a stadium 
 function checkSearch(){
   if ( checkLocation(profile)==null){
-    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + dist + "km";
+    search = keyword + " since:" + date + " lang:" + lan;
   } else if ( loc == null) {
-    search = keyword + " since:" + date + " lang:" + lan + " geocode:" + dist + "km";
+    search = keyword + " since:" + date + " lang:" + lan;
   } else {
     search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
   }
@@ -175,7 +175,6 @@ function handleTweets(err, data){
       // used for testing 
       console.log(top);
       console.log(topu);
-      console.log(str);
     }
   }
 }
