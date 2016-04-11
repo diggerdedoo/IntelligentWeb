@@ -124,6 +124,7 @@ connection.query('SELECT 1 FROM users LIMIT 1', function (err, res){
   }
 });
 
+//Check if the sql table 'tweets' exists, if not, create it.
 connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
   //Query will throw error if the table doesn't exist, so then create it
   if(err) {
@@ -150,6 +151,32 @@ connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
     console.log('Table tweets already exists.');
   }
 });
+
+//Check if the sql table 'querys' exists, if not, create it.
+connection.query('SELECT 1 FROM querys LIMIT 1', function (err, res){
+  //Query will throw error if the table doesn't exist, so then create it
+  if(err) {
+    connection.query('CREATE TABLE querys ('+
+      ' id int NOT NULL,'+
+      ' users VARCHAR(200),'+
+      ' usersMentions VARCHAR(200),'+
+      ' hashtags VARCHAR(200),'+
+      ' keywords VARCHAR(200),'+
+      ' createdAt DATETIME,'+
+      ' lang VARCHAR(10),'+
+      ' PRIMARY KEY(id))', function (err, res){
+      if(err) {
+          console.log(err);
+      } else {
+          console.log("Table tweets Created");
+      }
+    });
+  //else do nothing
+  } else {
+    console.log('Table tweets already exists.');
+  }
+});
+
 
 
 // plaintext users database
