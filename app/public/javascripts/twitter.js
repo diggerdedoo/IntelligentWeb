@@ -170,10 +170,12 @@ function handleTweets(err, data){
       top = getTopwords(); // then find the most frequent words in the data
       topu = getTopusers(); // then find the most frequent users
       getUserswords();
+      var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
+      str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
       // used for testing 
       console.log(top);
       console.log(topu);
-      console.log(userobj);
+      console.log(str);
     }
   }
 }
@@ -323,11 +325,11 @@ function getUserswords(){
         return b.num - a.num
       });
 
-      if (words.length <= 10){
-        words = toptenu; // if topwords doesn't have 20 elements then just make toptwenty equal to topwords
+      if (words.length <= 9){
+        words = toptenu; // if topwords doesn't have 10 elements then just make toptwenty equal to topwords
       } else {
-        for (var i=0; i<=10; i++){
-          toptenu.push(words[i]); // if topwords has more than 20 elements then push the first 20 elements in topwords to the toptwenty array
+        for (var i=0; i<=9; i++){
+          toptenu.push(words[i]); // if topwords has more than 10 elements then push the first 20 elements in topwords to the toptwenty array
         }
       }
       pushToobject(userobj, key, toptenu);
