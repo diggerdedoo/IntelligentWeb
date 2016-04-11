@@ -56,9 +56,12 @@ var locations = {
   'WatfordFC': ['51.649871,-0.401363'],
 }
 
+// array for unwanted words
+var unwanted = ['','RT','a','I','i','The','the','and','too','to','retweet','-','.',',',':',';','/'];
+
 // Placeholder variables
 var profile = '',
-    keyword = 'pep',
+    keyword = 'Hitler',
     count = 300,
     date = '2015-11-11',
     lan = 'en',
@@ -163,19 +166,15 @@ function handleTweets(err, data){
   if (err) {
     console.error('Get error', err)
   } else {
-    if ( tweetobj == {}){
-      Console.log("Not enough tweets returned in the date range, please change the date.")
-    } else {
-      sortTweets(data); // sort the tweet data
-      top = getTopwords(); // then find the most frequent words in the data
-      topu = getTopusers(); // then find the most frequent users
-      getUserswords();
-      var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
-      str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
-      // used for testing 
-      console.log(top);
-      console.log(topu);
-    }
+    sortTweets(data); // sort the tweet data
+    top = getTopwords(); // then find the most frequent words in the data
+    topu = getTopusers(); // then find the most frequent users
+    getUserswords();
+    var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
+    str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
+    // used for testing 
+    console.log(top);
+    console.log(topu);
   }
 }
 
@@ -237,11 +236,23 @@ function getFreqword(){
   return words;
 }
 
+// Function for checking if a common word is unwanted
+function chkwrd(string){
+  var found = false;
+  for (i = 0; i < unwanted.length && !found; i++) {
+    if (unwanted[i] === string) {
+      found = true;
+      return true;
+    }
+  }
+}
+
 // Function for returning the top 20 words from getFreqword()
 function getTopwords(){
   var topwords = getFreqword(), // Call the getFreqword() function
       topwords = Object.keys(topwords).map(function (k) { return { word: k, num: topwords[k] }; }), // create an object with the key, word which is the word taken from getFreqword() and the key, num which is the number of occurances of that word 
-      toptwenty = [];
+      toptwenty = [],
+      twenty = 20;
 
   // Sort in descending order by the key num:
   topwords = topwords.sort(function (a, b){
@@ -252,8 +263,12 @@ function getTopwords(){
     topwords = toptwenty; // if topwords doesn't have 20 elements then just make toptwenty equal to topwords
     return toptwenty;
   } else {
-    for (var i=0; i<=20; i++){
-      toptwenty.push(topwords[i]); // if topwords has more than 20 elements then push the first 20 elements in topwords to the toptwenty array
+    for (var i=0; i<=twenty; i++){
+      if (chkwrd(topwords[i].word) === true ) {
+          twenty = twenty + 1; // if the word is a blacklisted word then don't inlcude it and add one to the index limit so twenty words are returned
+      } else {
+          toptwenty.push(topwords[i]); // if topwords has more than 20 elements then push the first 20 elements in topwords to the toptwenty array
+      }
     }
     return toptwenty;
   }
