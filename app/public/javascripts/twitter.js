@@ -176,6 +176,7 @@ function handleTweets(err, data){
       console.log(top);
       console.log(topu);
       console.log(str);
+      console.log(tweetloc);
     }
   }
 }
