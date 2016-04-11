@@ -66,7 +66,7 @@ var locations = {
 
 // Placeholder variables
 var profile = '',
-    keyword = 'the sun is just one big space heater',
+    keyword = 'still trying to fend off cellulite',
     count = 300,
     date = '2015-11-11',
     lan = 'en',
@@ -171,8 +171,8 @@ function handleTweets(err, data){
   if (err) {
     console.error('Get error', err)
   } else {
-    if ( tweetobj == {}){
-      Console.log("Not enough tweets returned in the date range, please change the date.")
+    if ( data.statuses[0] == undefined){
+      console.log("Not enough tweets returned in the date range, please change the date.")
     } else {
       storeTweets(data); // store the tweets in the SQL database
       sortTweets(data); // sort the tweet data
@@ -224,35 +224,54 @@ function sortTweets (data) {
 function storeTweets(data){
   //Store the first tweet for now
   var tweet = data.statuses[0];
+  console.log("GOT: "+tweet.text);
 
   //get the hashtags array as a string
-  hashtagData = '';
-  for (var indx in tweet.entities.hashtags){
-    hashtagData += tweet.entities.hashtags[indx].text+',';
-  }
-  //get rid of the final ',', but not if there's nothing to get rid of
-  if (hashtagData != ''){
+  if (tweet.entities.hashtags != undefined){
+    hashtagData = '';
+    for (var indx in tweet.entities.hashtags){
+      hashtagData += tweet.entities.hashtags[indx].text+',';
+    }
+    //get rid of the final ','
     hashtagData = hashtagData.slice(0, -1);
+  } else {
+    hashtagData = null;
   }
 
   //do the same for user mentions
-  userMentionsData = '';
-  for (var indx in tweet.entities.user_mentions){
-    userMentionsData += tweet.entities.user_mentions[indx].screen_name+',';
-  }
-  if (userMentionsData != ''){
+  if (tweet.entities.user_mentions != undefined){
+    userMentionsData = '';
+    for (var indx in tweet.entities.user_mentions){
+      userMentionsData += tweet.entities.user_mentions[indx].text+',';
+    }
+    //get rid of the final ','
     userMentionsData = userMentionsData.slice(0, -1);
+  } else {
+    userMentionsData = null;
   }
+
+  if (tweet.coordinates != null){
+    coordinatesData = tweet.coordinates.coordinates[0]+','+tweet.coordinates.coordinates[1];
+  } else {
+    coordinatesData = null;
+  }
+
+  //get the coordinates
+  console.log("STORING "+coordinates);
 
   tweetData = {
     id: tweet.id,
     userName: tweet.user.screen_name,
     userHandle: tweet.user.name,
     userProfilePicture: tweet.user.profile_image_url,
+    //createdAt: 
+    //retweetedBy:
     tweetText: tweet.text,
-    hashtags: hashtagData
+    hashtags: hashtagData,
+    userMentions: userMentionsData,
+    coordinates: coordinatesData
   };
-  console.log("STORING "+hashtagData);
+
 }
 
 // Function for sorting through the twitter profile to return relevant information

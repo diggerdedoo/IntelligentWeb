@@ -155,7 +155,7 @@ connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
       ' tweetText VARCHAR(140),'+
       ' hashtags VARCHAR(210),'+
       ' userMentions VARCHAR(210),'+
-      ' geoCoords VARCHAR(200),'+
+      ' coordinates VARCHAR(200),'+
       ' PRIMARY KEY(id))', function (err, res){
       if(err) {
           console.log(err);
