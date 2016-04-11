@@ -66,7 +66,7 @@ var locations = {
 
 // Placeholder variables
 var profile = '',
-    keyword = 'trump',
+    keyword = 'the sun is just one big space heater',
     count = 300,
     date = '2015-11-11',
     lan = 'en',
@@ -215,7 +215,7 @@ function sortTweets (data) {
     if (tweet.geo != null){
       tweetloc.push(tweet.geo); // push the twitter geo location so that the locations can be displayed on a map, if geocode is present
     } else {
-      console.log('No Tweet location available.'); // If no tweet location log it in the console. 
+      //console.log('No Tweet location available.'); // If no tweet location log it in the console. 
     }
   }
 }
@@ -224,8 +224,35 @@ function sortTweets (data) {
 function storeTweets(data){
   //Store the first tweet for now
   var tweet = data.statuses[0];
-  tweetData = {id: tweet.id, userName: tweet.user.screen_name, userHandle: tweet.user.name}
-  console.log("STORING "+tweetData);
+
+  //get the hashtags array as a string
+  hashtagData = '';
+  for (var indx in tweet.entities.hashtags){
+    hashtagData += tweet.entities.hashtags[indx].text+',';
+  }
+  //get rid of the final ',', but not if there's nothing to get rid of
+  if (hashtagData != ''){
+    hashtagData = hashtagData.slice(0, -1);
+  }
+
+  //do the same for user mentions
+  userMentionsData = '';
+  for (var indx in tweet.entities.user_mentions){
+    userMentionsData += tweet.entities.user_mentions[indx].screen_name+',';
+  }
+  if (userMentionsData != ''){
+    userMentionsData = userMentionsData.slice(0, -1);
+  }
+
+  tweetData = {
+    id: tweet.id,
+    userName: tweet.user.screen_name,
+    userHandle: tweet.user.name,
+    userProfilePicture: tweet.user.profile_image_url,
+    tweetText: tweet.text,
+    hashtags: hashtagData
+  };
+  console.log("STORING "+hashtagData);
 }
 
 // Function for sorting through the twitter profile to return relevant information
