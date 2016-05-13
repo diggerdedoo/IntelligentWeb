@@ -1,21 +1,3 @@
-// Dependancies
-var Twit = require('twit');
-var client = new Twit({
-  consumer_key: 'aGvgbxGtSKTWdcxGf3paz90Kq',
-  consumer_secret: 'PJwjJPJFUuWuEvzyj3G2fxbfy7yvFb00mRd45rRrKtJ4Ea39rj',
-  access_token: '221331440-s4Bgw21Z9xhlGe8QuGphtKjx0ZXg4h3sEYNUERff',
-  access_token_secret: 'LlQCF7QCj5UOlli8LSU4BhAnF9ouiJliSZ7bFeOqm36p9',
-  timeout_ms: 60*1000,
-});
-var mysql = require('mysql'),
-    connection = mysql.createConnection({
-      host     : 'stusql.dcs.shef.ac.uk',
-      user     : 'team078',
-      password : '0e90a044',
-      database : 'team078',
-      port     : 3306,
-    });
-
 // Object containing the players on twitter for each premier league football club
 var teams = {
   'Arsenal': ['mertesacker', 'HectorBellerin', 'aaronramsey', 'Alex_OxChambo', 'joel_campbell12', 'SergeGnabry', 'MesutOzil1088', '_OlivierGiroud_', 'JackWilshere', 'm8arteta', '19SCazorla', 'D_Ospina1', 'Alexis_Sanchez', 'CalumChambers95', 'KieranGibbs', 'theowalcott', 'gpaulista5', '6_LKOSCIELNY', '_nachomonreal', 'MatDebuchy', 'PetrCech'],
@@ -65,20 +47,16 @@ var locations = {
 }
 
 // array for unwanted words
-var unwanted = ['','RT','a','I','i','The','the','and','too','to','retweet','-','.',',',':',';','/'];
+var unwanted = ['','RT','a','I','i','The','the','and','too','to','retweet','-','.',',',':',';','/','@','v'];
 
 // Placeholder variables
-var profile = '',
-<<<<<<< HEAD
-    keyword = 'Hitler',
-=======
-    keyword = 'trump',
->>>>>>> ae1aa8f8273953663787ef65e41978c702c3c90b
+var profile = 'snowden',
+    keyword = 'FBI',
     count = 300,
-    date = '2015-11-11',
+    date = '2010-11-11',
     lan = 'en',
     loc = '',
-    dist = 400,
+    dist = '',
     search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
     tweettxt = new Array(), // array that will contain the returned tweet texts
     users = new Array(), // array that will contain the returned twitter users
@@ -89,8 +67,11 @@ var profile = '',
 // run outside of run function
 loc = checkUserLoc(loc);
 checkSearch();
+checkUserLoc(loc);
+checkCount(count);
 console.log(search);
 getTweets();
+//getPlayerTweets();
 
 // Function to be called when the form is submitted 
 function run(){
@@ -164,9 +145,7 @@ function checkLocation(profile){
 
 // Function for checking the search criteria and if it matches a location of a stadium 
 function checkSearch(){
-  if ( checkLocation(profile)==null){
-    search = keyword + " since:" + date + " lang:" + lan;
-  } else if ( loc == null) {
+  if ( checkLocation(profile)==null || loc == null || dist == ''){
     search = keyword + " since:" + date + " lang:" + lan;
   } else {
     search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
@@ -178,7 +157,6 @@ function handleTweets(err, data){
   if (err) {
     console.error('Get error', err)
   } else {
-<<<<<<< HEAD
     sortTweets(data); // sort the tweet data
     top = getTopwords(); // then find the most frequent words in the data
     topu = getTopusers(); // then find the most frequent users
@@ -186,24 +164,11 @@ function handleTweets(err, data){
     var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
     str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
     // used for testing 
-    console.log(top);
-    console.log(topu);
-=======
-    if ( tweetobj == {}){
-      Console.log("Not enough tweets returned in the date range, please change the date.")
-    } else {
-      storeTweets(data); // store the tweets in the SQL database
-      sortTweets(data); // sort the tweet data
-      top = getTopwords(); // then find the most frequent words in the data
-      topu = getTopusers(); // then find the most frequent users
-      getUserswords();
-      var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
-      str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
-      // used for testing 
-      //console.log(top);
-      //console.log(topu);
-    }
->>>>>>> ae1aa8f8273953663787ef65e41978c702c3c90b
+    //console.log(topu);
+    //console.log(top);
+    //console.log(str);
+    console.log(tweettxt);
+    // storeTweets(data); // store the tweets in the SQL database
   }
 }
 
@@ -414,7 +379,6 @@ function getProfile(){
 // Function for returning the tweets of the players returned 
 function getPlayerTweets(){
   var players = checkTeam(profile);
-  count = 1; // change count to 1 so as to get only the most recent tweet
   for (var i = 0; i <= players.length; i++){
     profile = players[i]; // change the profile to the players
     keepcount = count; // store the count value

@@ -86,6 +86,23 @@ var server = app.listen(8081, function () {
   console.log("Listening at http://localhost:%s", port);
 });
 
+function handleTweets(err, data){
+  if (err) {
+    res.status(500).json({ error: error });
+  } else {
+    sortTweets(data); // sort the tweet data
+    top = getTopwords(); // then find the most frequent words in the data
+    topu = getTopusers(); // then find the most frequent users
+    getUserswords();
+    var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
+    str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
+    // storeTweets(data); // store the tweets in the SQL database
+  }
+}
+
+router.get('/twitter', function(req, res, next) {
+    client.get('search/tweets', { q: search, count: count, from: profile }, handleTweets);
+});
 
 //Uncomment the below function if you want to reset the data or something
 //dropTables();
@@ -331,7 +348,7 @@ app.get('/queryInterface.html', restrict, function (req, res, next) {
 });
 
 app.post('/queryinterface', restrict, function (req, res, next) {
-  console.log("You posted the form I dunno what next");
+  console.log("Form Submitted");
 });
 
 app.get('/register', function (req, res, next) {

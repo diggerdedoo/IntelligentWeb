@@ -4,38 +4,9 @@
   	<title>404</title>
     <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
   	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script type="text/javascript">
-          //Array of background images
-          var images = new Array('/images/Etihad-Stadium.jpg', '/images/De-bruyne.jpg', '/images/emirates-stadium.jpg', '/images/Toure.jpg', '/images/Ozil.jpg', '/images/Hazard.jpg', '/images/Aguero.jpg', '/images/Klopp.jpg', '/images/Rooney.jpg', '/images/Spurs.jpg', '/images/Vardy.jpg', '/images/Wembley.jpg'),
-              nextimage = 0;
-
-          doSlideshow();
-
-          //Function that handles the background images slideshow
-          function doSlideshow(){
-              if (nextimage >= images.length) {nextimage=0;}
-              $('.home')
-              .css('background-image','url("'+images[nextimage++]+'")')
-              .fadeIn("slow", "swing", function(){
-                  setTimeout(doSlideshow,20000);
-              });
-          }
-
-          // Set the interval between the 404 images 
-          setInterval(function()
-          {
-              // Remove .active class from the active li, select next li sibling.
-              var next = $('img.active').removeClass('active').next('img');
-
-              // Did we reach the last element? Of so: select first sibling
-              if (!next.length) next = next.prevObject.siblings(':first');
-
-              // Add .active class to the li next in line.
-              next.addClass('active');
-          }, 5000);
-        </script>
+    <script src="/javascripts/javascripts.js" type = "text/javascript"></script>
   </head>
-  <body>
+  <body onLoad="doSlideshow()">
     <div class="oops-wrapper">
   	    <h3>Looks like you've scored an own goal mate... 404 Page not found.</h3>
           <div id="cycler">
