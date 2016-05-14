@@ -259,3 +259,29 @@ $("#query").submit(function(event) {
     alert('success');
   });
 });
+
+// attach a submit handler to the form 
+$("#sparqlquery").submit(function(event) {
+
+  // stop form from submitting normally
+  event.preventDefault();
+
+  // get some values from elements on the page:
+  var $form = $( this ),
+      url = $form.attr( 'action' );
+
+  // Send the data using post
+  var poster = $.post( url, { date: $('#date').val(), HomeTeam: $('hTeam').val(), AwayTeam: $('aTeam').val(),} );
+
+  // Alerts the results
+  poster.done(function(data) {
+    alert('success');
+  });
+});
+
+function addRow() {
+    var div = document.createElement('div');
+    div.className = 'row';
+    div.innerHTML = '<p>' + tweettxt + '</p>'
+    document.getElementById('bottom-right').appendChild(div);
+}

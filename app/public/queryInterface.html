@@ -18,10 +18,10 @@
             <div class="left-wrapper">
                 <ul id="toggle-view">
                     <li>
-                        <h2>First time using this form?</h2>
+                        <h2>First time using these forms?</h2>
                         <span>+</span>
                         <div class="panel">
-                            <p>Twitter profile: This field is for specifying the twitter profile that you want to return tweets for. For example, 'MCFC' will return tweets from the offical Manchester city twitter account.<br>Key Words: This field is for specifying a key word you want the tweets returned to contain. For example, 'ref' will return all tweets that contain the word ref.<br>Count: This field is for specifying how many tweets you wish to return, note that the maximum is 300.<br>Date: This field is for specifying the date from which to get tweets from. For example, '2015-11-11' will only return tweets after the 11th of novemeber 2015.<br>Distance: This field is for specifying the distance from point in which to eturn tweets. For example, 100km will return tweets from a 100km radius of location, note that if you have entered a premier league teams twitter profile this point is set to the teams stadium.<br>Geo-location: This field is for specifying the longitude and latitude of your search of tweets, this field sets the centeral location of the radius set in the Distance field<br> Map: The map on the right hand side of the screen will display all the tweets that returned a location as a marker on the map. The map also displays the location of all the Premier League teams stadiums.<br>Tweets: The section below the map will fill with all the relevant tweet information, based on your queries, when the form is completed and the "Get Tweets" button is pressed.<br>Extra Information: Below this form is a section that will show you the most common word in the collection of tweets returned, as well as the most active twitter users and their most commonly used words.</p>
+                            <p>Twitter Form<br>Twitter profile: This field is for specifying the twitter profile that you want to return tweets for. For example, 'MCFC' will return tweets from the offical Manchester city twitter account.<br>Key Words: This field is for specifying a key word you want the tweets returned to contain. For example, 'ref' will return all tweets that contain the word ref.<br>Count: This field is for specifying how many tweets you wish to return, note that the maximum is 300.<br>Date: This field is for specifying the date from which to get tweets from. For example, '2015-11-11' will only return tweets after the 11th of novemeber 2015.<br>Distance: This field is for specifying the distance from point in which to eturn tweets. For example, 100km will return tweets from a 100km radius of location, note that if you have entered a premier league teams twitter profile this point is set to the teams stadium.<br>Geo-location: This field is for specifying the longitude and latitude of your search of tweets, this field sets the centeral location of the radius set in the Distance field<br> Map: The map on the right hand side of the screen will display all the tweets that returned a location as a marker on the map. The map also displays the location of all the Premier League teams stadiums.<br>Tweets: The section below the map will fill with all the relevant tweet information, based on your queries, when the form is completed and the "Get Tweets" button is pressed.<br>Extra Information: Below this form is a section that will show you the most common word in the collection of tweets returned, as well as the most active twitter users and their most commonly used words.<br>SPARQL Form: This form allows you to enter a home and away team and then returns the following: A brief description about the club, the home ground and its capacity, a list of both teams managers and players with their nationality, birthdate and position.</p>
                         </div>
                     </li>
                 </ul>
@@ -31,8 +31,8 @@
                     <form name="query" id="query" method="POST" class="form" accept-charset="utf-8"> 
                         <h1>Twitter Form</h1>
                         <label>
-                            <span>Twitter Profile*:</span>
-                            <input id="profile" type="text" list="suggestions" placeholder="Example: MCFC" required/>
+                            <span>Twitter Profile:</span>
+                            <input id="profile" name="profile" type="text" list="suggestions" placeholder="Example: MCFC" />
                             <datalist id="suggestions">
                                 <option value="Arsenal">
                                 <option value="AVFCOfficial">
@@ -58,8 +58,8 @@
                         </label>
 
                         <label>
-                            <span>Key words*:</span>
-                            <input id="keywords" name="keywords" type="text" placeholder="Example: Man Utd" required/>
+                            <span>Key words:</span>
+                            <input id="keywords" name="keywords" type="text" placeholder="Example: Man Utd" />
                         </label>
 
                         <label>
@@ -98,12 +98,79 @@
                 <div id="result"></div>
             </div>
             <div class="right-wrapper">
-                <div id="map-canvas" style="width: 900px; height: 332px;"></div>
+                <form name="sparqlquery" id="query" method="POST" action="/find" class="form" accept-charset="utf-8"> 
+                  <h1>SPARQL Form</h1>
+                    <label> 
+                      <span>Date:</span>
+                        <input name="sdate" type="date" placeholder="Example: 2011-11-11" required>
+                    </label>
+                    <label>
+                      <span>Home Team:</span>
+                        <input type="text" name="hTeam" placeholder="Example: Manchester_City_F.C." list="hsuggestions" required>
+                        <datalist id="hsuggestions">
+                            <option value="Arsenal_F.C.">
+                            <option value="Aston_Villa_F.C.">
+                            <option value="A.F.C._Bournemouth">
+                            <option value="Chelsea_F.C.">
+                            <option value="Crystal_Palace_F.C.">
+                            <option value="Everton_F.C.">
+                            <option value="Leicester_City_F.C.">
+                            <option value="Liverpool_F.C.">
+                            <option value="Manchester_City_F.C.">
+                            <option value="Manchester_United_F.C.">
+                            <option value="Newcastle_United_F.C.">
+                            <option value="Norwich_City_F.C.">
+                            <option value="Southampton_F.C.">
+                            <option value="Stoke_City_F.C.">
+                            <option value="Sunderland_A.F.C.">
+                            <option value="Swansea_City_A.F.C.">
+                            <option value="Tottenham_Hotspur_F.C.">
+                            <option value="West_Bromwich_Albion_F.C.">
+                            <option value="West_Ham_United_F.C.">
+                            <option value="Watford_F.C.">
+                        </datalist>
+                      </label>
+                      <label>
+                        <span>Away Team:</span>
+                            <input type="text" name="aTeam" placeholder="Example: Manchester_United_F.C." list="asuggestions" required>
+                            <datalist id="asuggestions">
+                                <option value="Arsenal_F.C.">
+                                <option value="Aston_Villa_F.C.">
+                                <option value="A.F.C._Bournemouth">
+                                <option value="Chelsea_F.C.">
+                                <option value="Crystal_Palace_F.C.">
+                                <option value="Everton_F.C.">
+                                <option value="Leicester_City_F.C.">
+                                <option value="LLiverpool_F.C.">
+                                <option value="Manchester_City_F.C.">
+                                <option value="Manchester_United_F.C.">
+                                <option value="Newcastle_United_F.C.">
+                                <option value="Norwich_City_F.C.">
+                                <option value="Southampton_F.C.">
+                                <option value="Stoke_City_F.C.">
+                                <option value="Sunderland_A.F.C.">
+                                <option value="Swansea_City_A.F.C.">
+                                <option value="Tottenham_Hotspur_F.C.">
+                                <option value="West_Bromwich_Albion_F.C.">
+                                <option value="West_Ham_United_F.C.">
+                                <option value="Watford_F.C.">
+                            </datalist>
+                      </label>
+                        <section class="twitterform">
+                          <label>
+                              <span>&nbsp;</span> 
+                              <input type="submit" value="Enter"/> 
+                          </label>    
+                        </section>
+                </form>
             </div>
-            <div class="bottom-right">
+            <div class="map-wrapper">
+                <div id="map-canvas" style="width: 100%; height: 332px;"></div>
+            </div>
+            <div class="bottom">
                 <h2><span>Tweets: Display here</span></h2>
             </div>
-            <div class="bottom-left">
+            <div class="bottom2">
                 <h2><span>Tweets: Most common words in the collection and most active users</span></h2>
             </div>
         </div>

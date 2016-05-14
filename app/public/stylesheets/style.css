@@ -19,7 +19,7 @@ h2 {
   width: 100%;
 }
 h2 span { 
-  font-size: 25px;
+  font-size: 20px;
   color: white; 
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
   font-weight: 300; 
@@ -65,35 +65,48 @@ a {
   float: left;
   margin-left: 0px;
   margin-right: 5px;
+  margin-bottom: 20px;
   width: 500px;
   letter-spacing: 1px;  
   background: rgb(0, 0, 0); /* fallback color */
   background: rgba(0, 0, 0, 0.7);
   padding: 50px; 
+}
+.map-wrapper{
+  max-height: inherit; 
+  max-width: inherit;
+  margin-top: 10px;
+  margin-bottom: 10px;  
 }
 .right-wrapper{
-  float: right;
-  max-height: inherit; 
-  max-width: inherit;  
+  float: left;
+  margin-left: 20px;
+  margin-right: 5px;
+  margin-bottom: 10px;
+  width: 860px;
+  height: 835px;
+  letter-spacing: 1px;  
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
+  padding: 50px;  
 }
-.bottom-right{
+.bottom{
   float: right;
   margin-top: 10px;
   margin-bottom: 10px;
-  width: 800px;
-  height: 1050px;
+  width: 1500px;
+  height: 1000px;
   letter-spacing: 1px;  
   background: rgb(0, 0, 0); /* fallback color */
   background: rgba(0, 0, 0, 0.7);
   padding: 50px; 
 }
-.bottom-left{
-  float: left;
+.bottom2{
+  float: right;
   margin-top: 10px;
   margin-bottom: 10px;
-  margin-right: 100px;
-  width: 500px;
-  height: 400px;
+  width: 1500px;
+  height: 300px;
   letter-spacing: 1px;  
   background: rgb(0, 0, 0); /* fallback color */
   background: rgba(0, 0, 0, 0.7);
