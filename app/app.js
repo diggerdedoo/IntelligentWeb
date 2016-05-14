@@ -699,12 +699,17 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
-  loc = checkUserLoc(loc);
-  checkSearch();
-  checkUserLoc(loc);
-  checkCount(count);  
-  getTweets();
-
+  try {
+    loc = checkUserLoc(loc);
+    checkSearch();
+    checkUserLoc(loc);
+    checkCount(count);  
+    getTweets();
+  }
+  catch (err) {
+    console.log('Error:' + err);
+    console.log('Please try again...');
+  }
 });
 
 app.post('/find', function (req, res, next) {
@@ -713,9 +718,41 @@ app.post('/find', function (req, res, next) {
   var userInh = req.body.hTeam;
   var userIna = req.body.aTeam;
   var date = req.body.date;
+  var client = new SparqlClient(endpoint);
 
-  var queryh = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
-  "PREFIX p: <http://dbpedia.org/property/> "  +     
+  var queryg = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
+  "PREFIX p: <http://dbpedia.org/property/> "  +
+  "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
+  "SELECT * WHERE { " +
+    "?ground p:ground  <http://dbpedia.org/resource/" + String(userInh) + ">" +
+    "OPTIONAL {?ground p:abstract ?description}." +
+    "OPTIONAL {?ground p:seatingCapacity ?capacity}." +
+    "OPTIONAL {?ground p:image ?image}." +
+  "}";
+
+  var querym_h = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
+  "PREFIX p: <http://dbpedia.org/property/> "  +
+  "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
+  "SELECT * WHERE { " +
+    "?manager p:managerClub  <http://dbpedia.org/resource/" + String(userInh) + ">" +
+    "OPTIONAL {?player p:cityofbirth ?city}." +
+    "OPTIONAL {?player p:dateOfBirth ?dob}." +
+    "OPTIONAL {?player p:image ?image}." +
+  "}";
+
+  var querym_a = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
+  "PREFIX p: <http://dbpedia.org/property/> "  +
+  "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
+  "SELECT * WHERE { " +
+    "?manager p:managerClub  <http://dbpedia.org/resource/" + String(userIna) + ">" +
+    "OPTIONAL {?player p:cityofbirth ?city}." +
+    "OPTIONAL {?player p:dateOfBirth ?dob}." +
+    "OPTIONAL {?player p:image ?image}." +
+  "}";
+
+  var queryh_p = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
+  "PREFIX p: <http://dbpedia.org/property/> "  +
+  "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +   
   "SELECT * WHERE { " +
     "?player p:currentclub  <http://dbpedia.org/resource/" + String(userInh) + ">" +
     "OPTIONAL {?player p:cityofbirth ?city}." +
@@ -725,8 +762,9 @@ app.post('/find', function (req, res, next) {
     "OPTIONAL {?player p:image ?image}." +
   "}";
 
-  var querya = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
-  "PREFIX p: <http://dbpedia.org/property/> "  +     
+  var querya_p = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
+  "PREFIX p: <http://dbpedia.org/property/> "  + 
+  "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
   "SELECT * WHERE { " +
     "?player p:currentclub  <http://dbpedia.org/resource/" + String(userIna) + ">" +
     "OPTIONAL {?player p:cityofbirth ?city}." +
@@ -735,29 +773,21 @@ app.post('/find', function (req, res, next) {
     "OPTIONAL {?player p:position ?position}." +
     "OPTIONAL {?player p:image ?image}." +
   "}";
-  /*
-    "?abstract p:currentclub  <http://dbpedia.org/resource" + userInh +
-    "?ground p:currentclub  <http://dbpedia.org/resource" + userInh +
-    "OPTIONAL {?ground p:image ?image}." +
-    "?capacity p:currentclub  <http://dbpedia.org/resource" + userInh +
-    "?manager p:currentclub  <http://dbpedia.org/resource" + userInh +
-    "OPTIONAL {?manager p:dateOfBirth ?dob}." +
-    "OPTIONAL {?manager p:image ?image}." +
-    "?abstract p:currentclub  <http://dbpedia.org/resource" + userIna +
-    "?manager p:currentclub  <http://dbpedia.org/resource" + userIna +
-    "OPTIONAL {?manager p:dateOfBirth ?dob}." +
-    "OPTIONAL {?manager p:image ?image}." +
-  */
-  var client = new SparqlClient(endpoint);
-  console.log(queryh)
-  client.query(queryh)
+
+  try {
+    client.query(queryh)
     .execute(function(error, results) {
     process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
-  });
-  client.query(querya)
-    .execute(function(error, results) {
-    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
-  });
+    });
+    client.query(querya)
+      .execute(function(error, results) {
+      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+  }
+  catch (err){
+    console.log('Error:' + err);
+    console.log('Try again please...');
+  }
 })
 
 app.get('/register', function (req, res, next) {
