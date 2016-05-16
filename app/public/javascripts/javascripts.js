@@ -55,6 +55,7 @@ function initialize() {
         
     // Dummy array for plotting the locations of the geocoded tweets, will be removed as getTweets will provide this data
     var coord = [ 
+      //<%= geo %>
       { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
       { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
       { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
@@ -279,9 +280,9 @@ $("#sparqlquery").submit(function(event) {
   });
 });
 
-function addRow() {
-    var div = document.createElement('div');
-    div.className = 'row';
-    div.innerHTML = '<p>' + tweettxt + '</p>'
-    document.getElementById('bottom-right').appendChild(div);
+function display(){
+  var wrapper = $('#wrapper'), container;
+  for (var key in tweets){
+      document.write("<p>" + tweets[key] + "</p>");
+  }
 }
