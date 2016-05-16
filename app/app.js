@@ -450,6 +450,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
     }
   }
+  
 
   // Function for checking if a common word is unwanted
   function chkwrd(string){
@@ -489,7 +490,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     rts = 0;
     drts = 0;
 
-    async.eachSeries(tweets, function(tweet, callback){
+    //Go through each tweet in turn, and store it
+    async.eachSeries(tweets, function storeTweet(tweet, callback){
    
       connection.query('SELECT 1 FROM tweets WHERE id = ? LIMIT 1;', tweet.id, function (err, result){
         if (err) {
