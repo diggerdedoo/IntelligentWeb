@@ -91,7 +91,6 @@ var server = app.listen(8081, function () {
 
 //Uncomment the below function if you want to reset the data or something
 //dropTables();
-
 //Drops all the tables
 function dropTables(){
   connection.query('DROP TABLE tweets', function (err, res){
@@ -246,18 +245,6 @@ function createUserSQL(name, pass){
     }
   });
 }; 
-
-
-//TEST QUERY FUNCTION
-/*
-connection.query('SELECT * FROM users', function (err, rows){
-  if(err) {
-    console.log(err);
-  } else {
-    console.log(rows);
-  }
-});
-*/
 
 // check if user is logged in, if not redirect them to the index
 function requireLogin (req, res, next) {

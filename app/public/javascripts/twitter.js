@@ -66,7 +66,7 @@ var locations = {
 
 // Placeholder variables
 var profile = '',
-    keyword = 'still trying to fend off cellulite',
+    keyword = 'cellulite',
     count = 300,
     date = '2015-11-11',
     lan = 'en',
@@ -220,7 +220,6 @@ function sortTweets (data) {
   }
 }
 
-/* SHIT DON'T WORK, TBD
 //Store the tweets in the SQL database
 function storeTweets(data){
   //Store the first tweet for now
@@ -263,27 +262,34 @@ function storeTweets(data){
       console.log(err);
     } else {
       console.log("Tweet successfully deleted from the db");
+      //Prepare the tweet data
+      tweetData = {
+        id: tweet.id,
+        userName: tweet.user.screen_name
+        //userHandle: tweet.user.name,
+        //userProfilePicture: tweet.user.profile_image_url,
+        //createdAt: 
+        //retweetedBy:
+        //tweetText: tweet.text,
+        //hashtags: hashtagData,
+        //userMentions: userMentionsData,
+        //coordinates: coordinatesData
+      };
+
+      connection.query('INSERT INTO tweets SET ?', tweetData, function (err, res){
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Tweet succesfully added to the db");
+        }
+      });
     }
   });
 
-  usernameData = "\""+tweet.user.screen_name+"\""
 
-  //Prepare the tweet data
-  tweetData = {
-    id: tweet.id,
-    userName: 'test'
-    userHandle: tweet.user.name,
-    userProfilePicture: tweet.user.profile_image_url,
-    //createdAt: 
-    //retweetedBy:
-    tweetText: tweet.text,
-    hashtags: hashtagData,
-    userMentions: userMentionsData,
-    coordinates: coordinatesData
-  };
-
-  qryStr = ('INSERT INTO users (id, userName) VALUES (%s, \'%s\')', [tweet.id, "test"])
+  
   //Add the tweetData to the database
+  /*
   connection.query(qryStr, function (err, res){
     if(err) {
       console.log(err);
@@ -291,8 +297,8 @@ function storeTweets(data){
       console.log("Tweet succesfully added to the db");
     }
   });
-}
 */
+}
 
 // Function for sorting through the twitter profile to return relevant information
 function sortProfile (data) {
