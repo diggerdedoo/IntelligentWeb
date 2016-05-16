@@ -54,8 +54,8 @@ function initialize() {
     map.setTilt(45);
         
     // Dummy array for plotting the locations of the geocoded tweets, will be removed as getTweets will provide this data
-    var coord = [ 
-      //<%= geo %>
+    var coord = [];
+    /* Dummy values
       { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
       { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
       { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
@@ -106,8 +106,8 @@ function initialize() {
       { type: 'Point', coordinates: [ 53.5061265, -2.0240911 ] },
       { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
       { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] } 
-    ];
-
+    ];    */
+    
     // array for pushing the coordinates
     var coords = [];
 
@@ -281,8 +281,5 @@ $("#sparqlquery").submit(function(event) {
 });
 
 function display(){
-  var wrapper = $('#wrapper'), container;
-  for (var key in tweets){
-      document.write("<p>" + tweets[key] + "</p>");
-  }
+  // nothing here yet
 }

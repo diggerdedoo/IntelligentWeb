@@ -323,15 +323,6 @@ app.get('/queryInterface.html', restrict, function (req, res, next) {
 });
 
 app.post('/queryinterface', restrict, function (req, res, next) {
-  /*
-  console.log("twitterProfile:" + req.body.profile);
-  console.log("keywords:" + req.body.keywords);
-  console.log("hashTags:" + req.body.hashtags);
-  console.log("count:" + req.body.count);
-  console.log("date:" + req.body.date);
-  console.log("distance:" + req.body.distance);
-  console.log("geo:" + req.body.geo);
-  */
   var profile = req.body.profile,
       keyword = req.body.keywords,
       hashtags = req.body.hashtags,
@@ -478,7 +469,11 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         getUserswords();
         var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
         str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
-        res.render('queryInterface.html', {tweets: tweettxt, activeUsers: topu, commonWords: top, usersCommon: str, geo: tweetloc});
+        var st = JSON.stringify(topu); // stringify userobj so it doesnt display object
+        st = JSON.stringify(topu, null, 4);  // Add some indentation so it is displayed in a viewable way
+        var tweets = JSON.stringify(tweetobj); // stringify userobj so it doesnt display object
+        tweets = JSON.stringify(tweetobj, null, 4);  // Add some indentation so it is displayed in a viewable way
+        res.render('queryInterface.html', {tweets: tweets, activeUsers: st, commonWords: top, usersCommon: str, geo: tweetloc}); // Send the data to the client
       }
     }
   }
@@ -711,13 +706,15 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     topusers = topusers.sort(function (a, b){
       return b.num - a.num;
     });
-    if ( topusers.length <= 10 ) { 
+    if ( topusers.length <= 9 ) { 
       topten = topusers; // if topwords doesn't have 10 elements then just make toptwenty equal to topusers
       return topten;
     } else {
-      for (var i=0; i<=10; i++){
-        topten.push(topusers[i]); // if topwords has more than 10 elements then push the first 20 elements in topusers to the topten array
+      for (var i=0; i<=9; i++){
+        topten.push(topusers[i]); // if topwords has more than 10 elements then push the first 10 elements in topusers to the topten array
       }
+      console.log(topten.length);
+      topten.splice(10, topten.length);
       return topten;
     }
   }
@@ -819,25 +816,48 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   }
 });
 
+// POST which deals with the SPARQL queries
 app.post('/sparql', function (req, res, next) {
-  console.log(req.body.hTeam);
-  console.log(req.body.aTeam);
   var userInh = req.body.hTeam;
   var userIna = req.body.aTeam;
   var date = req.body.date;
   var client = new SparqlClient(endpoint);
 
+  // Query for the home ground
   var queryg = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
   "PREFIX p: <http://dbpedia.org/property/> "  +
+  "PREFIX o: <http://dbpedia.org/ontology/> " +
   "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
   "SELECT * WHERE { " +
-    "<http://dbpedia.org/resource/" + String(userInh) + ">" +" p:ground ?ground."
+    "<http://dbpedia.org/resource/" + String(userInh) + ">" + "p:ground ?ground." +
     "OPTIONAL {?ground o:abstract ?description}." +
     "OPTIONAL {?ground p:seatingCapacity ?capacity}." +
     "OPTIONAL {?ground p:image ?image}." +
-    "FILTER(langMatches(lang(?description), 'EN'))" +
+    'FILTER(langMatches(lang(?description), "EN"))' +
+  "}" +
+  "ORDER BY DESC(?capacity) LIMIT 1";
+
+  // Query for the home teams description
+  var queryh_d = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
+  "PREFIX p: <http://dbpedia.org/property/> "  +
+  "PREFIX o: <http://dbpedia.org/ontology/> " +
+  "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
+  "SELECT * WHERE { " +
+    "<http://dbpedia.org/resource/" + String(userInh) + ">" + "o:abstract ?description." +
+    'FILTER(langMatches(lang(?description), "EN"))' +
   "}";
 
+  // Query for the away teams description
+  var querya_d = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
+  "PREFIX p: <http://dbpedia.org/property/> "  +
+  "PREFIX o: <http://dbpedia.org/ontology/> " +
+  "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
+  "SELECT * WHERE { " +
+    "<http://dbpedia.org/resource/" + String(userIna) + ">" + "o:abstract ?description." +
+    'FILTER(langMatches(lang(?description), "EN"))' +
+  "}";
+
+  // Query for the manager of the home team
   var querym_h = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
   "PREFIX p: <http://dbpedia.org/property/> " +
   "PREFIX o: <http://dbpedia.org/ontology/> " +
@@ -849,17 +869,19 @@ app.post('/sparql', function (req, res, next) {
     "OPTIONAL {?manager foaf:depiction ?image}." +
   "}";
 
+  // Query for the manager of the away team
   var querym_a = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
   "PREFIX p: <http://dbpedia.org/property/> "  +
   "PREFIX o: <http://dbpedia.org/ontology/> " +
   "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
   "SELECT * WHERE { " +
-    "<http://dbpedia.org/resource/" + String(userIna) + ">" + "o:manager ?manager" +
+    "<http://dbpedia.org/resource/" + String(userIna) + ">" + "o:manager ?manager." +
     "OPTIONAL {?manager p:cityofbirth ?city}." +
     "OPTIONAL {?manager p:dateOfBirth ?dob}." +
     "OPTIONAL {?manager foaf:depiction ?image}." +
   "}";
 
+  // Query for the home teams players
   var queryh_p = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
   "PREFIX p: <http://dbpedia.org/property/> "  +
   "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +   
@@ -872,6 +894,7 @@ app.post('/sparql', function (req, res, next) {
     "OPTIONAL {?player p:image ?image}." +
   "}";
 
+  // Query for the away teams players
   var querya_p = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
   "PREFIX p: <http://dbpedia.org/property/> "  + 
   "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
@@ -884,33 +907,88 @@ app.post('/sparql', function (req, res, next) {
     "OPTIONAL {?player p:image ?image}." +
   "}";
 
+  var ground,
+      home_d,
+      away_d,
+      manager_h,
+      manager_a,
+      home_p,
+      away_p;
+
   try {
-    client.query(queryg)
-    .execute(function(error, results) {
-    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
-    });
-    client.query(querym_h)
-      .execute(function(error, results) {
-      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
-    });
-    client.query(querym_a)
-    .execute(function(error, results) {
-    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
-    });
-    client.query(queryh_p)
-      .execute(function(error, results) {
-      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
-    });
-    client.query(querya_p)
+    var ground = client.query(queryg)
     .execute(function(error, results) {
     process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
   }
   catch (err){
-    console.log('Error:' + err);
-    console.log('Try again please...');
     var alert = "Error," + err + "please try again...";
-    res.render('queryInterface.html', {sparql: alert});
+    res.render('queryInterface2.html', {sparql: alert});
+  }
+  try {
+    var home_d = client.query(queryh_d)
+    .execute(function(error, results) {
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+  }
+  catch (err){
+    var alert = "Error," + err + "please try again...";
+    res.render('queryInterface2.html', {sparql: alert});
+  }
+  try {
+    var away_d = client.query(querya_d)
+    .execute(function(error, results) {
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+  }
+  catch (err){
+    var alert = "Error," + err + "please try again...";
+    res.render('queryInterface2.html', {sparql: alert});
+  }
+  try {
+    var manager_h = client.query(querym_h)
+      .execute(function(error, results) {
+      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+  }
+  catch (err){
+    var alert = "Error," + err + "please try again...";
+    res.render('queryInterface2.html', {sparql: alert});
+  }
+  try {
+    var manager_a = client.query(querym_a)
+    .execute(function(error, results) {
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+  }
+  catch (err){
+    var alert = "Error," + err + "please try again...";
+    res.render('queryInterface2.html', {sparql: alert});
+  }
+  try {
+    var home_p = client.query(queryh_p)
+      .execute(function(error, results) {
+      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+  }
+  catch (err){
+    var alert = "Error," + err + "please try again...";
+    res.render('queryInterface2.html', {sparql: alert});
+  }
+  try {
+    var away_p = client.query(querya_p)
+    .execute(function(error, results) {
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+  }
+  catch (err){
+    var alert = "Error," + err + "please try again...";
+    res.render('queryInterface2.html', {sparql: alert});
+  }
+  finally {
+    var alert = "All queries performed";
+    console.log(ground);
+    res.render('queryInterface2.html', {sparql: alert, ground: ground, home_d: home_d, away_d: away_d, manager_h: manager_h, manager_a: manager_a, home_p: home_p, away_p: away_p});
   }
 })
 
