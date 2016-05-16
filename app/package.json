@@ -16,6 +16,7 @@
     "client-sessions": "*",
     "mysql": "*",
     "twit": "*",
-    "sparql-client": "*"
+    "sparql-client": "*",
+	"ejs": "*"
   }
 }

@@ -1,5 +1,6 @@
 // Dependancies
 var Twit = require('twit');
+var async = require('async');
 var client = new Twit({
   consumer_key: 'aGvgbxGtSKTWdcxGf3paz90Kq',
   consumer_secret: 'PJwjJPJFUuWuEvzyj3G2fxbfy7yvFb00mRd45rRrKtJ4Ea39rj',
@@ -66,8 +67,8 @@ var locations = {
 
 // Placeholder variables
 var profile = '',
-    keyword = 'cellulite',
-    count = 300,
+    keyword = 'MCFC',
+    count = 500,
     date = '2015-11-11',
     lan = 'en',
     loc = '',
@@ -166,6 +167,16 @@ function checkSearch(){
   }
 }
 
+// Function for searching through twitter using the specified data
+function getTweets(){
+  client.get('search/tweets', { 
+    q: search, 
+    count: count, 
+    from: profile 
+  },
+  handleTweets);
+}
+
 // Function for handling the tweets
 function handleTweets(err, data){
   if (err) {
@@ -222,82 +233,117 @@ function sortTweets (data) {
 
 //Store the tweets in the SQL database
 function storeTweets(data){
-  //Store the first tweet for now
-  var tweet = data.statuses[0];
-  console.log("GOT: "+tweet.text);
+  //Set-up variables
+  tweets = data.statuses
+  rts = 0;
+  drts = 0;
 
-  //get the hashtags array as a string
-  if (tweet.entities.hashtags != undefined){
-    hashtagData = '';
-    for (var indx in tweet.entities.hashtags){
-      hashtagData += tweet.entities.hashtags[indx].text+',';
-    }
-    //get rid of the final ','
-    hashtagData = hashtagData.slice(0, -1);
-  } else {
-    hashtagData = null;
-  }
+  async.eachSeries(tweets, function(tweet, callback){
+ 
+    connection.query('SELECT 1 FROM tweets WHERE id = ? LIMIT 1;', tweet.id, function (err, result){
+      if (err) {
+        console.log(err);
+      } else if (result.length == 1){
+        //Tweet already exists, do nothing
+        console.log("Tweet %s already exists", tweet.id);
+        callback();
+      } else {
 
-  //do the same for user mentions
-  if (tweet.entities.user_mentions != undefined){
-    userMentionsData = '';
-    for (var indx in tweet.entities.user_mentions){
-      userMentionsData += tweet.entities.user_mentions[indx].text+',';
-    }
-    //get rid of the final ','
-    userMentionsData = userMentionsData.slice(0, -1);
-  } else {
-    userMentionsData = null;
-  }
-
-  //get the coordinates
-  if (tweet.coordinates != null){
-    coordinatesData = tweet.coordinates.coordinates[0]+','+tweet.coordinates.coordinates[1];
-  } else {
-    coordinatesData = null;
-  }
-
-  connection.query('DELETE FROM tweets WHERE id = ?', tweet.id, function (err, res){
-    if(err) {
-      console.log(err);
-    } else {
-      console.log("Tweet successfully deleted from the db");
-      //Prepare the tweet data
-      tweetData = {
-        id: tweet.id,
-        userName: tweet.user.screen_name
-        //userHandle: tweet.user.name,
-        //userProfilePicture: tweet.user.profile_image_url,
-        //createdAt: 
-        //retweetedBy:
-        //tweetText: tweet.text,
-        //hashtags: hashtagData,
-        //userMentions: userMentionsData,
-        //coordinates: coordinatesData
-      };
-
-      connection.query('INSERT INTO tweets SET ?', tweetData, function (err, res){
-        if (err) {
-          console.log(err);
+        //Pull data from the tweet
+        if (tweet.hasOwnProperty('retweeted_status')){
+          tweet.isRetweet = true;
+          dataTweet = tweet.retweeted_status;
+          rts++;
         } else {
-          console.log("Tweet succesfully added to the db");
+          dataTweet = tweet;
         }
-      });
-    }
-  });
 
+        //get the hashtags array as a string
+        if (dataTweet.entities.hashtags != undefined){
+          hashtagData = '';
+          for (var indx in dataTweet.entities.hashtags){
+            hashtagData += dataTweet.entities.hashtags[indx].text+',';
+          }
+          //get rid of the final ','
+          hashtagData = hashtagData.slice(0, -1);
+        } else {
+          hashtagData = null;
+        }
+ 
+        //do the same for user mentions
+        if (dataTweet.entities.user_mentions != undefined){
+          userMentionsData = '';
+          for (var indx in dataTweet.entities.user_mentions){
+            userMentionsData += dataTweet.entities.user_mentions[indx].text+',';
+          }
+          //get rid of the final ','
+          userMentionsData = userMentionsData.slice(0, -1);
+        } else {
+          userMentionsData = null;
+        }
+ 
+        //get the coordinates
+        if (tweet.coordinates != null){
+          coordinatesData = tweet.coordinates.coordinates[0]+','+tweet.coordinates.coordinates[1];
+        } else {
+          coordinatesData = null;
+        }
 
-  
-  //Add the tweetData to the database
-  /*
-  connection.query(qryStr, function (err, res){
-    if(err) {
-      console.log(err);
-    } else {
-      console.log("Tweet succesfully added to the db");
-    }
+        //Prepare the tweet data for SQL insertion
+        if (tweet.isRetweet){
+          //Is a retweet
+          tweetData = {
+            id: tweet.id,
+            userName: tweet.retweeted_status.user.name,
+            userHandle: tweet.retweeted_status.user.screen_name,
+            userProfilePicture: tweet.retweeted_status.user.profile_image_url,
+            createdAt: tweet.createdAt,
+            retweetedBy: tweet.user.screen_name,
+            tweetText: tweet.retweeted_status.text,
+            hashtags: hashtagData,
+            userMentions: userMentionsData,
+            coordinates: coordinatesData
+          }
+        } else {
+          //Is not a retweet
+          tweetData = {
+            id: tweet.id,
+            userName: tweet.user.screen_name,
+            userHandle: tweet.user.name,
+            userProfilePicture: tweet.user.profile_image_url,
+            createdAt: tweet.createdAt,
+            tweetText: tweet.text,
+            hashtags: hashtagData,
+            userMentions: userMentionsData,
+            coordinates: coordinatesData
+          };
+        }
+
+        //Only add every seventh Retweet to prevent excessive duplication
+        if( tweet.isRetweet && ((rts % 7) != 0) ){
+          console.log("Retweet "+tweet.id+" thrown out.");
+          callback();
+
+        } else {
+          //Store the tweet in the SQL database
+          if(tweet.isRetweet){
+            drts++;
+          }
+          connection.query('INSERT INTO tweets SET ?', tweetData, function (err, res){
+            if (err) {
+              console.log(err);
+            } else {
+              console.log("Tweet "+tweet.id+" successfully stored");
+              callback();
+            }
+          }); 
+        }
+      }
+    });
+  }, function(err){ 
+    //Do this after every tweet has been stored
+    console.log(rts+" retweets out of "+tweets.length+" total tweets found, "+drts+" retweets stored.");
   });
-*/
 }
 
 // Function for sorting through the twitter profile to return relevant information
@@ -428,15 +474,6 @@ function getUserswords(){
   }
 }
 
-// Function for searching through twitter using the specified data
-function getTweets(){
-  client.get('search/tweets', { 
-    q: search, 
-    count: count, 
-    from: profile 
-  },
-  handleTweets);
-}
 
 // Function for searching through twitter profiles using the specified data
 function getProfile(){

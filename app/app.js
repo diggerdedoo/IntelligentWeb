@@ -9,6 +9,7 @@ var express = require('express'),
     router = express.Router(),
     cookieParser = require('cookie-parser'),
     app = module.exports = express(),
+    async = require('async'),
     SparqlClient = require('sparql-client'),
     util = require('util'),
     endpoint = 'http://dbpedia.org/sparql',
@@ -126,7 +127,7 @@ connection.query('SELECT 1 FROM users LIMIT 1', function (err, res){
   if(err) {
     //Create the table
     connection.query('CREATE TABLE users ('+
-      ' id int NOT NULL AUTO_INCREMENT,'+
+      ' id bigint NOT NULL AUTO_INCREMENT,'+
       ' name VARCHAR(30) NOT NULL,'+
       ' salt VARCHAR(1000),'+
       ' hash VARCHAR(1000),'+
@@ -151,7 +152,7 @@ connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
   //Query will throw error if the table doesn't exist, so then create it
   if(err) {
     connection.query('CREATE TABLE tweets ('+
-      'id int NOT NULL,'+
+      'id bigint NOT NULL,'+
       ' userName VARCHAR(20),'+
       ' userHandle VARCHAR(15),'+
       ' userProfilePicture VARCHAR(200),'+
@@ -179,7 +180,7 @@ connection.query('SELECT 1 FROM querys LIMIT 1', function (err, res){
   //Query will throw error if the table doesn't exist, so then create it
   if(err) {
     connection.query('CREATE TABLE querys ('+
-      ' id int NOT NULL,'+
+      ' id int NOT NULL AUTO_INCREMENT,'+
       ' users VARCHAR(200),'+
       ' usersMentions VARCHAR(200),'+
       ' hashtags VARCHAR(200),'+
@@ -470,6 +471,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         console.log("Not enough tweets returned in the date range, please change the date.");
       } else {
         sortTweets(data); // sort the tweet data
+        storeTweets(data);
         top = getTopwords(); // then find the most frequent words in the data
         topu = getTopusers(); // then find the most frequent users
         getUserswords();
@@ -478,6 +480,121 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         res.render('queryInterface.html', {tweets: tweettxt, activeUsers: topu, commonWords: top, usersCommon: str, geo: tweetloc});
       }
     }
+  }
+
+  //Store the tweets in the SQL database
+  function storeTweets(data){
+    //Set-up variables
+    tweets = data.statuses
+    rts = 0;
+    drts = 0;
+
+    async.eachSeries(tweets, function(tweet, callback){
+   
+      connection.query('SELECT 1 FROM tweets WHERE id = ? LIMIT 1;', tweet.id, function (err, result){
+        if (err) {
+          console.log(err);
+        } else if (result.length == 1){
+          //Tweet already exists, do nothing
+          console.log("Tweet %s already exists", tweet.id);
+          callback();
+        } else {
+
+          //Pull data from the tweet
+          if (tweet.hasOwnProperty('retweeted_status')){
+            tweet.isRetweet = true;
+            dataTweet = tweet.retweeted_status;
+            rts++;
+          } else {
+            dataTweet = tweet;
+          }
+
+          //get the hashtags array as a string
+          if (dataTweet.entities.hashtags != undefined){
+            hashtagData = '';
+            for (var indx in dataTweet.entities.hashtags){
+              hashtagData += dataTweet.entities.hashtags[indx].text+',';
+            }
+            //get rid of the final ','
+            hashtagData = hashtagData.slice(0, -1);
+          } else {
+            hashtagData = null;
+          }
+   
+          //do the same for user mentions
+          if (dataTweet.entities.user_mentions != undefined){
+            userMentionsData = '';
+            for (var indx in dataTweet.entities.user_mentions){
+              userMentionsData += dataTweet.entities.user_mentions[indx].text+',';
+            }
+            //get rid of the final ','
+            userMentionsData = userMentionsData.slice(0, -1);
+          } else {
+            userMentionsData = null;
+          }
+   
+          //get the coordinates
+          if (tweet.coordinates != null){
+            coordinatesData = tweet.coordinates.coordinates[0]+','+tweet.coordinates.coordinates[1];
+          } else {
+            coordinatesData = null;
+          }
+
+          //Prepare the tweet data for SQL insertion
+          if (tweet.isRetweet){
+            //Is a retweet
+            tweetData = {
+              id: tweet.id,
+              userName: tweet.retweeted_status.user.name,
+              userHandle: tweet.retweeted_status.user.screen_name,
+              userProfilePicture: tweet.retweeted_status.user.profile_image_url,
+              createdAt: tweet.createdAt,
+              retweetedBy: tweet.user.screen_name,
+              tweetText: tweet.retweeted_status.text,
+              hashtags: hashtagData,
+              userMentions: userMentionsData,
+              coordinates: coordinatesData
+            }
+          } else {
+            //Is not a retweet
+            tweetData = {
+              id: tweet.id,
+              userName: tweet.user.screen_name,
+              userHandle: tweet.user.name,
+              userProfilePicture: tweet.user.profile_image_url,
+              createdAt: tweet.createdAt,
+              tweetText: tweet.text,
+              hashtags: hashtagData,
+              userMentions: userMentionsData,
+              coordinates: coordinatesData
+            };
+          }
+
+          //Only add every seventh Retweet to prevent excessive duplication
+          if( tweet.isRetweet && ((rts % 7) != 0) ){
+            console.log("Retweet "+tweet.id+" thrown out.");
+            callback();
+
+          } else {
+            //Store the tweet in the SQL database
+            if(tweet.isRetweet){
+              drts++;
+            }
+            connection.query('INSERT INTO tweets SET ?', tweetData, function (err, res){
+              if (err) {
+                console.log(err);
+              } else {
+                console.log("Tweet "+tweet.id+" successfully stored");
+                callback();
+              }
+            }); 
+          }
+        }
+      });
+    }, function(err){ 
+      //Do this after every tweet has been stored
+      console.log(tweets.length-rts+drts+" new tweets stored in the database");;
+    });
   }
 
   // Function for handling the friends/profiles
@@ -506,7 +623,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       if (tweet.geo != null){
         tweetloc.push(tweet.geo); // push the twitter geo location so that the locations can be displayed on a map, if geocode is present
       } else {
-        console.log('No Tweet location available.'); // If no tweet location log it in the console. 
+        //console.log('No Tweet location available.'); // If no tweet location log it in the console. 
       }
     }
   }
@@ -716,7 +833,7 @@ app.post('/sparql', function (req, res, next) {
     "OPTIONAL {?ground o:abstract ?description}." +
     "OPTIONAL {?ground p:seatingCapacity ?capacity}." +
     "OPTIONAL {?ground p:image ?image}." +
-    "FILTER(langMatches(lang(?description), "EN"))" +
+    "FILTER(langMatches(lang(?description), 'EN'))" +
   "}";
 
   var querym_h = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
