@@ -12,6 +12,8 @@ var express = require('express'),
     SparqlClient = require('sparql-client'),
     util = require('util'),
     endpoint = 'http://dbpedia.org/sparql',
+    ejs = require('ejs'),
+    fs = require('fs'),
     Twit = require('twit'),
     client = new Twit({
       consumer_key: 'aGvgbxGtSKTWdcxGf3paz90Kq',
@@ -37,6 +39,8 @@ app.use(express.static(__dirname + 'public'));
 app.use("/stylesheets",  express.static(__dirname + '/public/stylesheets'));
 app.use("/images",  express.static(__dirname + '/public/images'));
 app.use("/javascripts",  express.static(__dirname + '/public/javascripts'));
+app.set('view engine', 'html');
+app.engine('html', require('ejs').renderFile);
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -318,6 +322,7 @@ app.get('/queryInterface.html', restrict, function (req, res, next) {
 });
 
 app.post('/queryinterface', restrict, function (req, res, next) {
+  /*
   console.log("twitterProfile:" + req.body.profile);
   console.log("keywords:" + req.body.keywords);
   console.log("hashTags:" + req.body.hashtags);
@@ -325,6 +330,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   console.log("date:" + req.body.date);
   console.log("distance:" + req.body.distance);
   console.log("geo:" + req.body.geo);
+  */
   var profile = req.body.profile,
       keyword = req.body.keywords,
       hashtags = req.body.hashtags,
@@ -469,12 +475,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         getUserswords();
         var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
         str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
-        res.status('Tweets').send(tweettxt);
-        /*
-        res.status('Frequent Words').send(top);
-        res.status('Frequent Users').send(topu);
-        res.status('Users Frequent Words').send(str);
-        */
+        res.render('queryInterface.html', {tweets: tweettxt, activeUsers: topu, commonWords: top, usersCommon: str, geo: tweetloc});
       }
     }
   }
@@ -699,7 +700,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   }
 });
 
-app.post('/find', function (req, res, next) {
+app.post('/sparql', function (req, res, next) {
   console.log(req.body.hTeam);
   console.log(req.body.aTeam);
   var userInh = req.body.hTeam;
@@ -711,30 +712,33 @@ app.post('/find', function (req, res, next) {
   "PREFIX p: <http://dbpedia.org/property/> "  +
   "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
   "SELECT * WHERE { " +
-    "?ground p:ground  <http://dbpedia.org/resource/" + String(userInh) + ">" +
-    "OPTIONAL {?ground p:abstract ?description}." +
+    "<http://dbpedia.org/resource/" + String(userInh) + ">" +" p:ground ?ground."
+    "OPTIONAL {?ground o:abstract ?description}." +
     "OPTIONAL {?ground p:seatingCapacity ?capacity}." +
     "OPTIONAL {?ground p:image ?image}." +
+    "FILTER(langMatches(lang(?description), "EN"))" +
   "}";
 
   var querym_h = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
-  "PREFIX p: <http://dbpedia.org/property/> "  +
+  "PREFIX p: <http://dbpedia.org/property/> " +
+  "PREFIX o: <http://dbpedia.org/ontology/> " +
   "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
   "SELECT * WHERE { " +
-    "?manager p:managerClub  <http://dbpedia.org/resource/" + String(userInh) + ">" +
-    "OPTIONAL {?player p:cityofbirth ?city}." +
-    "OPTIONAL {?player p:dateOfBirth ?dob}." +
-    "OPTIONAL {?player p:image ?image}." +
+    "<http://dbpedia.org/resource/" + String(userInh) + ">" + "o:manager ?manager." +
+    "OPTIONAL {?manager p:cityofbirth ?city}." +
+    "OPTIONAL {?manager p:dateOfBirth ?dob}." +
+    "OPTIONAL {?manager foaf:depiction ?image}." +
   "}";
 
   var querym_a = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
   "PREFIX p: <http://dbpedia.org/property/> "  +
+  "PREFIX o: <http://dbpedia.org/ontology/> " +
   "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +    
   "SELECT * WHERE { " +
-    "?manager p:managerClub  <http://dbpedia.org/resource/" + String(userIna) + ">" +
-    "OPTIONAL {?player p:cityofbirth ?city}." +
-    "OPTIONAL {?player p:dateOfBirth ?dob}." +
-    "OPTIONAL {?player p:image ?image}." +
+    "<http://dbpedia.org/resource/" + String(userIna) + ">" + "o:manager ?manager" +
+    "OPTIONAL {?manager p:cityofbirth ?city}." +
+    "OPTIONAL {?manager p:dateOfBirth ?dob}." +
+    "OPTIONAL {?manager foaf:depiction ?image}." +
   "}";
 
   var queryh_p = "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
@@ -762,18 +766,32 @@ app.post('/find', function (req, res, next) {
   "}";
 
   try {
-    client.query(queryh)
+    client.query(queryg)
     .execute(function(error, results) {
     process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
-    client.query(querya)
+    client.query(querym_h)
       .execute(function(error, results) {
       process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+    client.query(querym_a)
+    .execute(function(error, results) {
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+    client.query(queryh_p)
+      .execute(function(error, results) {
+      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    });
+    client.query(querya_p)
+    .execute(function(error, results) {
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
   }
   catch (err){
     console.log('Error:' + err);
     console.log('Try again please...');
+    var alert = "Error," + err + "please try again...";
+    res.render('queryInterface.html', {sparql: alert});
   }
 })
 

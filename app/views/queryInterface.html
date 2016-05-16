@@ -9,7 +9,7 @@
         <!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_t3_wvQ1AxaFSDjZMifE7kVaPIvHEhSA"></script>-->
         <script src="/javascripts/javascripts.js" type = "text/javascript"></script>
     </head>
-    <body onLoad="doSlideshow()">
+    <body onLoad="doSlideshow(); window.scroll(0, 1000); display()">
       <form class="logout" name="logout" action="http://localhost:8081/logout" style="position:fixed;right:10px;top:5px;">
           <input type="submit" value="Log Out">
       </form>
@@ -168,9 +168,15 @@
             </div>
             <div class="bottom">
                 <h2>Tweets:</h2>
+                <span class="tweets"><%= tweets %></span>
+                <div style="clear: both;"></div>
             </div>
             <div class="bottom2">
                 <h2>Tweets: Most common words in the collection and most active users</h2>
+                <span class="activeU"><%= activeUsers %></span>
+                <span class="common"><%= commonWords %></span>
+                <span class="uCommon"><%= usersCommon %></span>
+                <div style="clear: both;"></div>
             </div>
         </div>
     </body>

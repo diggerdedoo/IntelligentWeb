@@ -53,6 +53,37 @@ a {
   display: block;
 }
 /*
+* queryInterface Styling
+*/
+.tweets span{
+  font-size: 10px;
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+}
+.activeU span{
+  font-size: 10px;
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+}
+.common span{
+  font-size: 10px;
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+}
+.uCommon span{
+  font-size: 10px;
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+}
+/*
 * Interface wraps
 */ 
 .wrapper{ 
@@ -83,7 +114,7 @@ a {
   margin-left: 20px;
   margin-right: 5px;
   margin-bottom: 10px;
-  width: 860px;
+  width: 870px;
   height: 835px;
   letter-spacing: 1px;  
   background: rgb(0, 0, 0); /* fallback color */
@@ -95,22 +126,30 @@ a {
   margin-top: 10px;
   margin-bottom: 10px;
   width: 1500px;
-  height: 1000px;
   letter-spacing: 1px;  
   background: rgb(0, 0, 0); /* fallback color */
   background: rgba(0, 0, 0, 0.7);
   padding: 50px; 
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+  overflow: hidden;
 }
 .bottom2{
   float: right;
   margin-top: 10px;
   margin-bottom: 10px;
   width: 1500px;
-  height: 300px;
   letter-spacing: 1px;  
   background: rgb(0, 0, 0); /* fallback color */
   background: rgba(0, 0, 0, 0.7);
   padding: 50px; 
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+  overflow: hidden;
 }
 .index-wrapper{
   margin-top: 100px;
