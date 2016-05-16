@@ -8,12 +8,8 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_t3_wvQ1AxaFSDjZMifE7kVaPIvHEhSA"></script>-->
         <script src="/javascripts/javascripts.js" type = "text/javascript"></script>
-        <script type="text/javascript">
-            var coord = <%- JSON.stringify(geo) %>;
-            var tweets = <%= JSON.stringify(tweets) %>;
-        </script>
     </head>
-    <body onLoad="doSlideshow(); window.scroll(0, 1000); display();">
+    <body onLoad="doSlideshow(); display();">
       <form class="logout" name="logout" action="http://localhost:8081/logout" style="position:fixed;right:10px;top:5px;">
           <input type="submit" value="Log Out">
       </form>
@@ -144,7 +140,7 @@
                                 <option value="Crystal_Palace_F.C.">
                                 <option value="Everton_F.C.">
                                 <option value="Leicester_City_F.C.">
-                                <option value="LLiverpool_F.C.">
+                                <option value="Liverpool_F.C.">
                                 <option value="Manchester_City_F.C.">
                                 <option value="Manchester_United_F.C.">
                                 <option value="Newcastle_United_F.C.">
@@ -166,32 +162,25 @@
                           </label>    
                         </section>
                 </form>
+                <span class="sparql"><%= JSON.stringify(sparql) %></span>
+                <span class="ground"><%= JSON.stringify(ground) %></span>
+                <span class="home_d"><%= JSON.stringify(home_d) %></span>
+                <span class="away_d"><%= JSON.stringify(away_d) %></span>
+                <span class="manager_h"><%= JSON.stringify(manager_h) %></span>
+                <span class="manager_a"><%= JSON.stringify(manager_a) %></span>
+                <span class="home_p"><%= JSON.stringify(home_p) %></span>
+                <span class="away_p"><%= JSON.stringify(away_p) %></span>
+                <div style="clear: both;"></div>
             </div>
             <div class="map-wrapper">
                 <div id="map-canvas" style="width: 100%; height: 332px;"></div>
             </div>
             <div class="bottom">
                 <h2>Tweets:</h2>
-                <span class="tweets"><%= tweets %></span>
-                <table>
-                    <tbody id="tbody"></tbody>
-                </table>
                 <div style="clear: both;"></div>
             </div>
             <div class="bottom2">
                 <h2>Tweets: Most common words in the collection and most active users</h2>
-                <span class="common"><%= JSON.stringify(commonWords) %></span>
-                <table>
-                    <tbody id="tbody3"></tbody>
-                </table>
-                <span class="activeU"><%= activeUsers %></span>
-                <table>
-                    <tbody id="tbody2"></tbody>
-                </table>
-                <span class="uCommon"><%= usersCommon %></span>
-                <table>
-                    <tbody id="tbody4"></tbody>
-                </table>
                 <div style="clear: both;"></div>
             </div>
         </div>

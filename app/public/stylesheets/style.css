@@ -115,11 +115,15 @@ a {
   margin-right: 5px;
   margin-bottom: 10px;
   width: 870px;
-  height: 835px;
   letter-spacing: 1px;  
   background: rgb(0, 0, 0); /* fallback color */
   background: rgba(0, 0, 0, 0.7);
-  padding: 50px;  
+  padding: 50px; 
+  color: white;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+  overflow: hidden; 
 }
 .bottom{
   float: right;
