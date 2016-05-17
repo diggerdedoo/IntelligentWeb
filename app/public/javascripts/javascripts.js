@@ -279,17 +279,3 @@ $("#sparqlquery").submit(function(event) {
     alert('success');
   });
 });
-
-function display(){
-  for (var t in tweets) {
-    var row = $('<row></row>');
-    row.append('<th style="border:1px solid black">' + t + '</th><td style="border:1px solid black">' + tweets[t][0]+ '</td>');
-    $("#tweetTable").append(row);
-  }
-}
-/*
-            var coord = <%- JSON.stringify(geo) %>;
-            var words = <%= JSON.stringify(commonWords) %>;
-            var users = <%= activeUsers %>;
-            var users_com = <%= usersCommon %>;
-            */
