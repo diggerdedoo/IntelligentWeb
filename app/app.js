@@ -725,8 +725,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       for (var i=0; i<=9; i++){
         topten.push(topusers[i]); // if topwords has more than 10 elements then push the first 10 elements in topusers to the topten array
       }
-      console.log(topten.length);
-      topten.splice(10, topten.length);
+      //topten.splice(10, topten.length);
       return topten;
     }
   }

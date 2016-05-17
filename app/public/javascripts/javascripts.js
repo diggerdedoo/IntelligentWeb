@@ -279,3 +279,11 @@ $("#sparqlquery").submit(function(event) {
     alert('success');
   });
 });
+
+/*
+//var tweets = <%= tweets %>;
+var coord = <%= JSON.stringify(geo) %>;
+            var words = <%= JSON.stringify(commonWords) %>;
+            var users = <%= activeUsers %>;
+            var users_com = <%= usersCommon %>;
+*/
