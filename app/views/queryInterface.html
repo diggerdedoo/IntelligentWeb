@@ -15,61 +15,27 @@
             var users = <%= activeUsers %>;
             var users_com = <%= usersCommon %>;
 
-            function GenerateTable() {
-             
-                //Create a HTML Table element.
-                var table = document.createElement("TABLE");
-                table.border = "1";
-             
-                //Get the count of columns.
-                var columnCount = tweets[0].length;
-             
-                //Add the header row.
-                var row = table.insertRow(-1);
-                for (var i = 0; i < columnCount; i++) {
-                    var headerCell = document.createElement("TH");
-                    headerCell.innerHTML = tweets[0][i];
-                    row.appendChild(headerCell);
-                }
-             
-                //Add the data rows.
-                for (var i = 1; i < tweets.length; i++) {
-                    row = table.insertRow(-1);
-                    for (var j = 0; j < columnCount; j++) {
-                        var cell = row.insertCell(-1);
-                        cell.innerHTML = tweets[i][j];
-                    }
-                }
-             
-                var dvTable = document.getElementById("tweetsTable");
-                dvTable.innerHTML = "";
-                dvTable.appendChild(table);
-            }
-            
-            GenerateTable();
-
-            $(document).ready(function (){
-                for (var t in tweets) {
+            for (var t in tweets) {
                 var row = $('<row></row>')
                 row.append('<th style="border:1px solid black">' + t + '</th><td style="border:1px solid black">' + tweets[t][0] + '</td>')
-                $("#tweetTable").append(row)
-                }
-                for (var i in words) {
-                    var row = $('<row></row>')
-                    row.append('<th style="border:1px solid black">' + words[i][0] + '</th><td style="border:1px solid black">' + words[i][1] + '</td>')
-                    $("#commonTable").append(row)
-                }
-                for (var j in users) {
-                    var row = $('<row></row>')
-                    row.append('<th style="border:1px solid black">' + users[j][0] + '</th><td style="border:1px solid black">' + users[j][1] + '</td>')
-                    $("#userTable").append(row)
-                }
-                for (var s in users_com) {
-                    var row = $('<row></row>')
-                    row.append('<th style="border:1px solid black">' + users_com[s][0] + '</th><td style="border:1px solid black">' + users_com[s][1] + '</td>')
-                    $("#ucommonTable").append(row)
-                }
-            });
+                $(".tweetTable").append(row)
+            }
+            for (var i in words) {
+                var row = $('<row></row>')
+                row.append('<th style="border:1px solid black">' + words[i][0] + '</th><td style="border:1px solid black">' + words[i][1] + '</td>')
+                $("#commonTable").append(row)
+            }
+            for (var j in users) {
+                var row = $('<row></row>')
+                row.append('<th style="border:1px solid black">' + users[j][0] + '</th><td style="border:1px solid black">' + users[j][1] + '</td>')
+                $("#userTable").append(row)
+            }
+            for (var s in users_com) {
+                var row = $('<row></row>')
+                row.append('<th style="border:1px solid black">' + users_com[s][0] + '</th><td style="border:1px solid black">' + users_com[s][1] + '</td>')
+                $("#ucommonTable").append(row)
+            }
+            
         </script>
     </head>
     <body onLoad="doSlideshow(); window.scroll(0, 1000);">
@@ -139,6 +105,12 @@
                             <input id="count" name="count" type="number" placeholder="Example: 100" min="1" max="500"/>
                         </label> 
 
+                        <label>
+                            <span>Search from database only:
+                                <input id="dbonly" name="dbonly" type="checkbox" />
+                            </span>
+                        </label>
+                        
                         <section class="twitterform">
                           <label>
                               <span>&nbsp;</span> 
@@ -221,7 +193,7 @@
             </div>
             <div class="bottom">
                 <h2>Tweets:</h2>
-                <table id="tweetTable" style="border:1px solid black"></table>
+                <table id="tweetTable" class="tweetTable" style="border:1px solid black"></table>
                 <div style="clear: both;"></div>
             </div>
             <div class="bottom2">

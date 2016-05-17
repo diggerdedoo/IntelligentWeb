@@ -112,13 +112,6 @@ function dropTables(){
       console.log("Table users Dropped");
     }
   });
-  connection.query('DROP TABLE querys', function (err, res){
-    if(err) {
-      console.log(err);
-    } else {
-      console.log("Table querys Dropped");
-    }
-  });
 }
 
 //Check if the sql table 'users' exists, if not, create it.
@@ -167,28 +160,6 @@ connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
       }
     });
   } 
-});
-
-//Check if the sql table 'querys' exists, if not, create it.
-connection.query('SELECT 1 FROM querys LIMIT 1', function (err, res){
-  //Query will throw error if the table doesn't exist, so then create it
-  if(err) {
-    connection.query('CREATE TABLE querys ('+
-      ' id int NOT NULL AUTO_INCREMENT,'+
-      ' users VARCHAR(200),'+
-      ' usersMentions VARCHAR(200),'+
-      ' hashtags VARCHAR(200),'+
-      ' keywords VARCHAR(200),'+
-      ' createdAt DATETIME,'+
-      ' lang VARCHAR(10),'+
-      ' PRIMARY KEY(id))', function (err, res){
-      if(err) {
-          console.log(err);
-      } else {
-          console.log("Table querys Created");
-      }
-    });
-  }
 });
 
 // plaintext users database, for use before we set up the SQL for it, will then be deleted
@@ -319,11 +290,9 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       hashtags = req.body.hashtags,
       userMentions = req.body.usermentions,
       count = req.body.count,
-      date = req.body.date,
-      dist = req.body.distance,
-      loc = req.body.geo,
+      dbonly = req.body.dbonly,
       lan = 'en',
-      search = keywords + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km",
+      //search = keywords + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km",
       tweettxt = new Array(), // array that will contain the returned tweet texts
       users = new Array(), // array that will contain the returned twitter users
       tweetloc = new Array(), // array that will contain the returned tweet locations
@@ -332,18 +301,22 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
   //Formulate the search query from the form data
   var q = '';
-  if (keywords != '')
+  if (keywords != ''){
     q = q + keywords;
-  if (hashtags != '')
+  }
+  if (hashtags != ''){
     q = q+' '+hashtags;
-  if (userMentions != '')
+  }
+  if (userMentions != ''){
     q = q+' '+userMentions;
-  if (profile != '')
+  }
+  if (profile != ''){
     q = q+' from:'+profile;
-
-  if (count =='')
+  }
+  if (count ==''){
     count = 100;
-
+  }
+    
   // Object containing the players on twitter for each premier league football club
   var teams = {
     'Arsenal': ['mertesacker', 'HectorBellerin', 'aaronramsey', 'Alex_OxChambo', 'joel_campbell12', 'SergeGnabry', 'MesutOzil1088', '_OlivierGiroud_', 'JackWilshere', 'm8arteta', '19SCazorla', 'D_Ospina1', 'Alexis_Sanchez', 'CalumChambers95', 'KieranGibbs', 'theowalcott', 'gpaulista5', '6_LKOSCIELNY', '_nachomonreal', 'MatDebuchy', 'PetrCech'],
@@ -394,15 +367,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
   // array for stoplist words
   var stoplist = ['','RT','a','A','I','i','The','the','and','too','to','retweet','-','.',',',':',';','/'];
- 
-  // function to make sure count is at least 300, so as not return to few tweets
-  function checkCount(count){
-    if (count < 300 ) {
-      count = 300;
-    } else {
-      count = count;
-    }
-  }
 
   // function to check which team is being search so as to return the players of that team on twitter
   function checkTeam(profile){
@@ -774,12 +738,27 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
   // Function for searching through twitter using the specified data
   function getTweets(){
-    client.get('search/tweets', { 
-      q: q, 
-      count: count,
-      lang: 'en' 
-    },
-    handleTweets);
+    if(q!=''){
+      client.get('search/tweets', { 
+        q: q, 
+        count: count,
+        lang: 'en' 
+      },
+      handleTweets);
+    } else {
+      console.log('Please enter at least one search term');
+    }
+  }
+
+  function getTweetsSQL(){
+    keywords = '%'+keywords+'%';
+    connection.query('SELECT * FROM tweets WHERE tweetText LIKE ?', keywords, function (err, res) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(res);
+      }
+    });
   }
 
   // Function for searching through twitter profiles using the specified data
@@ -820,7 +799,12 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     //checkSearch();
     //checkUserLoc(loc);
     //checkCount(count);  
-    getTweets();
+    if (dbonly==undefined){
+      getTweets();
+    } else {
+      getTweetsSQL();
+    }
+
   }
   catch (err) {
     console.log('Error:' + err);
