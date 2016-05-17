@@ -8,6 +8,7 @@
     </head>
     <body onLoad="doSlideshow(); window.scroll(0, 1000);">
         <script>
+<<<<<<< HEAD
             var tweets = "{ &#34;PaoIotics&#34;: [&#34;@JoshCannon99 @hanks_h @MCFC it&#39;s QPR. He&#39;s done nothing big since that other than 1 game vs Bayern.&#34;],&#34;YadavDhital&#34;: [&#34;RT @ArronMCFC: @YadavDhital @MCFC cheers, for supporting city since 2008 +&#34;],&#34;GoodKunManCity&#34;:[&#34;@Binky_Ferrari @stuff_mcfc @ManCityArmy1894 @cfcMode no I meant since he said failure isn&#39;t an option but look at this season lol&#34;]}"
    
             var json = JSON.parse(tweets.replace(/&#34;/g, '\"'));
@@ -24,6 +25,26 @@
             }
             for (var j in users) {
                 var row = $('<row></row>')
+=======
+            var tweets = <%= tweets %>;
+            var coord = <%= JSON.stringify(geo) %>;
+            var words = <%= JSON.stringify(commonWords) %>;
+            var users = <%= activeUsers %>;
+            var users_com = <%= usersCommon %>;
+
+            for (var t in tweets) {
+                var row = $('<row></row>')
+                row.append('<th style="border:1px solid black">' + t + '</th><td style="border:1px solid black">' + tweets[t][0] + '</td>')
+                $(".tweetTable").append(row)
+            }
+            for (var i in words) {
+                var row = $('<row></row>')
+                row.append('<th style="border:1px solid black">' + words[i][0] + '</th><td style="border:1px solid black">' + words[i][1] + '</td>')
+                $("#commonTable").append(row)
+            }
+            for (var j in users) {
+                var row = $('<row></row>')
+>>>>>>> 4f8bd6a86dbff62c1a1ff526236071000830da1a
                 row.append('<th style="border:1px solid black">' + users[j][0] + '</th><td style="border:1px solid black">' + users[j][1] + '</td>')
                 $("#userTable").append(row)
             }
@@ -31,7 +52,12 @@
                 var row = $('<row></row>')
                 row.append('<th style="border:1px solid black">' + users_com[s][0] + '</th><td style="border:1px solid black">' + users_com[s][1] + '</td>')
                 $("#ucommonTable").append(row)
+<<<<<<< HEAD
             }*/
+=======
+            }
+            
+>>>>>>> 4f8bd6a86dbff62c1a1ff526236071000830da1a
         </script>
       <form class="logout" name="logout" action="http://localhost:8081/logout" style="position:fixed;right:10px;top:5px;">
           <input type="submit" value="Log Out">
@@ -99,6 +125,12 @@
                             <input id="count" name="count" type="number" placeholder="Example: 100" min="1" max="500"/>
                         </label> 
 
+                        <label>
+                            <span>Search from database only:
+                                <input id="dbonly" name="dbonly" type="checkbox" />
+                            </span>
+                        </label>
+                        
                         <section class="twitterform">
                           <label>
                               <span>&nbsp;</span> 
@@ -181,9 +213,6 @@
             </div>
             <div class="bottom">
                 <h2>Tweets:</h2>
-                <table id="tweetTable" style="border:1px solid black">
-
-                </table>
             </div>
             <div class="bottom2">
                 <h2>Most common words in the collection and most active users:</h2>
