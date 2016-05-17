@@ -17,6 +17,7 @@
     "mysql": "*",
     "twit": "*",
     "sparql-client": "*",
-	"ejs": "*"
+	  "ejs": "*",
+    "async": "*"
   }
 }

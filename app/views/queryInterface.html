@@ -5,15 +5,74 @@
     <head>
         <title>Query the social web</title>
         <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
         <!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_t3_wvQ1AxaFSDjZMifE7kVaPIvHEhSA"></script>-->
         <script src="/javascripts/javascripts.js" type = "text/javascript"></script>
-        <script type="text/javascript">
-            var coord = <%- JSON.stringify(geo) %>;
-            var tweets = <%= JSON.stringify(tweets) %>;
+        <script>
+            var tweets = <%= tweets %>;
+            var coord = <%= JSON.stringify(geo) %>;
+            var words = <%= JSON.stringify(commonWords) %>;
+            var users = <%= activeUsers %>;
+            var users_com = <%= usersCommon %>;
+
+            function GenerateTable() {
+             
+                //Create a HTML Table element.
+                var table = document.createElement("TABLE");
+                table.border = "1";
+             
+                //Get the count of columns.
+                var columnCount = tweets[0].length;
+             
+                //Add the header row.
+                var row = table.insertRow(-1);
+                for (var i = 0; i < columnCount; i++) {
+                    var headerCell = document.createElement("TH");
+                    headerCell.innerHTML = tweets[0][i];
+                    row.appendChild(headerCell);
+                }
+             
+                //Add the data rows.
+                for (var i = 1; i < tweets.length; i++) {
+                    row = table.insertRow(-1);
+                    for (var j = 0; j < columnCount; j++) {
+                        var cell = row.insertCell(-1);
+                        cell.innerHTML = tweets[i][j];
+                    }
+                }
+             
+                var dvTable = document.getElementById("tweetsTable");
+                dvTable.innerHTML = "";
+                dvTable.appendChild(table);
+            }
+            
+            GenerateTable();
+
+            $(document).ready(function (){
+                for (var t in tweets) {
+                var row = $('<row></row>')
+                row.append('<th style="border:1px solid black">' + t + '</th><td style="border:1px solid black">' + tweets[t][0] + '</td>')
+                $("#tweetTable").append(row)
+                }
+                for (var i in words) {
+                    var row = $('<row></row>')
+                    row.append('<th style="border:1px solid black">' + words[i][0] + '</th><td style="border:1px solid black">' + words[i][1] + '</td>')
+                    $("#commonTable").append(row)
+                }
+                for (var j in users) {
+                    var row = $('<row></row>')
+                    row.append('<th style="border:1px solid black">' + users[j][0] + '</th><td style="border:1px solid black">' + users[j][1] + '</td>')
+                    $("#userTable").append(row)
+                }
+                for (var s in users_com) {
+                    var row = $('<row></row>')
+                    row.append('<th style="border:1px solid black">' + users_com[s][0] + '</th><td style="border:1px solid black">' + users_com[s][1] + '</td>')
+                    $("#ucommonTable").append(row)
+                }
+            });
         </script>
     </head>
-    <body onLoad="doSlideshow(); window.scroll(0, 1000); display();">
+    <body onLoad="doSlideshow(); window.scroll(0, 1000);">
       <form class="logout" name="logout" action="http://localhost:8081/logout" style="position:fixed;right:10px;top:5px;">
           <input type="submit" value="Log Out">
       </form>
@@ -172,26 +231,14 @@
             </div>
             <div class="bottom">
                 <h2>Tweets:</h2>
-                <span class="tweets"><%= tweets %></span>
-                <table>
-                    <tbody id="tbody"></tbody>
-                </table>
+                <table id="tweetTable" style="border:1px solid black"></table>
                 <div style="clear: both;"></div>
             </div>
             <div class="bottom2">
-                <h2>Tweets: Most common words in the collection and most active users</h2>
-                <span class="common"><%= JSON.stringify(commonWords) %></span>
-                <table>
-                    <tbody id="tbody3"></tbody>
-                </table>
-                <span class="activeU"><%= activeUsers %></span>
-                <table>
-                    <tbody id="tbody2"></tbody>
-                </table>
-                <span class="uCommon"><%= usersCommon %></span>
-                <table>
-                    <tbody id="tbody4"></tbody>
-                </table>
+                <h2>Most common words in the collection and most active users:</h2>
+                <table id="userTable" style="border:1px solid black"></table>
+                <table id="commonTable" style="border:1px solid black"></table>
+                <table id="ucommonTable" style="border:1px solid black"></table>
                 <div style="clear: both;"></div>
             </div>
         </div>

@@ -905,14 +905,6 @@ app.post('/sparql', function (req, res, next) {
     "OPTIONAL {?player p:image ?image}." +
   "}";
 
-  var ground,
-      home_d,
-      away_d,
-      manager_h,
-      manager_a,
-      home_p,
-      away_p;
-
   try {
     var ground = client.query(queryg)
     .execute(function(error, results) {
