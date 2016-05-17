@@ -141,9 +141,6 @@ connection.query('SELECT 1 FROM users LIMIT 1', function (err, res){
         createUserSQL('a', 'a');
       }
     });
-  //else do nothing
-  } else {
-    console.log('Table users already exists');
   }
 });
 
@@ -169,10 +166,7 @@ connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
           console.log("Table tweets Created");
       }
     });
-  //else do nothing
-  } else {
-    console.log('Table tweets already exists.');
-  }
+  } 
 });
 
 //Check if the sql table 'querys' exists, if not, create it.
@@ -194,9 +188,6 @@ connection.query('SELECT 1 FROM querys LIMIT 1', function (err, res){
           console.log("Table querys Created");
       }
     });
-  //else do nothing
-  } else {
-    console.log('Table querys already exists.');
   }
 });
 
@@ -324,19 +315,34 @@ app.get('/queryInterface.html', restrict, function (req, res, next) {
 
 app.post('/queryinterface', restrict, function (req, res, next) {
   var profile = req.body.profile,
-      keyword = req.body.keywords,
+      keywords = req.body.keywords,
       hashtags = req.body.hashtags,
+      userMentions = req.body.usermentions,
       count = req.body.count,
       date = req.body.date,
       dist = req.body.distance,
       loc = req.body.geo,
       lan = 'en',
-      search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km",
+      search = keywords + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km",
       tweettxt = new Array(), // array that will contain the returned tweet texts
       users = new Array(), // array that will contain the returned twitter users
       tweetloc = new Array(), // array that will contain the returned tweet locations
       tweetobj = {}, // object that contains both the users and their collection of tweets
       userobj = {};
+
+  //Formulate the search query from the form data
+  var q = '';
+  if (keywords != '')
+    q = q + keywords;
+  if (hashtags != '')
+    q = q+' '+hashtags;
+  if (userMentions != '')
+    q = q+' '+userMentions;
+  if (profile != '')
+    q = q+' from:'+profile;
+
+  if (count =='')
+    count = 100;
 
   // Object containing the players on twitter for each premier league football club
   var teams = {
@@ -386,8 +392,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     'WatfordFC': ['51.649871,-0.401363'],
   };
 
-  // array for unwanted words
-  var unwanted = ['','RT','a','I','i','The','the','and','too','to','retweet','-','.',',',':',';','/'];
+  // array for stoplist words
+  var stoplist = ['','RT','a','A','I','i','The','the','and','too','to','retweet','-','.',',',':',';','/'];
  
   // function to make sure count is at least 300, so as not return to few tweets
   function checkCount(count){
@@ -424,8 +430,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   function checkLocation(profile){
     if (locations[profile]){
       return locations[profile]; // match the location with the team name
-    } else if (locations[keyword]){
-      return locations[keyword]; // if no match then match with the keyword used
+    } else if (locations[keywords]){
+      return locations[keywords]; // if no match then match with the keyword used
     } else {
       return null; // if the profile searched isnt in locations, then return null
     }
@@ -434,20 +440,19 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   // Function for checking the search criteria and if it matches a location of a stadium 
   function checkSearch(){
     if ( checkLocation(profile)==null){
-      search = keyword + " since:" + date + " lang:" + lan;
+      search = keywords + " since:" + date + " lang:" + lan;
     } else if ( loc == null) {
-      search = keyword + " since:" + date + " lang:" + lan;
+      search = keywords + " since:" + date + " lang:" + lan;
     } else {
-      search = keyword + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
+      search = keywords + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
     }
   }
-  
 
-  // Function for checking if a common word is unwanted
+  // Function for checking if a common word is stoplist
   function chkwrd(string){
     var found = false;
-    for (i = 0; i < unwanted.length && !found; i++) {
-      if (unwanted[i] === string) {
+    for (i = 0; i < stoplist.length && !found; i++) {
+      if (stoplist[i] === string) {
         found = true;
         return true;
       }
@@ -460,10 +465,10 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       console.error('Get error', err);
     } else {
       if ( data.statuses[0] == undefined){
-        console.log("Not enough tweets returned in the date range, please change the date.");
+        console.log("No tweets returned, try less specific search criteria.");
       } else {
         sortTweets(data); // sort the tweet data
-        storeTweets(data);
+        storeTweets(data); // Store the tweets in the SQL db
         top = getTopwords(); // then find the most frequent words in the data
         topu = getTopusers(); // then find the most frequent users
         getUserswords();
@@ -480,23 +485,27 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
   //Store the tweets in the SQL database
   function storeTweets(data){
+
     //Set-up variables
     tweets = data.statuses
-    rts = 0;
-    drts = 0;
+    rts = 0; //total retweets
+    srts = 0; //stored retweets
+    nts = 0; //new tweets stored
 
     //Go through each tweet in turn, and store it
     async.eachSeries(tweets, function storeTweet(tweet, callback){
-   
+    
+      //check if the tweet already exists in the db
       connection.query('SELECT 1 FROM tweets WHERE id = ? LIMIT 1;', tweet.id, function (err, result){
         if (err) {
           console.log(err);
         } else if (result.length == 1){
           //Tweet already exists, do nothing
           console.log("Tweet %s already exists", tweet.id);
+          //exit loop
           callback();
         } else {
-
+          //Tweet doesn't exist in db, store it
           //Pull data from the tweet
           if (tweet.hasOwnProperty('retweeted_status')){
             tweet.isRetweet = true;
@@ -569,18 +578,20 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
           //Only add every seventh Retweet to prevent excessive duplication
           if( tweet.isRetweet && ((rts % 7) != 0) ){
+            //Throw out every seventh tweet 
             console.log("Retweet "+tweet.id+" thrown out.");
             callback();
-
           } else {
             //Store the tweet in the SQL database
             if(tweet.isRetweet){
-              drts++;
+              srts++;
             }
+            //Store the data in the db
             connection.query('INSERT INTO tweets SET ?', tweetData, function (err, res){
               if (err) {
                 console.log(err);
               } else {
+                nts++;
                 console.log("Tweet "+tweet.id+" successfully stored");
                 callback();
               }
@@ -590,7 +601,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       });
     }, function(err){ 
       //Do this after every tweet has been stored
-      console.log(tweets.length-rts+drts+" new tweets stored in the database");;
+      console.log(tweets.length+' total tweets found, of which '+rts+' are retweets.');
+      console.log(nts+" new tweets stored in the database, of which "+srts+" are retweets.");;
     });
   }
 
@@ -763,9 +775,9 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   // Function for searching through twitter using the specified data
   function getTweets(){
     client.get('search/tweets', { 
-      q: search, 
-      count: count, 
-      from: profile 
+      q: q, 
+      count: count,
+      lang: 'en' 
     },
     handleTweets);
   }
@@ -798,16 +810,16 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     if ( profile == ''){
       console.log('No profile provided.');// user has not provided a profile to search
     } else {
-      keyword = '@' + profile; // change the keyword to be the profile that the user wishes to search
+      keywords = '@' + profile; // change the keyword to be the profile that the user wishes to search
       getTweets(); 
     }
   }
 
   try {
-    loc = checkUserLoc(loc);
-    checkSearch();
-    checkUserLoc(loc);
-    checkCount(count);  
+    //loc = checkUserLoc(loc);
+    //checkSearch();
+    //checkUserLoc(loc);
+    //checkCount(count);  
     getTweets();
   }
   catch (err) {
