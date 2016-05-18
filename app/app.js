@@ -98,6 +98,7 @@ var server = app.listen(8081, function () {
 
 //Uncomment the below function if you want to reset the data or something
 //dropTables();
+
 //Drops all the tables
 function dropTables(){
   connection.query('DROP TABLE tweets', function (err, res){
@@ -149,7 +150,7 @@ connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
       ' userHandle VARCHAR(15),'+
       ' userProfilePicture VARCHAR(200),'+
       ' retweetedBy VARCHAR(15),'+
-      ' createdAt DATETIME,'+
+      ' createdAt VARCHAR(200),'+
       ' tweetText VARCHAR(140),'+
       ' hashtags VARCHAR(210),'+
       ' userMentions VARCHAR(210),'+
@@ -300,24 +301,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       tweetloc = new Array(), // array that will contain the returned tweet locations
       tweetobj = {}, // object that contains both the users and their collection of tweets
       userobj = {};
-
-  //Formulate the search query from the form data
-  var q = '';
-  if (keywords != ''){
-    q = q + keywords;
-  }
-  if (hashtags != ''){
-    q = q+' '+hashtags;
-  }
-  if (userMentions != ''){
-    q = q+' '+userMentions;
-  }
-  if (profile != ''){
-    q = q+' from:'+profile;
-  }
-  if (count ==''){
-    count = 100;
-  }
     
   // Object containing the players on twitter for each premier league football club
   var teams = {
@@ -448,7 +431,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
     //Set-up variables
     tweets = data.statuses
-    rts = 0; //total retweets
+    rts = -1; //total retweets, set to -1 to let the first retweet through
     srts = 0; //stored retweets
     nts = 0; //new tweets stored
 
@@ -479,7 +462,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           if (dataTweet.entities.hashtags != undefined){
             hashtagData = '';
             for (var indx in dataTweet.entities.hashtags){
-              hashtagData += dataTweet.entities.hashtags[indx].text+',';
+              hashtagData += '#'+dataTweet.entities.hashtags[indx].text+',';
             }
             //get rid of the final ','
             hashtagData = hashtagData.slice(0, -1);
@@ -491,7 +474,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           if (dataTweet.entities.user_mentions != undefined){
             userMentionsData = '';
             for (var indx in dataTweet.entities.user_mentions){
-              userMentionsData += dataTweet.entities.user_mentions[indx].text+',';
+              userMentionsData += '@'+dataTweet.entities.user_mentions[indx].screen_name+',';
             }
             //get rid of the final ','
             userMentionsData = userMentionsData.slice(0, -1);
@@ -514,7 +497,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
               userName: tweet.retweeted_status.user.name,
               userHandle: tweet.retweeted_status.user.screen_name,
               userProfilePicture: tweet.retweeted_status.user.profile_image_url,
-              createdAt: tweet.createdAt,
+              createdAt: tweet.created_at,
               retweetedBy: tweet.user.screen_name,
               tweetText: tweet.retweeted_status.text,
               hashtags: hashtagData,
@@ -528,7 +511,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
               userName: tweet.user.screen_name,
               userHandle: tweet.user.name,
               userProfilePicture: tweet.user.profile_image_url,
-              createdAt: tweet.createdAt,
+              createdAt: tweet.created_at,
               tweetText: tweet.text,
               hashtags: hashtagData,
               userMentions: userMentionsData,
@@ -561,7 +544,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       });
     }, function(err){ 
       //Do this after every tweet has been stored
-      console.log(tweets.length+' total tweets found, of which '+rts+' are retweets.');
+      console.log(tweets.length+' total tweets found, of which '+(rts+1)+' are retweets.');
       console.log(nts+" new tweets stored in the database, of which "+srts+" are retweets.");;
     });
   }
@@ -733,9 +716,29 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
   // Function for searching through twitter using the specified data
   function getTweets(){
-    if(q!=''){
+
+    //Formulate the search query from the form data
+    var query = '';
+    if (keywords != ''){
+      query = query + keywords;
+    }
+    if (hashtags != ''){
+      query = query+' '+hashtags;
+    }
+    if (userMentions != ''){
+      query = query+' '+userMentions;
+    }
+    if (profile != ''){
+      query = query+' from:'+profile;
+    }
+    if (count ==''){
+      count = 100;
+    }
+
+    //The query must not be empty after stripping whitespace
+    if(query.replace(/ /g,'') != ''){
       client.get('search/tweets', { 
-        q: q, 
+        q: query, 
         count: count,
         lang: 'en' 
       },
@@ -745,15 +748,76 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
+  //get the tweets from the SQL database
   function getTweetsSQL(){
-    keywords = '%'+keywords+'%';
-    connection.query('SELECT * FROM tweets WHERE tweetText LIKE ?', keywords, function (err, res) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log(res);
+
+    //Prepare the query string
+    var query = '';
+    if (keywords != ''){
+      query = query + keywords;
+    }
+    if (hashtags != ''){
+      query = query+' '+hashtags;
+    }
+    if (userMentions != ''){
+      query = query+' '+userMentions;
+    }
+
+    queryString = "SELECT * FROM tweets WHERE ";
+
+    if(query.replace(/ /g,'') != ''){
+      //split the individual words into an array
+      queryArray = query.split(' ');
+      //remove empty elements (can be created if the user pressed space twice, etc)
+      var tempArray = [];
+      for (var i in queryArray){
+        if (queryArray[i] != ''){
+          tempArray.push(queryArray[i]);
+        }
       }
-    });
+      queryArray = tempArray;
+      tempArray.delete;
+
+      queryString = queryString + "tweetText REGEXP '"+queryArray[0];
+
+      for (var i=1; i < queryArray.length; i++) {
+        queryString = queryString+'|'+queryArray[i];
+      }
+      queryString = queryString+"'";
+
+      if (profile.replace(/ /g,'') != '') {
+        queryString = queryString+" OR ";
+      }
+    }
+    //If profile is not empty
+    if (profile.replace(/ /g,'') != '') {
+      //remove the '@' if it's there
+      if (profile.charAt(0) == '@'){
+        profile = profile.slice(1);
+      }
+      queryString = queryString+"userName LIKE '%"+profile+"%' OR retweetedBy LIKE '%"+profile+"%'";
+    }
+    
+    //Check if the user has actually entered any search terms
+    if (queryString == "SELECT * FROM tweets WHERE "){
+      console.log("Please enter some search terms.");
+    } else {
+      //Add the limit if the user has specified a count
+      if (count != ''){
+        queryString = queryString + ' LIMIT '+count;
+      }
+
+      //Get the relevant tweets from the database by querying it
+      connection.query(queryString, function (err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(res);
+          console.log(res.length+" tweets found in total.");
+          console.log("Queried with "+queryString);
+        }
+      });
+    } 
   }
 
   // Function for searching through twitter profiles using the specified data
@@ -792,8 +856,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   try {
     //loc = checkUserLoc(loc);
     //checkSearch();
-    //checkUserLoc(loc);
-    //checkCount(count);  
+    //checkUserLoc(loc); 
     if (dbonly==undefined){
       getTweets();
     } else {
