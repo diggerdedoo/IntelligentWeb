@@ -98,6 +98,7 @@ var server = app.listen(8081, function () {
 
 //Uncomment the below function if you want to reset the data or something
 //dropTables();
+
 //Drops all the tables
 function dropTables(){
   connection.query('DROP TABLE tweets', function (err, res){
@@ -149,7 +150,7 @@ connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
       ' userHandle VARCHAR(15),'+
       ' userProfilePicture VARCHAR(200),'+
       ' retweetedBy VARCHAR(15),'+
-      ' createdAt DATETIME,'+
+      ' createdAt VARCHAR(200),'+
       ' tweetText VARCHAR(140),'+
       ' hashtags VARCHAR(210),'+
       ' userMentions VARCHAR(210),'+
@@ -430,7 +431,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
     //Set-up variables
     tweets = data.statuses
-    rts = 0; //total retweets
+    rts = -1; //total retweets, set to -1 to let the first retweet through
     srts = 0; //stored retweets
     nts = 0; //new tweets stored
 
@@ -496,7 +497,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
               userName: tweet.retweeted_status.user.name,
               userHandle: tweet.retweeted_status.user.screen_name,
               userProfilePicture: tweet.retweeted_status.user.profile_image_url,
-              createdAt: tweet.createdAt,
+              createdAt: tweet.created_at,
               retweetedBy: tweet.user.screen_name,
               tweetText: tweet.retweeted_status.text,
               hashtags: hashtagData,
@@ -510,7 +511,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
               userName: tweet.user.screen_name,
               userHandle: tweet.user.name,
               userProfilePicture: tweet.user.profile_image_url,
-              createdAt: tweet.createdAt,
+              createdAt: tweet.created_at,
               tweetText: tweet.text,
               hashtags: hashtagData,
               userMentions: userMentionsData,
@@ -543,7 +544,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       });
     }, function(err){ 
       //Do this after every tweet has been stored
-      console.log(tweets.length+' total tweets found, of which '+rts+' are retweets.');
+      console.log(tweets.length+' total tweets found, of which '+(rts+1)+' are retweets.');
       console.log(nts+" new tweets stored in the database, of which "+srts+" are retweets.");;
     });
   }
@@ -747,7 +748,10 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
+  //get the tweets from the SQL database
   function getTweetsSQL(){
+
+    //Prepare the query string
     var query = '';
     if (keywords != ''){
       query = query + keywords;
@@ -758,18 +762,21 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     if (userMentions != ''){
       query = query+' '+userMentions;
     }
-
-    queryString = "SELECT * FROM tweets WHERE tweetText REGEXP 'marshmallow|hitler'";
     queryArray = query.split(' ');
-    for (queryWord in queryArray){
 
+    queryString = "SELECT * FROM tweets WHERE tweetText REGEXP '"+queryArray[0];
+    for (var i=1; i < queryArray.length; i++) {
+      queryString = queryString+'|'+queryArray[i];
     }
+    queryString = queryString+"'";
 
+    //get the relevant tweets from the database
     connection.query(queryString, function (err, res) {
       if (err) {
         console.log(err);
       } else {
         console.log(res);
+        console.log(res.length+" tweets found in total.");
       }
     });
   }
