@@ -295,7 +295,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       count = req.body.count,
       dbonly = req.body.dbonly,
       lan = 'en',
-      //search = keywords + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km",
       tweettxt = new Array(), // array that will contain the returned tweet texts
       users = new Array(), // array that will contain the returned twitter users
       tweetloc = new Array(), // array that will contain the returned tweet locations
@@ -714,6 +713,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
+  var tweetsReturned = [];
+
   // Function for searching through twitter using the specified data
   function getTweets(){
 
@@ -731,18 +732,28 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     if (profile != ''){
       query = query+' from:'+profile;
     }
-    if (count ==''){
+    //Default the count to 100 if nothing is entered
+    if (count == ''){
       count = 100;
     }
 
+/*    while (tweetsReturned.size() < count){
+      if(count - tweetsReturned.size() > 100){
+        count = 100;
+      } else {
+        count = count - tweetsReturned.size();
+      }
+    }*/
+
     //The query must not be empty after stripping whitespace
     if(query.replace(/ /g,'') != ''){
-      client.get('search/tweets', { 
+      queryResult = client.get('search/tweets', { 
         q: query, 
         count: count,
         lang: 'en' 
       },
       handleTweets);
+
     } else {
       console.log('Please enter at least one search term');
     }
@@ -772,16 +783,21 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           tempArray.push(queryArray[i]);
         }
       }
+      //shunt the temp array and delete it
       queryArray = tempArray;
       tempArray.delete;
 
+      //add the first search term to the sql regex
       queryString = queryString + "tweetText REGEXP '"+queryArray[0];
+      //add the rest of them
       for (var i=1; i < queryArray.length; i++) {
         queryString = queryString+'|'+queryArray[i];
       }
+      //close it off
       queryString = queryString+"'";
+      //This produces 
 
-      //If the user specified a profile in addition to some search terms we need an OR
+      //If the user specified a profile in addition to some search terms we need an OR too
       if (profile.replace(/ /g,'') != '') {
         queryString = queryString+" OR ";
       }
@@ -829,7 +845,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     },
     handleFriends);
   }
-
 
   // Function for returning the tweets of the players returned 
   function getPlayerTweets(){
