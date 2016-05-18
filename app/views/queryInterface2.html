@@ -156,13 +156,29 @@
                         </section>
                 </form>
                 <span class="sparql"><%= JSON.stringify(sparql) %></span>
-                <span class="ground"><%= JSON.stringify(ground) %></span>
-                <span class="home_d"><%= JSON.stringify(home_d) %></span>
-                <span class="away_d"><%= JSON.stringify(away_d) %></span>
-                <span class="manager_h"><%= JSON.stringify(manager_h) %></span>
-                <span class="manager_a"><%= JSON.stringify(manager_a) %></span>
-                <span class="home_p"><%= JSON.stringify(home_p) %></span>
-                <span class="away_p"><%= JSON.stringify(away_p) %></span>
+                <?xml version="1.0"?>
+                <sparql xmlns="http://www.w3.org/2005/sparql-results#">
+                    <head>
+                      <variable name="player"/>
+                      <result></result>
+                      <variable name="city"/>
+                      <result></result>
+                      <variable name="dob"/>
+                      <result></result>
+                      <variable name="no"/>
+                      <result></result>
+                      <variable name="position"/>
+                      <result></result>
+                      <variable name="image"/>
+                      <result></result>
+                      <variable name="manager"/>
+                      <result></result> 
+                      <variable name="ground"/> 
+                      <result></result>
+                      <variable name="abstract"/>
+                      <result></result>
+                    </head>
+                </sparql>
                 <div style="clear: both;"></div>
             </div>
             <div class="map-wrapper">
