@@ -298,24 +298,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       tweetloc = new Array(), // array that will contain the returned tweet locations
       tweetobj = {}, // object that contains both the users and their collection of tweets
       userobj = {};
-
-  //Formulate the search query from the form data
-  var q = '';
-  if (keywords != ''){
-    q = q + keywords;
-  }
-  if (hashtags != ''){
-    q = q+' '+hashtags;
-  }
-  if (userMentions != ''){
-    q = q+' '+userMentions;
-  }
-  if (profile != ''){
-    q = q+' from:'+profile;
-  }
-  if (count ==''){
-    count = 100;
-  }
     
   // Object containing the players on twitter for each premier league football club
   var teams = {
@@ -737,9 +719,29 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
   // Function for searching through twitter using the specified data
   function getTweets(){
-    if(q!=''){
+
+    //Formulate the search query from the form data
+    var query = '';
+    if (keywords != ''){
+      query = query + keywords;
+    }
+    if (hashtags != ''){
+      query = query+' '+hashtags;
+    }
+    if (userMentions != ''){
+      query = query+' '+userMentions;
+    }
+    if (profile != ''){
+      query = query+' from:'+profile;
+    }
+    if (count ==''){
+      count = 100;
+    }
+
+    //The query must not be empty after stripping whitespace
+    if(query.replace(/ /g,'') != ''){
       client.get('search/tweets', { 
-        q: q, 
+        q: query, 
         count: count,
         lang: 'en' 
       },
@@ -750,8 +752,24 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   }
 
   function getTweetsSQL(){
-    keywords = '%'+keywords+'%';
-    connection.query('SELECT * FROM tweets WHERE tweetText LIKE ?', keywords, function (err, res) {
+    var query = '';
+    if (keywords != ''){
+      query = query + keywords;
+    }
+    if (hashtags != ''){
+      query = query+' '+hashtags;
+    }
+    if (userMentions != ''){
+      query = query+' '+userMentions;
+    }
+
+    queryString = "SELECT * FROM tweets WHERE tweetText REGEXP 'marshmallow|hitler'";
+    queryArray = query.split(' ');
+    for (queryWord in queryArray){
+
+    }
+
+    connection.query(queryString, function (err, res) {
       if (err) {
         console.log(err);
       } else {
@@ -796,8 +814,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   try {
     //loc = checkUserLoc(loc);
     //checkSearch();
-    //checkUserLoc(loc);
-    //checkCount(count);  
+    //checkUserLoc(loc); 
     if (dbonly==undefined){
       getTweets();
     } else {
