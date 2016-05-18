@@ -89,36 +89,76 @@ a {
 table {
   border-collapse:collapse;
   table-layout: fixed;
-  width: 1400px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 th, td {
-  border-bottom: 1px solid #FFFFFF;
+  border-bottom: 2px solid #FFFFFF;
   text-align: left;
   vertical-align: bottom;
+  padding: 10px;
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
 }
 th {
   height: 50px;
-  padding: 15px;
   font-size: 20px;
-  color: white; 
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-  font-weight: 300; 
   width: 600px;
 }
 td {
-  padding: 15px;
   font-size: 15px;
-  color: white; 
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-  font-weight: 300; 
   width: 800px;
 }
-
-.tweetTable{
-  font-size: 10px;
-  color: white; 
+.bottom table {
+  width: 1400px;
+}
+.bottom a {
+  text-align: left;
+  vertical-align: bottom;
+  font-size: 20px;
+  padding: 15px;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
   font-weight: 300; 
+}
+.bottom2 table {
+  min-width: 500px;
+}
+.bottom2 th{
+  height: 30px;
+  font-size: 20px;
+  min-width: 200px;
+  border-right: 2px solid #FFFFFF;
+}
+.bottom2 td{
+  font-size: 15px;
+  width: 100px;
+}
+.bottom3 table {
+  min-width: 350px;
+}
+.bottom3 th{
+  height: 30px;
+  font-size: 20px;
+  min-width: 200px;
+  border-right: 2px solid #FFFFFF;
+}
+.bottom3 td{
+  font-size: 15px;
+  width: 100px;
+}
+.bottom4 table {
+  width: 100%;
+}
+.bottom4 th{
+  height: 30px;
+  min-width: 250px;
+  font-size: 20px;
+  border-right: 2px solid #FFFFFF;
+}
+.bottom4 td{
+  font-size: 15px;
+  min-width: 200px;
 }
 /*
 * Interface wraps
@@ -167,6 +207,7 @@ td {
   margin-top: 10px;
   margin-bottom: 10px;
   width: 1500px;
+  height: 100%;
   letter-spacing: 1px;  
   background: rgb(0, 0, 0); /* fallback color */
   background: rgba(0, 0, 0, 0.7);
@@ -178,6 +219,36 @@ td {
   overflow: hidden;
 }
 .bottom2{
+  float: left;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 650px;
+  letter-spacing: 1px;  
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
+  padding: 50px; 
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+  overflow: hidden;
+}
+.bottom3{
+  float: right;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 650px;
+  letter-spacing: 1px;  
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
+  padding: 50px; 
+  color: white; 
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
+  text-align: center;
+  overflow: hidden;
+}
+.bottom4{
   float: right;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -190,7 +261,8 @@ td {
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
   font-weight: 300; 
   text-align: center;
-  overflow: hidden;
+  overflow-x: scroll;
+  overflow-y: hidden;
 }
 .index-wrapper{
   margin-top: 100px;

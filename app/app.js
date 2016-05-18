@@ -610,14 +610,14 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     var topwords = getFreqword(), // Call the getFreqword() function
         topwords = Object.keys(topwords).map(function (k) { return { word: k, num: topwords[k] }; }), // create an object with the key, word which is the word taken from getFreqword() and the key, num which is the number of occurances of that word 
         toptwenty = [],
-        twenty = 20;
+        twenty = 19;
 
     // Sort in descending order by the key num:
     topwords = topwords.sort(function (a, b){
       return b.num - a.num;
     });
 
-    if (topwords.length <= 20){
+    if (topwords.length <= 19){
       topwords = toptwenty; // if topwords doesn't have 20 elements then just make toptwenty equal to topwords
       return toptwenty;
     } else {
@@ -1048,9 +1048,9 @@ app.post('/sparql', function (req, res, next) {
     res.render('queryInterface2.html', {sparql: alert});
   }
   finally {
-    var alert = "All queries performed";
-    console.log(ground);
-    res.render('queryInterface2.html', {sparql: alert, ground: ground, home_d: home_d, away_d: away_d, manager_h: manager_h, manager_a: manager_a, home_p: home_p, away_p: away_p});
+    var allResults = [ground, home_d, away_d, manager_h, manager_a, home_p, away_p];
+    return allResults;
+    res.render('queryInterface2.html', {sparql: allResults});
   }
 })
 

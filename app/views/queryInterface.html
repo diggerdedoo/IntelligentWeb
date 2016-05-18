@@ -164,42 +164,62 @@
                 <table id="tweetTable" class="tweetTable"></table>
             </div>
             <div class="bottom2">
-                <h2>Most common words in the collection and most active users:</h2>
+                <h2>10 most active users:</h2>
                 <table id="userTable"></table>
+                   <div style="clear: both;"></div>
+            </div>
+            <div class="bottom3">
+                <h2>20 most common words in the collection:</h2>
                 <table id="commonTable"></table>
+                <div style="clear: both;"></div>
+            </div>
+            <div class="bottom4">
+                <h2>Active users most common words:</h2>
                 <table id="ucommonTable"></table>
                 <div style="clear: both;"></div>
             </div>
         </div>
         <script type = "text/javascript">
+            // Server variables
             var tweets = <%- JSON.stringify(tweets) %> ;
-            var json = JSON.parse(tweets.replace(/&#34;/g, '\"'));
             var users = <%- JSON.stringify(activeUsers) %>;
-            var jsonu = JSON.parse(tweets.replace(/&#34;/g, '\"'));
             var words = <%- JSON.stringify(commonWords) %>;
-            var jsonw = JSON.parse(tweets.replace(/&#34;/g, '\"'));
             var users_com = <%- JSON.stringify(usersCommon) %>;
-            var jsonu_c = JSON.parse(tweets.replace(/&#34;/g, '\"'));
 
+            // Remove all the unwanted characters from the variable
+            var json = JSON.parse(tweets.replace(/&#34;/g, '\"'));
+            var jsonu = JSON.parse(users.replace(/&#34;/g, '\"'));
+            var jsonw = JSON.parse(words.replace(/&#34;/g, '\"'));
+            var jsonu_c = JSON.parse(users_com.replace(/&#34;/g, '\"'));
+
+            // For each variable loop through and place the relevant data into a HTML table
             for (var t in json) {
                 var row = $('<row></row>');
-                row.append('<th>' + t + '</th><td>' + json[t][0] + '</td>');
+                row.append('<th>' + '<a href="https://twitter.com/' + t + '">' + t + '</a></th><td>' + json[t][0] + '</td>');
                 $('#tweetTable').append(row);
             }
             for (var u in jsonu) {
                 var row = $('<row></row>');
-                row.append('<th>' + jsonu[u][0] + '</th><td>' + jsonu[u][1] + '</td>');
+                row.append('<th>' + jsonu[u].user + '</th><td>' + jsonu[u].num + '</td>');
                 $('#userTable').append(row);
             }
             for (var w in jsonw) {
                 var row = $('<row></row>');
-                row.append('<th>' + jsonw[w][0] + '</th><td>' + jsonw[w][1] + '</td>');
+                row.append('<th>' + jsonw[w].word + '</th><td>' + jsonw[w].num + '</td>');
                 $('#commonTable').append(row);
             }
             for (var i in jsonu_c) {
                 var row = $('<row></row>');
-                row.append('<th>' + jsonu_c[i][0] + '</th><td>' + jsonu_c[i][1] + '</td>');
-                $('#ucommonTable').append(row);
+                if (JSON.stringify(jsonu_c[i]) == '[[]]'){
+                    // Don't add to the table, tweet collection was returned as empty
+                } else {
+                    row.append('<th style="border-right: 2px solid #FFFFFF;">' + i + '</th>');
+                    // For each object contained in the array of words, add them to the table
+                    jsonu_c[i][0].forEach(function (obj) { 
+                        row.append('<td>' + 'Word: ' + obj.word + '</td><td style="border-right: 2px solid #FFFFFF;">' + 'Count: ' + obj.num + '</td>');
+                    });
+                    $('#ucommonTable').append(row);
+                }
             }
         </script>
     </body>
