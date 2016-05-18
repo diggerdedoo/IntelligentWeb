@@ -54,7 +54,7 @@ function initialize() {
     map.setTilt(45);
         
     // Dummy array for plotting the locations of the geocoded tweets, will be removed as getTweets will provide this data
-    var coord = [];
+    var coord = []; //<%- geo %>;
     /* Dummy values
       { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
       { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
@@ -279,11 +279,3 @@ $("#sparqlquery").submit(function(event) {
     alert('success');
   });
 });
-
-/*
-//var tweets = <%= tweets %>;
-var coord = <%= JSON.stringify(geo) %>;
-            var words = <%= JSON.stringify(commonWords) %>;
-            var users = <%= activeUsers %>;
-            var users_com = <%= usersCommon %>;
-*/

@@ -40,8 +40,10 @@ app.use(express.static(__dirname + 'public'));
 app.use("/stylesheets",  express.static(__dirname + '/public/stylesheets'));
 app.use("/images",  express.static(__dirname + '/public/images'));
 app.use("/javascripts",  express.static(__dirname + '/public/javascripts'));
-app.set('view engine', 'html');
+//app.set('/views', express.static(__dirname, 'views'));
+app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
+
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -436,13 +438,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         top = getTopwords(); // then find the most frequent words in the data
         topu = getTopusers(); // then find the most frequent users
         getUserswords();
-        var str = JSON.stringify(userobj); // stringify userobj so it doesnt display object
-        str = JSON.stringify(userobj, null, 4);  // Add some indentation so it is displayed in a viewable way
-        var st = JSON.stringify(topu); // stringify userobj so it doesnt display object
-        st = JSON.stringify(topu, null, 4);  // Add some indentation so it is displayed in a viewable way
-        var tweets = JSON.stringify(tweetobj); // stringify userobj so it doesnt display object
-        tweets = JSON.stringify(tweetobj, null, 4);  // Add some indentation so it is displayed in a viewable way
-        res.render('queryInterface.html', {tweets: tweets, activeUsers: st, commonWords: top, usersCommon: str, geo: tweetloc}); // Send the data to the client
+        return res.render('queryInterface.html', {tweets: JSON.stringify(tweetobj), activeUsers: JSON.stringify(topu), commonWords: JSON.stringify(top), usersCommon: JSON.stringify(userobj), geo: JSON.stringify(tweetloc)}); // Send the data to the client
       }
     }
   }
