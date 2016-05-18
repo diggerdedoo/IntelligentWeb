@@ -462,7 +462,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           if (dataTweet.entities.hashtags != undefined){
             hashtagData = '';
             for (var indx in dataTweet.entities.hashtags){
-              hashtagData += dataTweet.entities.hashtags[indx].text+',';
+              hashtagData += '#'+dataTweet.entities.hashtags[indx].text+',';
             }
             //get rid of the final ','
             hashtagData = hashtagData.slice(0, -1);
@@ -474,7 +474,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           if (dataTweet.entities.user_mentions != undefined){
             userMentionsData = '';
             for (var indx in dataTweet.entities.user_mentions){
-              userMentionsData += dataTweet.entities.user_mentions[indx].text+',';
+              userMentionsData += '@'+dataTweet.entities.user_mentions[indx].screen_name+',';
             }
             //get rid of the final ','
             userMentionsData = userMentionsData.slice(0, -1);
@@ -762,23 +762,62 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     if (userMentions != ''){
       query = query+' '+userMentions;
     }
-    queryArray = query.split(' ');
 
-    queryString = "SELECT * FROM tweets WHERE tweetText REGEXP '"+queryArray[0];
-    for (var i=1; i < queryArray.length; i++) {
-      queryString = queryString+'|'+queryArray[i];
-    }
-    queryString = queryString+"'";
+    queryString = "SELECT * FROM tweets WHERE ";
 
-    //get the relevant tweets from the database
-    connection.query(queryString, function (err, res) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log(res);
-        console.log(res.length+" tweets found in total.");
+    if(query.replace(/ /g,'') != ''){
+      //split the individual words into an array
+      queryArray = query.split(' ');
+      //remove empty elements (can be created if the user pressed space twice, etc)
+      var tempArray = [];
+      for (var i in queryArray){
+        if (queryArray[i] != ''){
+          tempArray.push(queryArray[i]);
+        }
       }
-    });
+      queryArray = tempArray;
+      tempArray.delete;
+
+      queryString = queryString + "tweetText REGEXP '"+queryArray[0];
+
+      for (var i=1; i < queryArray.length; i++) {
+        queryString = queryString+'|'+queryArray[i];
+      }
+      queryString = queryString+"'";
+
+      if (profile.replace(/ /g,'') != '') {
+        queryString = queryString+" OR ";
+      }
+    }
+    //If profile is not empty
+    if (profile.replace(/ /g,'') != '') {
+      //remove the '@' if it's there
+      if (profile.charAt(0) == '@'){
+        profile = profile.slice(1);
+      }
+      queryString = queryString+"userName LIKE '%"+profile+"%' OR retweetedBy LIKE '%"+profile+"%'";
+    }
+    
+    //Check if the user has actually entered any search terms
+    if (queryString == "SELECT * FROM tweets WHERE "){
+      console.log("Please enter some search terms.");
+    } else {
+      //Add the limit if the user has specified a count
+      if (count != ''){
+        queryString = queryString + ' LIMIT '+count;
+      }
+
+      //Get the relevant tweets from the database by querying it
+      connection.query(queryString, function (err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(res);
+          console.log(res.length+" tweets found in total.");
+          console.log("Queried with "+queryString);
+        }
+      });
+    } 
   }
 
   // Function for searching through twitter profiles using the specified data
