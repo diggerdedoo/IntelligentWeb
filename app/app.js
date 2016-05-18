@@ -755,25 +755,17 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     var query = '';
     //concatanate every text box into one string
     query = keywords+' '+hashtags+' '+userMentions;
-/*    if (keywords != ''){
-      query = query + keywords;
-    }
-    if (hashtags != ''){
-      query = query+' '+hashtags;
-    }
-    if (userMentions != ''){
-      query = query+' '+userMentions;
-    }*/
 
     //initialise the query string to be parsed in SQL
     queryString = "SELECT * FROM tweets WHERE ";
 
-    //if query is not empty
+    //If query is not empty
     if(query.replace(/ /g,'') != ''){
-      queryArray = query.split(' '); //split the individual words into an array
-      //remove empty elements (can be created if the user pressed space twice, etc)
+      //split the individual words into an array
+      queryArray = query.split(' '); 
+      //remove all empty elements (can be created if the user pressed space twice, etc)
       var tempArray = [];
-      //iterate through array
+      //iterate through the array
       for (var i in queryArray){
         if (queryArray[i] != ''){
           //push non-empty elements into a temporary array
@@ -784,30 +776,33 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       tempArray.delete;
 
       queryString = queryString + "tweetText REGEXP '"+queryArray[0];
-
       for (var i=1; i < queryArray.length; i++) {
         queryString = queryString+'|'+queryArray[i];
       }
       queryString = queryString+"'";
 
+      //If the user specified a profile in addition to some search terms we need an OR
       if (profile.replace(/ /g,'') != '') {
         queryString = queryString+" OR ";
       }
     }
+
     //If profile is not empty
     if (profile.replace(/ /g,'') != '') {
       //remove the '@' if it's there
       if (profile.charAt(0) == '@'){
         profile = profile.slice(1);
       }
+      //add the additional query terms
       queryString = queryString+"userName LIKE '%"+profile+"%' OR retweetedBy LIKE '%"+profile+"%'";
     }
     
     //Check if the user has actually entered any search terms, i.e., the queryString has changed from its initial state.
     if (queryString == "SELECT * FROM tweets WHERE "){
+      //the user hasn't put anything in the text boxes at all
       console.log("Please enter some search terms.");
     } else {
-      
+
       //Add the limit if the user has specified a count
       if (count != ''){
         queryString = queryString + ' LIMIT '+count;
