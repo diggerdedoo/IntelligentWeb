@@ -753,7 +753,9 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
     //Prepare the query string
     var query = '';
-    if (keywords != ''){
+    //concatanate every text box into one string
+    query = keywords+' '+hashtags+' '+userMentions;
+/*    if (keywords != ''){
       query = query + keywords;
     }
     if (hashtags != ''){
@@ -761,17 +763,20 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
     if (userMentions != ''){
       query = query+' '+userMentions;
-    }
+    }*/
 
+    //initialise the query string to be parsed in SQL
     queryString = "SELECT * FROM tweets WHERE ";
 
+    //if query is not empty
     if(query.replace(/ /g,'') != ''){
-      //split the individual words into an array
-      queryArray = query.split(' ');
+      queryArray = query.split(' '); //split the individual words into an array
       //remove empty elements (can be created if the user pressed space twice, etc)
       var tempArray = [];
+      //iterate through array
       for (var i in queryArray){
         if (queryArray[i] != ''){
+          //push non-empty elements into a temporary array
           tempArray.push(queryArray[i]);
         }
       }
@@ -798,10 +803,11 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       queryString = queryString+"userName LIKE '%"+profile+"%' OR retweetedBy LIKE '%"+profile+"%'";
     }
     
-    //Check if the user has actually entered any search terms
+    //Check if the user has actually entered any search terms, i.e., the queryString has changed from its initial state.
     if (queryString == "SELECT * FROM tweets WHERE "){
       console.log("Please enter some search terms.");
     } else {
+      
       //Add the limit if the user has specified a count
       if (count != ''){
         queryString = queryString + ' LIMIT '+count;
