@@ -295,7 +295,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       count = req.body.count,
       dbonly = req.body.dbonly,
       lan = 'en',
-      //search = keywords + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km",
       tweettxt = new Array(), // array that will contain the returned tweet texts
       users = new Array(), // array that will contain the returned twitter users
       tweetloc = new Array(), // array that will contain the returned tweet locations
@@ -720,6 +719,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
+  var tweetsReturned = [];
+
   // Function for searching through twitter using the specified data
   function getTweets(){
 
@@ -738,18 +739,28 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       query = query+'@' +profile+ ' OR from:'+profile;
       console.log(query);
     }
-    if (count ==''){
+    //Default the count to 100 if nothing is entered
+    if (count == ''){
       count = 100;
     }
 
+/*    while (tweetsReturned.size() < count){
+      if(count - tweetsReturned.size() > 100){
+        count = 100;
+      } else {
+        count = count - tweetsReturned.size();
+      }
+    }*/
+
     //The query must not be empty after stripping whitespace
     if(query.replace(/ /g,'') != ''){
-      client.get('search/tweets', { 
+      queryResult = client.get('search/tweets', { 
         q: query, 
         count: count,
         lang: 'en' 
       },
       handleTweets);
+
     } else {
       console.log('Please enter at least one search term');
     }
@@ -760,55 +771,61 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
     //Prepare the query string
     var query = '';
-    if (keywords != ''){
-      query = query + keywords;
-    }
-    if (hashtags != ''){
-      query = query+' '+hashtags;
-    }
-    if (userMentions != ''){
-      query = query+' '+userMentions;
-    }
+    //concatanate every text box into one string
+    query = keywords+' '+hashtags+' '+userMentions;
 
+    //initialise the query string to be parsed in SQL
     queryString = "SELECT * FROM tweets WHERE ";
 
+    //If query is not empty
     if(query.replace(/ /g,'') != ''){
       //split the individual words into an array
-      queryArray = query.split(' ');
-      //remove empty elements (can be created if the user pressed space twice, etc)
+      queryArray = query.split(' '); 
+      //remove all empty elements (can be created if the user pressed space twice, etc)
       var tempArray = [];
+      //iterate through the array
       for (var i in queryArray){
         if (queryArray[i] != ''){
+          //push non-empty elements into a temporary array
           tempArray.push(queryArray[i]);
         }
       }
+      //shunt the temp array and delete it
       queryArray = tempArray;
       tempArray.delete;
 
+      //add the first search term to the sql regex
       queryString = queryString + "tweetText REGEXP '"+queryArray[0];
-
+      //add the rest of them
       for (var i=1; i < queryArray.length; i++) {
         queryString = queryString+'|'+queryArray[i];
       }
+      //close it off
       queryString = queryString+"'";
+      //This produces 
 
+      //If the user specified a profile in addition to some search terms we need an OR too
       if (profile.replace(/ /g,'') != '') {
         queryString = queryString+" OR ";
       }
     }
+
     //If profile is not empty
     if (profile.replace(/ /g,'') != '') {
       //remove the '@' if it's there
       if (profile.charAt(0) == '@'){
         profile = profile.slice(1);
       }
+      //add the additional query terms
       queryString = queryString+"userName LIKE '%"+profile+"%' OR retweetedBy LIKE '%"+profile+"%'";
     }
     
-    //Check if the user has actually entered any search terms
+    //Check if the user has actually entered any search terms, i.e., the queryString has changed from its initial state.
     if (queryString == "SELECT * FROM tweets WHERE "){
+      //the user hasn't put anything in the text boxes at all
       console.log("Please enter some search terms.");
     } else {
+
       //Add the limit if the user has specified a count
       if (count != ''){
         queryString = queryString + ' LIMIT '+count;
@@ -835,7 +852,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     },
     handleFriends);
   }
-
 
   // Function for returning the tweets of the players returned 
   function getPlayerTweets(){
