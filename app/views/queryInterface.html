@@ -195,7 +195,11 @@
             // For each variable loop through and place the relevant data into a HTML table
             for (var t in json) {
                 var row = $('<row></row>');
-                row.append('<th>' + '<a href="https://twitter.com/' + t + '">' + t + '</a></th><td>' + json[t][0] + '</td>');
+                row.append('<th>' + '<a href="https://twitter.com/' + t + '">' + t + '</a></th>');
+                var arrayLength = json[t].length;
+                for (var i = 0; i < arrayLength; i++) {
+                    row.append('<td>' + json[t][i] + '</td>');
+                }
                 $('#tweetTable').append(row);
             }
             for (var u in jsonu) {
@@ -213,7 +217,7 @@
                 if (JSON.stringify(jsonu_c[i]) == '[[]]'){
                     // Don't add to the table, tweet collection was returned as empty
                 } else {
-                    row.append('<th style="border-right: 2px solid #FFFFFF;">' + i + '</th>');
+                    row.append('<th>' + i + '</th>');
                     // For each object contained in the array of words, add them to the table
                     jsonu_c[i][0].forEach(function (obj) { 
                         row.append('<td>' + 'Word: ' + obj.word + '</td><td style="border-right: 2px solid #FFFFFF;">' + 'Count: ' + obj.num + '</td>');

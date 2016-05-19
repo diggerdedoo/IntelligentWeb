@@ -415,6 +415,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     } else {
       if ( data.statuses[0] == undefined){
         console.log("No tweets returned, try less specific search criteria.");
+        //return res.render('queryInterface.html', {tweets: JSON.stringify(tweetobj), activeUsers: JSON.stringify(topu), commonWords: JSON.stringify(top), usersCommon: JSON.stringify(userobj), geo: JSON.stringify(tweetloc)}); // Send the data to the client
       } else {
         sortTweets(data); // sort the tweet data
         storeTweets(data); // Store the tweets in the SQL db
@@ -623,10 +624,15 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       return toptwenty;
     } else {
         for (var i=0; i<=twenty; i++){
-          if (chkwrd(topwords[i].word) === true ) {
+          try{
+            if (chkwrd(topwords[i].word) === true ) {
             twenty = twenty + 1; // if the word is a blacklisted word then don't inlcude it and add one to the index limit so twenty words are returned
-          } else {
-            toptwenty.push(topwords[i]); // if topwords has more than 20 elements then push the first 20 elements in topwords to the toptwenty array
+            } else {
+              toptwenty.push(topwords[i]); // if topwords has more than 20 elements then push the first 20 elements in topwords to the toptwenty array
+            }
+          }
+          catch (err){
+            console.log('Error:' + err);
           }
         }
       return toptwenty;
@@ -729,7 +735,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       query = query+' '+userMentions;
     }
     if (profile != ''){
-      query = query+' from:'+profile;
+      query = query+'@' +profile+ ' OR from:'+profile;
+      console.log(query);
     }
     if (count ==''){
       count = 100;

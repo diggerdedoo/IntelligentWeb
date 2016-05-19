@@ -216,7 +216,8 @@ td {
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
   font-weight: 300; 
   text-align: center;
-  overflow: hidden;
+  overflow-x: scroll;
+  overflow-y: hidden;
 }
 .bottom2{
   float: left;
