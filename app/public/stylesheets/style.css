@@ -159,6 +159,7 @@ td {
 .bottom4 td{
   font-size: 15px;
   min-width: 200px;
+  border-right: 2px solid #FFFFFF;
 }
 /*
 * Interface wraps

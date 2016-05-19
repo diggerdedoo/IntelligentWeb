@@ -242,7 +242,7 @@ $(document).ready(function () {
     });
 });
 
-// attach a submit handler to the form 
+// Submit for the Twitter form
 $("#query").submit(function(event) {
 
   // stop form from submitting normally
@@ -255,13 +255,9 @@ $("#query").submit(function(event) {
   // Send the data using post
   var posting = $.post( url, { twitterProfile: $('#profile').val(), keywords: $('#keywords').val(), hashTags: $('#hashtags').val(), count: $('#count').val(), date: $('#date').val(), distance: $('#distance').val(), geo: $('#geo').val() } );
 
-  // Alerts the results
-  posting.done(function(data) {
-    alert('success');
-  });
 });
 
-// attach a submit handler to the form 
+// Submit for the SPARQL form 
 $("#sparqlquery").submit(function(event) {
 
   // stop form from submitting normally
@@ -274,8 +270,4 @@ $("#sparqlquery").submit(function(event) {
   // Send the data using post
   var poster = $.post( url, { date: $('#date').val(), HomeTeam: $('hTeam').val(), AwayTeam: $('aTeam').val(),} );
 
-  // Alerts the results
-  poster.done(function(data) {
-    alert('success');
-  });
 });

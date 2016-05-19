@@ -194,22 +194,22 @@
 
             // For each variable loop through and place the relevant data into a HTML table
             for (var t in json) {
-                var row = $('<row></row>');
-                row.append('<th>' + '<a href="https://twitter.com/' + t + '">' + t + '</a></th>');
+                var row = $('<row></row>'); // add the row tags
+                row.append('<th>' + '<a href="https://twitter.com/' + t + '">' + t + '</a></th>'); // add the twitter profile, which added as a hyperlink
                 var arrayLength = json[t].length;
                 for (var i = 0; i < arrayLength; i++) {
-                    row.append('<td>' + json[t][i] + '</td>');
+                    row.append('<td>' + json[t][i] + '</td>'); // add the tweets associated with the user profile
                 }
-                $('#tweetTable').append(row);
+                $('#tweetTable').append(row); // add to the table
             }
             for (var u in jsonu) {
                 var row = $('<row></row>');
-                row.append('<th>' + jsonu[u].user + '</th><td>' + jsonu[u].num + '</td>');
+                row.append('<th>' + jsonu[u].user + '</th><td>' + jsonu[u].num + '</td>'); // add the twitter profile and the number of times their tweets are in the collection
                 $('#userTable').append(row);
             }
             for (var w in jsonw) {
                 var row = $('<row></row>');
-                row.append('<th>' + jsonw[w].word + '</th><td>' + jsonw[w].num + '</td>');
+                row.append('<th>' + jsonw[w].word + '</th><td>' + jsonw[w].num + '</td>'); // add the word and the number of times it is found in the collection
                 $('#commonTable').append(row);
             }
             for (var i in jsonu_c) {
@@ -220,7 +220,7 @@
                     row.append('<th>' + i + '</th>');
                     // For each object contained in the array of words, add them to the table
                     jsonu_c[i][0].forEach(function (obj) { 
-                        row.append('<td>' + 'Word: ' + obj.word + '</td><td style="border-right: 2px solid #FFFFFF;">' + 'Count: ' + obj.num + '</td>');
+                        row.append('<td>' + 'Word: ' + obj.word + '</td><td>' + 'Count: ' + obj.num + '</td>');
                     });
                     $('#ucommonTable').append(row);
                 }

@@ -385,17 +385,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
-  // Function for checking the search criteria and if it matches a location of a stadium 
-  function checkSearch(){
-    if ( checkLocation(profile)==null){
-      search = keywords + " since:" + date + " lang:" + lan;
-    } else if ( loc == null) {
-      search = keywords + " since:" + date + " lang:" + lan;
-    } else {
-      search = keywords + " since:" + date + " lang:" + lan + " geocode:" + loc + "," + dist + "km";
-    }
-  }
-
   // Function for checking if a common word is stoplist
   function chkwrd(string){
     var found = false;
@@ -866,20 +855,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
-  // Function for searching for the mentions of a profile
-  function getMentions(){
-    if ( profile == ''){
-      console.log('No profile provided.');// user has not provided a profile to search
-    } else {
-      keywords = '@' + profile; // change the keyword to be the profile that the user wishes to search
-      getTweets(); 
-    }
-  }
-
-  try {
-    //loc = checkUserLoc(loc);
-    //checkSearch();
-    //checkUserLoc(loc); 
+  try { 
     if (dbonly==undefined){
       getTweets();
     } else {
