@@ -8,7 +8,7 @@ var express = require('express'),
     session = require('client-sessions'),
     router = express.Router(),
     cookieParser = require('cookie-parser'),
-    app = module.exports = express(),
+    app = module.expototalRetweets = express(),
     async = require('async'),
     SparqlClient = require('sparql-client'),
     util = require('util'),
@@ -299,7 +299,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       users = new Array(), // array that will contain the returned twitter users
       tweetloc = new Array(), // array that will contain the returned tweet locations
       tweetobj = {}, // object that contains both the users and their collection of tweets
-      userobj = {};
+      userobj = {},
+      tweetsReturned = [];
     
   // Object containing the players on twitter for each premier league football club
   var teams = {
@@ -398,20 +399,44 @@ app.post('/queryinterface', restrict, function (req, res, next) {
  
   // Function for handling the tweets
   function handleTweets(err, data){
+    //check if err
     if (err) {
       console.error('Get error', err);
     } else {
-      if ( data.statuses[0] == undefined){
+      //If the search returns nothing AND tweetsReturned is empty, then Twitter didn't find anything at all
+      if ((data.statuses.length == 0) && (tweetsReturned.length == 0)) {
         console.log("No tweets returned, try less specific search criteria.");
-        //return res.render('queryInterface.html', {tweets: JSON.stringify(tweetobj), activeUsers: JSON.stringify(topu), commonWords: JSON.stringify(top), usersCommon: JSON.stringify(userobj), geo: JSON.stringify(tweetloc)}); // Send the data to the client
+      
       } else {
-        sortTweets(data); // sort the tweet data
-        storeTweets(data); // Store the tweets in the SQL db
-        top = getTopwords(); // then find the most frequent words in the data
-        topu = getTopusers(); // then find the most frequent users
-        getUserswords();
-        return res.render('queryInterface.html', {tweets: JSON.stringify(tweetobj), activeUsers: JSON.stringify(topu), commonWords: JSON.stringify(top), usersCommon: JSON.stringify(userobj), geo: JSON.stringify(tweetloc)}); // Send the data to the client
+        //Alright, we've got a batch of data
+        //Push every status found onto the total stack
+        for (var i in data.statuses){
+          tweetsReturned.push(data.statuses[i]);
+        }
+        //If we maxed out the current batch AND we need more tweets, get more tweets
+        if (data.statuses.length == 100 && tweetsReturned.length < count) {
+
+          //find the lowest id in the current tweets returned
+          maxid=10000000000000000000;
+          for (var i in tweetsReturned){
+            if (tweetsReturned[i].id < maxid){
+              maxid = tweetsReturned[i].id;
+            }
+          }
+          //get more tweets with a terribly handled recursive function
+          getTweets(count-tweetsReturned.length, maxid);
+
+        } else {
+          //now we have all the tweets we want
+          sortTweets(tweetsReturned); // sort the tweet data
+          storeTweets(tweetsReturned); // Store the tweets in the SQL db
+          top = getTopwords(); // then find the most frequent words in the data
+          topu = getTopusers(); // then find the most frequent users
+          getUserswords();
+          return res.render('queryInterface.html', {tweets: JSON.stringify(tweetobj), activeUsers: JSON.stringify(topu), commonWords: JSON.stringify(top), usersCommon: JSON.stringify(userobj), geo: JSON.stringify(tweetloc)}); // Send the data to the client
+        }
       }
+        
     }
   }
 
@@ -419,10 +444,11 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   function storeTweets(data){
 
     //Set-up variables
-    tweets = data.statuses
-    rts = -1; //total retweets, set to -1 to let the first retweet through
-    srts = 0; //stored retweets
-    nts = 0; //new tweets stored
+    tweets = data;
+    totalRetweets = -1; //total retweets, set to -1 to let the first retweet through
+    storedRetweets = 0; //stored retweets
+    alreadyStoredTweets = 0;
+    newTweetsStored = 0; //new tweets stored
 
     //Go through each tweet in turn, and store it
     async.eachSeries(tweets, function storeTweet(tweet, callback){
@@ -433,7 +459,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           console.log(err);
         } else if (result.length == 1){
           //Tweet already exists, do nothing
-          console.log("Tweet %s already exists", tweet.id);
+          alreadyStoredTweets++;
           //exit loop
           callback();
         } else {
@@ -442,7 +468,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           if (tweet.hasOwnProperty('retweeted_status')){
             tweet.isRetweet = true;
             dataTweet = tweet.retweeted_status;
-            rts++;
+            totalRetweets++;
           } else {
             dataTweet = tweet;
           }
@@ -509,22 +535,20 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           }
 
           //Only add every seventh Retweet to prevent excessive duplication
-          if( tweet.isRetweet && ((rts % 7) != 0) ){
+          if( tweet.isRetweet && ((totalRetweets % 7) != 0) ){
             //Throw out every seventh tweet 
-            console.log("Retweet "+tweet.id+" thrown out.");
             callback();
           } else {
             //Store the tweet in the SQL database
             if(tweet.isRetweet){
-              srts++;
+              storedRetweets++;
             }
             //Store the data in the db
             connection.query('INSERT INTO tweets SET ?', tweetData, function (err, res){
               if (err) {
                 console.log(err);
               } else {
-                nts++;
-                console.log("Tweet "+tweet.id+" successfully stored");
+                newTweetsStored++;
                 callback();
               }
             }); 
@@ -533,8 +557,10 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       });
     }, function(err){ 
       //Do this after every tweet has been stored
-      console.log(tweets.length+' total tweets found, of which '+(rts+1)+' are retweets.');
-      console.log(nts+" new tweets stored in the database, of which "+srts+" are retweets.");;
+      console.log(tweets.length+' total tweets found.');
+      console.log((totalRetweets+1)+' total retweets found.');
+      console.log(alreadyStoredTweets+' tweets already in database.');
+      console.log(newTweetsStored+" new tweets stored in the database, of which "+storedRetweets+" are retweets.");
     });
   }
 
@@ -556,8 +582,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
   // Function for sorting through the tweets to return relevant information
   function sortTweets (data) {
-    for (var indx in data.statuses){
-      var tweet = data.statuses[indx];
+    for (var indx in data){
+      var tweet = data[indx];
       tweettxt.push(tweet.text); // push the tweet text so it can be sorted for the most frequent words
       users.push(tweet.user.screen_name); // push the twitter user screen name so it can be sorted to find the most frequent users
       pushToobject(tweetobj, tweet.user.screen_name, tweet.text); // Call the pushToobject to create an object containing each screen name and their collection of tweets
@@ -580,7 +606,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   // Function for getting the frequency of each word within a string
   function getFreqword(){
     var string = tweettxt.toString(), // turn the array into a string
-        changedString = string.replace(/,/g, " "), // remove the array elements 
+        changedString = string.replace(/,/g, " "), // remove the array elemenewTweetsStored 
         split = changedString.split(" "), // split the string 
         words = [];
 
@@ -608,7 +634,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     });
 
     if (topwords.length <= 19){
-      topwords = toptwenty; // if topwords doesn't have 20 elements then just make toptwenty equal to topwords
+      topwords = toptwenty; // if topwords doesn't have 20 elemenewTweetsStored then just make toptwenty equal to topwords
       return toptwenty;
     } else {
         for (var i=0; i<=twenty; i++){
@@ -616,7 +642,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
             if (chkwrd(topwords[i].word) === true ) {
             twenty = twenty + 1; // if the word is a blacklisted word then don't inlcude it and add one to the index limit so twenty words are returned
             } else {
-              toptwenty.push(topwords[i]); // if topwords has more than 20 elements then push the first 20 elements in topwords to the toptwenty array
+              toptwenty.push(topwords[i]); // if topwords has more than 20 elemenewTweetsStored then push the first 20 elemenewTweetsStored in topwords to the toptwenty array
             }
           }
           catch (err){
@@ -630,7 +656,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   // Function for getting the most frequent users for a search
   function getFrequsers(){
     var string = users.toString(), // turn the array into a string
-        changedString = string.replace(/,/g, " "), // remove the array elements 
+        changedString = string.replace(/,/g, " "), // remove the array elemenewTweetsStored 
         split = changedString.split(" "), // split the string 
         freqUsers = []; // array for the freqent users to be pushed too
 
@@ -656,11 +682,11 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       return b.num - a.num;
     });
     if ( topusers.length <= 9 ) { 
-      topten = topusers; // if topwords doesn't have 10 elements then just make toptwenty equal to topusers
+      topten = topusers; // if topwords doesn't have 10 elemenewTweetsStored then just make toptwenty equal to topusers
       return topten;
     } else {
       for (var i=0; i<=9; i++){
-        topten.push(topusers[i]); // if topwords has more than 10 elements then push the first 10 elements in topusers to the topten array
+        topten.push(topusers[i]); // if topwords has more than 10 elemenewTweetsStored then push the first 10 elemenewTweetsStored in topusers to the topten array
       }
       //topten.splice(10, topten.length);
       return topten;
@@ -673,7 +699,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       if (tweetobj.hasOwnProperty(key)) {
         var obj = tweetobj[key],
             string = obj + "", // turn the array into a string
-            changedString = string.replace(/,/g, " "), // remove the array elements 
+            changedString = string.replace(/,/g, " "), // remove the array elemenewTweetsStored 
             split = changedString.split(" "), // split the string 
             words = [];
 
@@ -694,10 +720,10 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         });
 
         if (words.length <= 9){
-          words = toptenu; // if topwords doesn't have 10 elements then just make toptwenty equal to topwords
+          words = toptenu; // if topwords doesn't have 10 elemenewTweetsStored then just make toptwenty equal to topwords
         } else {
           for (var j=0; j<=9; j++){
-            toptenu.push(words[j]); // if topwords has more than 10 elements then push the first 20 elements in topwords to the toptwenty array
+            toptenu.push(words[j]); // if topwords has more than 10 elemenewTweetsStored then push the first 20 elemenewTweetsStored in topwords to the toptwenty array
           }
         }
         pushToobject(userobj, key, toptenu);
@@ -708,11 +734,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
-  var tweetsReturned = [];
-
   // Function for searching through twitter using the specified data
-  function getTweets(){
-
+  function getTweets(count, maxid){
     //Formulate the search query from the form data
     var query = '';
     if (keywords != ''){
@@ -726,26 +749,20 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
     if (profile != ''){
       query = query+'@' +profile+ ' OR from:'+profile;
-      console.log(query);
     }
-    //Default the count to 100 if nothing is entered
-    if (count == ''){
-      count = 100;
+    //set the number of tweets the search should look for
+    if(count > 100){
+      queryCount = 100;
+    } else {
+      queryCount = count;
     }
-
-/*    while (tweetsReturned.size() < count){
-      if(count - tweetsReturned.size() > 100){
-        count = 100;
-      } else {
-        count = count - tweetsReturned.size();
-      }
-    }*/
 
     //The query must not be empty after stripping whitespace
     if(query.replace(/ /g,'') != ''){
-      queryResult = client.get('search/tweets', { 
+      client.get('search/tweets', { 
         q: query, 
-        count: count,
+        count: queryCount,
+        max_id: maxid,
         lang: 'en' 
       },
       handleTweets);
@@ -756,7 +773,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   }
 
   //get the tweets from the SQL database
-  function getTweetsSQL(){
+  function getTweetsSQL(count){
 
     //Prepare the query string
     var query = '';
@@ -770,12 +787,12 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     if(query.replace(/ /g,'') != ''){
       //split the individual words into an array
       queryArray = query.split(' '); 
-      //remove all empty elements (can be created if the user pressed space twice, etc)
+      //remove all empty elemenewTweetsStored (can be created if the user pressed space twice, etc)
       var tempArray = [];
       //iterate through the array
       for (var i in queryArray){
         if (queryArray[i] != ''){
-          //push non-empty elements into a temporary array
+          //push non-empty elemenewTweetsStored into a temporary array
           tempArray.push(queryArray[i]);
         }
       }
@@ -825,6 +842,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         if (err) {
           console.log(err);
         } else {
+          //We got the results, now to send them to the html
           console.log(res);
           console.log(res.length+" tweets found in total.");
           console.log("Queried with "+queryString);
@@ -856,13 +874,19 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   }
 
   try { 
+    //Default the count to 300 if nothing is entered
+    if (count == ''){
+      count = 300;
+    }
+
     if (dbonly==undefined){
-      getTweets();
+      getTweets(count, 10000000000000000000);
     } else {
-      getTweetsSQL();
+      getTweetsSQL(count);
     }
 
   }
+
   catch (err) {
     console.log('Error:' + err);
     console.log('Please try again...');
@@ -963,7 +987,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var ground = client.query(queryg)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -973,7 +997,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var home_d = client.query(queryh_d)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -983,7 +1007,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var away_d = client.query(querya_d)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -993,7 +1017,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var manager_h = client.query(querym_h)
       .execute(function(error, results) {
-      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+      process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -1003,7 +1027,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var manager_a = client.query(querym_a)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -1013,7 +1037,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var home_p = client.query(queryh_p)
       .execute(function(error, results) {
-      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+      process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -1023,7 +1047,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var away_p = client.query(querya_p)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
     });
   }
   catch (err){
