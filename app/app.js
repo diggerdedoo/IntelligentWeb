@@ -300,6 +300,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       tweetloc = new Array(), // array that will contain the returned tweet locations
       tweetobj = {}, // object that contains both the users and their collection of tweets
       userobj = {},
+      query = '',
       tweetsReturned = [];
     
   // Object containing the players on twitter for each premier league football club
@@ -350,8 +351,19 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     'WatfordFC': ['51.649871,-0.401363'],
   };
 
-  // array for stoplist words
-  var stoplist = ['','RT','a','A','I','i','The','the','and','too','to','retweet','-','.',',',':',';','/'];
+  // Stoplist array: don't include these words when finding the most used words
+  var stoplist = ['','RT','a','A','I','i','The','the','and','And','or','Or','too','to','retweet','-','.',',',':',';','/'];
+
+  // Function to check which team is being searched so the geocode location for the teams stadium can be returned
+  function checkLocation(profile){
+    if (locations[profile]){
+      return locations[profile]; // match the location with the team name
+    } else if (locations[keywords]){
+      return locations[keywords]; // if no match then match with the keyword used
+    } else {
+      return null; // if the profile searched isnt in locations, then return null
+    }
+  }
 
   // function to check which team is being search so as to return the players of that team on twitter
   function checkTeam(profile){
@@ -375,19 +387,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
-  // Function to check which team is being searched so the geocode location for the teams stadium can be returned
-  function checkLocation(profile){
-    if (locations[profile]){
-      return locations[profile]; // match the location with the team name
-    } else if (locations[keywords]){
-      return locations[keywords]; // if no match then match with the keyword used
-    } else {
-      return null; // if the profile searched isnt in locations, then return null
-    }
-  }
-
   // Function for checking if a common word is stoplist
-  function chkwrd(string){
+  function checkWord(string){
     var found = false;
     for (i = 0; i < stoplist.length && !found; i++) {
       if (stoplist[i] === string) {
@@ -397,173 +398,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
  
-  // Function for handling the tweets
-  function handleTweets(err, data){
-    //check if err
-    if (err) {
-      console.error('Get error', err);
-    } else {
-      //If the search returns nothing AND tweetsReturned is empty, then Twitter didn't find anything at all
-      if ((data.statuses.length == 0) && (tweetsReturned.length == 0)) {
-        console.log("No tweets returned, try less specific search criteria.");
-      
-      } else {
-        //Alright, we've got a batch of data
-        //Push every status found onto the total stack
-        for (var i in data.statuses){
-          tweetsReturned.push(data.statuses[i]);
-        }
-        //If we maxed out the current batch AND we need more tweets, get more tweets
-        if (data.statuses.length == 100 && tweetsReturned.length < count) {
-
-          //find the lowest id in the current tweets returned
-          maxid=10000000000000000000;
-          for (var i in tweetsReturned){
-            if (tweetsReturned[i].id < maxid){
-              maxid = tweetsReturned[i].id;
-            }
-          }
-          //get more tweets with a terribly handled recursive function
-          getTweets(count-tweetsReturned.length, maxid);
-
-        } else {
-          //now we have all the tweets we want
-          sortTweets(tweetsReturned); // sort the tweet data
-          storeTweets(tweetsReturned); // Store the tweets in the SQL db
-          top = getTopwords(); // then find the most frequent words in the data
-          topu = getTopusers(); // then find the most frequent users
-          getUserswords();
-          return res.render('queryInterface.html', {tweets: JSON.stringify(tweetobj), activeUsers: JSON.stringify(topu), commonWords: JSON.stringify(top), usersCommon: JSON.stringify(userobj), geo: JSON.stringify(tweetloc)}); // Send the data to the client
-        }
-      }
-        
-    }
-  }
-
-  //Store the tweets in the SQL database
-  function storeTweets(data){
-
-    //Set-up variables
-    tweets = data;
-    totalRetweets = -1; //total retweets, set to -1 to let the first retweet through
-    storedRetweets = 0; //stored retweets
-    alreadyStoredTweets = 0;
-    newTweetsStored = 0; //new tweets stored
-
-    //Go through each tweet in turn, and store it
-    async.eachSeries(tweets, function storeTweet(tweet, callback){
-    
-      //check if the tweet already exists in the db
-      connection.query('SELECT 1 FROM tweets WHERE id = ? LIMIT 1;', tweet.id, function (err, result){
-        if (err) {
-          console.log(err);
-        } else if (result.length == 1){
-          //Tweet already exists, do nothing
-          alreadyStoredTweets++;
-          //exit loop
-          callback();
-        } else {
-          //Tweet doesn't exist in db, store it
-          //Pull data from the tweet
-          if (tweet.hasOwnProperty('retweeted_status')){
-            tweet.isRetweet = true;
-            dataTweet = tweet.retweeted_status;
-            totalRetweets++;
-          } else {
-            dataTweet = tweet;
-          }
-
-          //get the hashtags array as a string
-          if (dataTweet.entities.hashtags != undefined){
-            hashtagData = '';
-            for (var indx in dataTweet.entities.hashtags){
-              hashtagData += '#'+dataTweet.entities.hashtags[indx].text+',';
-            }
-            //get rid of the final ','
-            hashtagData = hashtagData.slice(0, -1);
-          } else {
-            hashtagData = null;
-          }
-   
-          //do the same for user mentions
-          if (dataTweet.entities.user_mentions != undefined){
-            userMentionsData = '';
-            for (var indx in dataTweet.entities.user_mentions){
-              userMentionsData += '@'+dataTweet.entities.user_mentions[indx].screen_name+',';
-            }
-            //get rid of the final ','
-            userMentionsData = userMentionsData.slice(0, -1);
-          } else {
-            userMentionsData = null;
-          }
-   
-          //get the coordinates
-          if (tweet.coordinates != null){
-            coordinatesData = tweet.coordinates.coordinates[0]+','+tweet.coordinates.coordinates[1];
-          } else {
-            coordinatesData = null;
-          }
-
-          //Prepare the tweet data for SQL insertion
-          if (tweet.isRetweet){
-            //Is a retweet
-            tweetData = {
-              id: tweet.id,
-              userName: tweet.retweeted_status.user.name,
-              userHandle: tweet.retweeted_status.user.screen_name,
-              userProfilePicture: tweet.retweeted_status.user.profile_image_url,
-              createdAt: tweet.created_at,
-              retweetedBy: tweet.user.screen_name,
-              tweetText: tweet.retweeted_status.text,
-              hashtags: hashtagData,
-              userMentions: userMentionsData,
-              coordinates: coordinatesData
-            }
-          } else {
-            //Is not a retweet
-            tweetData = {
-              id: tweet.id,
-              userName: tweet.user.screen_name,
-              userHandle: tweet.user.name,
-              userProfilePicture: tweet.user.profile_image_url,
-              createdAt: tweet.created_at,
-              tweetText: tweet.text,
-              hashtags: hashtagData,
-              userMentions: userMentionsData,
-              coordinates: coordinatesData
-            };
-          }
-
-          //Only add every seventh Retweet to prevent excessive duplication
-          if( tweet.isRetweet && ((totalRetweets % 7) != 0) ){
-            //Throw out every seventh tweet 
-            callback();
-          } else {
-            //Store the tweet in the SQL database
-            if(tweet.isRetweet){
-              storedRetweets++;
-            }
-            //Store the data in the db
-            connection.query('INSERT INTO tweets SET ?', tweetData, function (err, res){
-              if (err) {
-                console.log(err);
-              } else {
-                newTweetsStored++;
-                callback();
-              }
-            }); 
-          }
-        }
-      });
-    }, function(err){ 
-      //Do this after every tweet has been stored
-      console.log(tweets.length+' total tweets found.');
-      console.log((totalRetweets+1)+' total retweets found.');
-      console.log(alreadyStoredTweets+' tweets already in database.');
-      console.log(newTweetsStored+" new tweets stored in the database, of which "+storedRetweets+" are retweets.");
-    });
-  }
-
   // Function for handling the friends/profiles
   function handleFriends(err, data){
     if (err) {
@@ -574,89 +408,61 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
-  // Function for creating an object of users tweets, takes the object the key and the data asociated with that key and returns an object 
-  function pushToobject(obj, key, data) {
-     if (!Array.isArray(obj[key])) obj[key] = [];
-     return obj[key].push(data);
-  }
-
-  // Function for sorting through the tweets to return relevant information
-  function sortTweets (data) {
-    for (var indx in data){
-      var tweet = data[indx];
-      tweettxt.push(tweet.text); // push the tweet text so it can be sorted for the most frequent words
-      users.push(tweet.user.screen_name); // push the twitter user screen name so it can be sorted to find the most frequent users
-      pushToobject(tweetobj, tweet.user.screen_name, tweet.text); // Call the pushToobject to create an object containing each screen name and their collection of tweets
-      if (tweet.geo != null){
-        tweetloc.push(tweet.geo); // push the twitter geo location so that the locations can be displayed on a map, if geocode is present
-      } else {
-        //console.log('No Tweet location available.'); // If no tweet location log it in the console. 
-      }
+  // Function for handling the tweets
+  function handleTweets(err, data, type) {
+    if(type != "SQL"){
+      data = data.statuses;
     }
-  }
 
-  // Function for sorting through the twitter profile to return relevant information
-  function sortProfile (data) {
-    for (var indx in data.statuses){
-      var tweet = data.statuses[indx];
-      console.log('@' + tweet.user.screen_name +'\n\n');
-    }
-  }
-
-  // Function for getting the frequency of each word within a string
-  function getFreqword(){
-    var string = tweettxt.toString(), // turn the array into a string
-        changedString = string.replace(/,/g, " "), // remove the array elemenewTweetsStored 
-        split = changedString.split(" "), // split the string 
-        words = [];
-
-    // Loop through each word and count its occurance
-    for (var i=0; i<split.length; i++){
-      if(words[split[i]]===undefined){
-        words[split[i]]=1;
-      } else {
-        words[split[i]]++;
-      }
-    }
-    return words;
-  }
-
-  // Function for returning the top 20 words from getFreqword()
-  function getTopwords(){
-    var topwords = getFreqword(), // Call the getFreqword() function
-        topwords = Object.keys(topwords).map(function (k) { return { word: k, num: topwords[k] }; }), // create an object with the key, word which is the word taken from getFreqword() and the key, num which is the number of occurances of that word 
-        toptwenty = [],
-        twenty = 19;
-
-    // Sort in descending order by the key num:
-    topwords = topwords.sort(function (a, b){
-      return b.num - a.num;
-    });
-
-    if (topwords.length <= 19){
-      topwords = toptwenty; // if topwords doesn't have 20 elemenewTweetsStored then just make toptwenty equal to topwords
-      return toptwenty;
+    //check if err
+    if (err) {
+      console.error('Get error', err);
     } else {
-        for (var i=0; i<=twenty; i++){
-          try{
-            if (chkwrd(topwords[i].word) === true ) {
-            twenty = twenty + 1; // if the word is a blacklisted word then don't inlcude it and add one to the index limit so twenty words are returned
-            } else {
-              toptwenty.push(topwords[i]); // if topwords has more than 20 elemenewTweetsStored then push the first 20 elemenewTweetsStored in topwords to the toptwenty array
+      //If the search returns nothing AND tweetsReturned is empty, then Twitter didn't find anything at all
+      if ((data.length == 0) && (tweetsReturned.length == 0)) {
+        //Say so
+        console.log("No tweets returned, try less specific search criteria.");
+      } else {
+        //Alright, we've got a batch of data
+        //Push every status found onto the stack
+        for (var i in data){
+          tweetsReturned.push(data[i]);
+        }
+        //If we maxed out the current batch AND we need more tweets, get more tweets
+        if (data.length == 100 && tweetsReturned.length < count) {
+
+          //find the lowest id in the current tweets returned
+          maxid=10000000000000000000;
+          for (var i in tweetsReturned){
+            if (tweetsReturned[i].id < maxid){
+              maxid = tweetsReturned[i].id;
             }
           }
-          catch (err){
-            console.log('Error:' + err);
-          }
+          //get more tweets
+          getTweets(count-tweetsReturned.length, maxid);
+
+        } else {
+          //now we have all the tweets we want
+          if(type != "SQL"){
+            logQuery(tweetsReturned); //Store some metadata about the query
+            tweetsReturned = convertData(tweetsReturned); //Convert the raw twitter data into something more usable
+            storeTweets(tweetsReturned); // Store the tweets in the SQL db
+          } 
+          sortTweets(tweetsReturned); // sort the tweet data
+          top = getTopWords(); // then find the most frequent words in the data
+          topu = getTopUsers(); // then find the most frequent users
+          getUserswords();
+          return res.render('queryInterface.html', {tweets: JSON.stringify(tweetobj), activeUsers: JSON.stringify(topu), commonWords: JSON.stringify(top), usersCommon: JSON.stringify(userobj), geo: JSON.stringify(tweetloc)}); // Send the data to the client
         }
-      return toptwenty;
+      }
+        
     }
   }
 
   // Function for getting the most frequent users for a search
-  function getFrequsers(){
+  function getFreqUsers(){
     var string = users.toString(), // turn the array into a string
-        changedString = string.replace(/,/g, " "), // remove the array elemenewTweetsStored 
+        changedString = string.replace(/,/g, " "), // remove the array elements 
         split = changedString.split(" "), // split the string 
         freqUsers = []; // array for the freqent users to be pushed too
 
@@ -671,10 +477,50 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     return freqUsers;
   }
 
-  // Function for returning the top 10 users from getFrequsers()
-  function getTopusers(){
-    var topusers = getFrequsers(), // call the getFrequsers() function
-        topusers = Object.keys(topusers).map(function (k) { return { user: k, num: topusers[k] }; }), // create an object with the key, user which is the user taken from getFreqword() and the key, num which is the number of occurances of that word 
+  // Function for getting the frequency of each word within a string
+  function getFreqWord(){
+    var string = tweettxt.toString(), // turn the array into a string
+        changedString = string.replace(/,/g, " "), // remove the array elements 
+        split = changedString.split(" "), // split the string 
+        words = [];
+
+    // Loop through each word and count its occurance
+    for (var i=0; i<split.length; i++){
+      if(words[split[i]]===undefined){
+        words[split[i]]=1;
+      } else {
+        words[split[i]]++;
+      }
+    }
+    return words;
+  }
+
+  // Function for searching through twitter profiles using the specified data
+  function getProfile() {
+    return client.get('friends/list', { 
+      screen_name: profile, 
+      count: count 
+    },
+    handleFriends);
+  }
+
+  // Function for returning the tweets of the players returned 
+  function getPlayerTweets() {
+    var players = checkTeam(profile);
+    count = 1; // change count to 1 so as to get only the most recent tweet
+    for (var i = 0; i <= players.length; i++){
+      profile = players[i]; // change the profile to the players
+      keepcount = count; // store the count value
+      count = 10; // Change count to 10 to get the players 10 most recent tweets
+      getTweets(); // getTweets with the new variables
+      count = keepcount; // change count back to its original value
+    }
+  }
+
+  // Function for returning the top 10 users from getFreqUsers()
+  function getTopUsers(){
+    var topusers = getFreqUsers(), // call the getFrequsers() function
+        topusers = Object.keys(topusers).map(function (k) { return { user: k, num: topusers[k] }; }), // create an object with the key, user which is the user taken from getFreqWord() and the key, num which is the number of occurances of that word 
         topten = [];
 
     // Sort in descending order by the key num:
@@ -682,80 +528,77 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       return b.num - a.num;
     });
     if ( topusers.length <= 9 ) { 
-      topten = topusers; // if topwords doesn't have 10 elemenewTweetsStored then just make toptwenty equal to topusers
+      topten = topusers; // if topwords doesn't have 10 elements then just make toptwenty equal to topusers
       return topten;
     } else {
       for (var i=0; i<=9; i++){
-        topten.push(topusers[i]); // if topwords has more than 10 elemenewTweetsStored then push the first 10 elemenewTweetsStored in topusers to the topten array
+        topten.push(topusers[i]); // if topwords has more than 10 elements then push the first 10 elements in topusers to the topten array
       }
       //topten.splice(10, topten.length);
       return topten;
     }
   }
 
-  // Function for returning the most frequently used words for each user
-  function getUserswords(){
-    for (var key in tweetobj) {
-      if (tweetobj.hasOwnProperty(key)) {
-        var obj = tweetobj[key],
-            string = obj + "", // turn the array into a string
-            changedString = string.replace(/,/g, " "), // remove the array elemenewTweetsStored 
-            split = changedString.split(" "), // split the string 
-            words = [];
+  // Function for returning the top 20 words from getFreqWord()
+  function getTopWords(){
+    var topwords = getFreqWord(), // Call the getFreqWord() function
+        topwords = Object.keys(topwords).map(function (k) { return { word: k, num: topwords[k] }; }), // create an object with the key, word which is the word taken from getFreqWord() and the key, num which is the number of occurances of that word 
+        toptwenty = [],
+        twenty = 19;
 
-        // Loop through each word and count its occurance
-        for (var i=0; i<split.length; i++){
-          if(words[split[i]]===undefined){
-            words[split[i]]=1;
-          } else {
-            words[split[i]]++;
+    // Sort in descending order by the key num:
+    topwords = topwords.sort(function (a, b){
+      return b.num - a.num;
+    });
+
+    if (topwords.length <= 19){
+      topwords = toptwenty; // if topwords doesn't have 20 elements then just make toptwenty equal to topwords
+      return toptwenty;
+    } else {
+        for (var i=0; i<=twenty; i++){
+          try{
+            if (checkWord(topwords[i].word) === true ) {
+            twenty = twenty + 1; // if the word is a blacklisted word then don't inlcude it and add one to the index limit so twenty words are returned
+            } else {
+              toptwenty.push(topwords[i]); // if topwords has more than 20 elements then push the first 20 elements in topwords to the toptwenty array
+            }
+          }
+          catch (err){
+            console.log('Error:' + err);
           }
         }
-        words = Object.keys(words).map(function (k) { return { word: k, num: words[k] }; });// create an object with the key, word which is the word taken from getFreqword() and the key, num which is the number of occurances of that word 
-        var toptenu = [];
-
-        // Sort in descending order by the key num:
-        words = words.sort(function (a, b){
-          return b.num - a.num;
-        });
-
-        if (words.length <= 9){
-          words = toptenu; // if topwords doesn't have 10 elemenewTweetsStored then just make toptwenty equal to topwords
-        } else {
-          for (var j=0; j<=9; j++){
-            toptenu.push(words[j]); // if topwords has more than 10 elemenewTweetsStored then push the first 20 elemenewTweetsStored in topwords to the toptwenty array
-          }
-        }
-        pushToobject(userobj, key, toptenu);
-      } else {
-        console.log("No tweets to check");
-        continue;
-      }
+      return toptwenty;
     }
   }
 
   // Function for searching through twitter using the specified data
   function getTweets(count, maxid){
+
     //Formulate the search query from the form data
-    var query = '';
-    if (keywords != ''){
-      query = query + keywords;
+    //If the query hasn't been formed already, form it
+    if (query == ''){
+      if (keywords != ''){
+        query = query + keywords;
+      }
+      if (hashtags != ''){
+        query = query+' '+hashtags;
+      }
+      if (userMentions != ''){
+        query = query+' '+userMentions;
+      }
+      if (profile != ''){
+        query = query+'@' +profile+ ' OR from:'+profile;
+      }
     }
-    if (hashtags != ''){
-      query = query+' '+hashtags;
-    }
-    if (userMentions != ''){
-      query = query+' '+userMentions;
-    }
-    if (profile != ''){
-      query = query+'@' +profile+ ' OR from:'+profile;
-    }
+
     //set the number of tweets the search should look for
     if(count > 100){
       queryCount = 100;
     } else {
       queryCount = count;
     }
+
+    //CHECK THAT THE QUERY HASNT BEEN MADE ALREADY HERE
 
     //The query must not be empty after stripping whitespace
     if(query.replace(/ /g,'') != ''){
@@ -776,27 +619,27 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   function getTweetsSQL(count){
 
     //Prepare the query string
-    var query = '';
+    var inputString = '';
     //concatanate every text box into one string
-    query = keywords+' '+hashtags+' '+userMentions;
+    inputString = keywords+' '+hashtags+' '+userMentions;
 
     //initialise the query string to be parsed in SQL
     queryString = "SELECT * FROM tweets WHERE ";
 
     //If query is not empty
-    if(query.replace(/ /g,'') != ''){
+    if(inputString.replace(/ /g,'') != ''){
       //split the individual words into an array
-      queryArray = query.split(' '); 
-      //remove all empty elemenewTweetsStored (can be created if the user pressed space twice, etc)
+      queryArray = inputString.split(' '); 
+      //remove all empty elements (can be created if the user pressed space twice, etc)
       var tempArray = [];
       //iterate through the array
       for (var i in queryArray){
         if (queryArray[i] != ''){
-          //push non-empty elemenewTweetsStored into a temporary array
+          //push non-empty elements into a temporary array
           tempArray.push(queryArray[i]);
         }
       }
-      //shunt the temp array and delete it
+      //shunt the temp array over and delete it
       queryArray = tempArray;
       tempArray.delete;
 
@@ -846,31 +689,223 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           console.log(res);
           console.log(res.length+" tweets found in total.");
           console.log("Queried with "+queryString);
+          handleTweets(err, res, "SQL");
         }
       });
     } 
   }
 
-  // Function for searching through twitter profiles using the specified data
-  function getProfile(){
-    return client.get('friends/list', { 
-      screen_name: profile, 
-      count: count 
-    },
-    handleFriends);
+  // Function for returning the most frequently used words for each user
+  function getUserswords() {
+    for (var key in tweetobj) {
+      if (tweetobj.hasOwnProperty(key)) {
+        var obj = tweetobj[key],
+            string = obj + "", // turn the array into a string
+            changedString = string.replace(/,/g, " "), // remove the array elements 
+            split = changedString.split(" "), // split the string 
+            words = [];
+
+        // Loop through each word and count its occurance
+        for (var i=0; i<split.length; i++){
+          if(words[split[i]]===undefined){
+            words[split[i]]=1;
+          } else {
+            words[split[i]]++;
+          }
+        }
+        words = Object.keys(words).map(function (k) { return { word: k, num: words[k] }; });// create an object with the key, word which is the word taken from getFreqWord() and the key, num which is the number of occurances of that word 
+        var toptenu = [];
+
+        // Sort in descending order by the key num:
+        words = words.sort(function (a, b){
+          return b.num - a.num;
+        });
+
+        if (words.length <= 9){
+          words = toptenu; // if topwords doesn't have 10 elements then just make toptwenty equal to topwords
+        } else {
+          for (var j=0; j<=9; j++){
+            toptenu.push(words[j]); // if topwords has more than 10 elements then push the first 20 elements in topwords to the toptwenty array
+          }
+        }
+        pushToobject(userobj, key, toptenu);
+      } else {
+        console.log("No tweets to check");
+        continue;
+      }
+    }
   }
 
-  // Function for returning the tweets of the players returned 
-  function getPlayerTweets(){
-    var players = checkTeam(profile);
-    count = 1; // change count to 1 so as to get only the most recent tweet
-    for (var i = 0; i <= players.length; i++){
-      profile = players[i]; // change the profile to the players
-      keepcount = count; // store the count value
-      count = 10; // Change count to 10 to get the players 10 most recent tweets
-      getTweets(); // getTweets with the new variables
-      count = keepcount; // change count back to its original value
+  //Store the query data in the plain-text database
+  function logQuery(data){
+    //Store the query
+
+    //Store the highest ID reached 
+  }
+
+  // Function for creating an object of users tweets, takes the object the key and the data asociated with that key and returns an object 
+  function pushToobject(obj, key, data) {
+     if (!Array.isArray(obj[key])) obj[key] = [];
+     return obj[key].push(data);
+  }
+
+  // Function for sorting through the twitter profile to return relevant information
+  function sortProfile(data) {
+    for (var indx in data.statuses){
+      var tweet = data.statuses[indx];
+      console.log('@' + tweet.user.screen_name +'\n\n');
     }
+  }
+
+  // Function for sorting through the tweets to return relevant information
+  function sortTweets(data) {
+    for (var i in data){
+      var tweet = data[i];
+      tweettxt.push(tweet.tweetText); // push the tweet text so it can be sorted for the most frequent words
+      users.push(tweet.userHandle); // push the twitter user screen name so it can be sorted to find the most frequent users
+      pushToobject(tweetobj, tweet.userHandle, tweet.tweetText); // Call the pushToobject to create an object containing each screen name and their collection of tweets
+      if (tweet.coordinates != null){
+        tweetloc.push(tweet.coordinates); // push the twitter geo location so that the locations can be displayed on a map, if geocode is present
+      } else {
+        //console.log('No Tweet location available.'); // If no tweet location log it in the console. 
+      }
+    }
+  }
+
+  //Convert the raw Twitter data into something more compact and usable
+  function convertData(data){
+    //for every tweet received from twitter
+    newTweets = [];
+    for (var i in data){
+      //Pull data from the tweet
+      tweet = data[i];
+      if (tweet.hasOwnProperty('retweeted_status')){
+        tweet.isRetweet = true;
+        dataTweet = tweet.retweeted_status;
+        //totalRetweets++;
+      } else {
+        dataTweet = tweet;
+      }
+
+      //get the hashtags array as a string
+      if (dataTweet.entities.hashtags != undefined){
+        hashtagData = '';
+        for (var indx in dataTweet.entities.hashtags){
+          hashtagData += '#'+dataTweet.entities.hashtags[indx].text+',';
+        }
+        //get rid of the final ','
+        hashtagData = hashtagData.slice(0, -1);
+      } else {
+        hashtagData = null;
+      }
+
+      //do the same for user mentions
+      if (dataTweet.entities.user_mentions != undefined){
+        userMentionsData = '';
+        for (var indx in dataTweet.entities.user_mentions){
+          userMentionsData += '@'+dataTweet.entities.user_mentions[indx].screen_name+',';
+        }
+        //get rid of the final ','
+        userMentionsData = userMentionsData.slice(0, -1);
+      } else {
+        userMentionsData = null;
+      }
+
+      //get the coordinates
+      if (tweet.coordinates != null){
+        coordinatesData = tweet.coordinates.coordinates[0]+','+tweet.coordinates.coordinates[1];
+      } else {
+        coordinatesData = null;
+      }
+
+      //Prepare the tweet data for SQL insertion
+      if (tweet.isRetweet){
+        //Is a retweet
+        tweetData = {
+          id: tweet.id,
+          userName: tweet.retweeted_status.user.name,
+          userHandle: tweet.retweeted_status.user.screen_name,
+          userProfilePicture: tweet.retweeted_status.user.profile_image_url,
+          createdAt: tweet.created_at,
+          retweetedBy: tweet.user.screen_name,
+          tweetText: tweet.retweeted_status.text,
+          hashtags: hashtagData,
+          userMentions: userMentionsData,
+          coordinates: coordinatesData
+        }
+      } else {
+        //Is not a retweet
+        tweetData = {
+          id: tweet.id,
+          userName: tweet.user.screen_name,
+          userHandle: tweet.user.name,
+          userProfilePicture: tweet.user.profile_image_url,
+          createdAt: tweet.created_at,
+          tweetText: tweet.text,
+          hashtags: hashtagData,
+          userMentions: userMentionsData,
+          coordinates: coordinatesData
+        };
+      }
+      newTweets.push(tweetData);
+    }
+    return newTweets;
+  }
+
+  //Store the tweets in the SQL database
+  function storeTweets(data) {
+
+    //Set-up variables
+    tweets = data;
+    totalRetweets = -1; //total retweets, set to -1 to let the first retweet through
+    storedRetweets = 0; //stored retweets
+    alreadyStoredTweets = 0; //tweets returned by the search already in the database
+    newTweetsStored = 0; //new tweets stored
+
+    //Go through each tweet in turn, and store it
+    async.eachSeries(tweets, function storeTweet(tweet, callback){
+    
+      //check if the tweet already exists in the db
+      connection.query('SELECT 1 FROM tweets WHERE id = ? LIMIT 1;', tweet.id, function (err, result){
+        if (err) {
+          console.log(err);
+        } else if (result.length == 1){
+          //Tweet already exists, do nothing
+          alreadyStoredTweets++;
+          //exit loop
+          callback();
+        } else {
+          //Tweet doesn't exist in db, store it
+
+
+          //Only add every seventh Retweet to prevent excessive duplication
+          if( tweet.isRetweet && ((totalRetweets % 7) != 0) ){
+            //Throw out every seventh tweet 
+            callback();
+          } else {
+            //Store the tweet in the SQL database
+            if(tweet.isRetweet){
+              storedRetweets++;
+            }
+            //Store the data in the db
+            connection.query('INSERT INTO tweets SET ?', tweetData, function (err, res){
+              if (err) {
+                console.log(err);
+              } else {
+                newTweetsStored++;
+                callback();
+              }
+            }); 
+          }
+        }
+      });
+    }, function(err){ 
+      //Do this after every tweet has been stored
+      console.log(tweets.length+' total tweets found.');
+      console.log((totalRetweets+1)+' total retweets found.');
+      console.log(alreadyStoredTweets+' tweets already in database.');
+      console.log(newTweetsStored+" new tweets stored in the database, of which "+storedRetweets+" are retweets.");
+    });
   }
 
   try { 
