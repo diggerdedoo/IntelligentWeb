@@ -294,6 +294,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       userMentions = req.body.usermentions,
       count = req.body.count,
       dbonly = req.body.dbonly,
+      playeronly = req.body.playeronly,
       lan = 'en',
       tweettxt = new Array(), // array that will contain the returned tweet texts
       users = new Array(), // array that will contain the returned twitter users
@@ -507,14 +508,17 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   // Function for returning the tweets of the players returned 
   function getPlayerTweets() {
     var players = checkTeam(profile);
-    count = 1; // change count to 1 so as to get only the most recent tweet
-    for (var i = 0; i <= players.length; i++){
-      profile = players[i]; // change the profile to the players
-      keepcount = count; // store the count value
-      count = 10; // Change count to 10 to get the players 10 most recent tweets
-      getTweets(); // getTweets with the new variables
-      count = keepcount; // change count back to its original value
+    profile = '';
+    for (var i = 0; i < players.length; i++){
+      if (i >= 0 && i != (players.length) - 1){
+        string = 'from:' + players[i] + ' OR ';
+        profile = profile.concat(string); // change the profile to the players
+      } else {
+        string = 'from:' + players[i];
+        profile = profile.concat(string); // change the profile to the players
+      } 
     }
+    getTweets(); // getTweets with the new variables
   }
 
   // Function for returning the top 10 users from getFreqUsers()
@@ -586,8 +590,10 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       if (userMentions != ''){
         query = query+' '+userMentions;
       }
-      if (profile != ''){
+      if (profile != '' && playeronly != undefined){
         query = query+'@' +profile+ ' OR from:'+profile;
+      } else {
+        query = query + profile;
       }
     }
 
@@ -599,7 +605,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
 
     //CHECK THAT THE QUERY HASNT BEEN MADE ALREADY HERE
-
     //The query must not be empty after stripping whitespace
     if(query.replace(/ /g,'') != ''){
       client.get('search/tweets', { 
@@ -762,8 +767,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     for (var i in data){
       var tweet = data[i];
       tweettxt.push(tweet.tweetText); // push the tweet text so it can be sorted for the most frequent words
-      users.push(tweet.userHandle); // push the twitter user screen name so it can be sorted to find the most frequent users
-      pushToobject(tweetobj, tweet.userHandle, tweet.tweetText); // Call the pushToobject to create an object containing each screen name and their collection of tweets
+      users.push(tweet.username); // push the twitter user screen name so it can be sorted to find the most frequent users
+      pushToobject(tweetobj, tweet.username, tweet.tweetText); // Call the pushToobject to create an object containing each screen name and their collection of tweets
       if (tweet.coordinates != null){
         tweetloc.push(tweet.coordinates); // push the twitter geo location so that the locations can be displayed on a map, if geocode is present
       } else {
@@ -913,13 +918,15 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     if (count == ''){
       count = 300;
     }
-
-    if (dbonly==undefined){
-      getTweets(count, 10000000000000000000);
+    if (playeronly != undefined){
+      if (dbonly==undefined){
+        getTweets(count, 10000000000000000000);
+      } else {
+        getTweetsSQL(count);
+      }
     } else {
-      getTweetsSQL(count);
+      getPlayerTweets();
     }
-
   }
 
   catch (err) {
