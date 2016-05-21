@@ -987,7 +987,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var ground = client.query(queryg)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -997,7 +997,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var home_d = client.query(queryh_d)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -1007,7 +1007,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var away_d = client.query(querya_d)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -1017,7 +1017,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var manager_h = client.query(querym_h)
       .execute(function(error, results) {
-      process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
+      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -1027,7 +1027,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var manager_a = client.query(querym_a)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -1037,7 +1037,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var home_p = client.query(queryh_p)
       .execute(function(error, results) {
-      process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
+      process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -1047,7 +1047,7 @@ app.post('/sparql', function (req, res, next) {
   try {
     var away_p = client.query(querya_p)
     .execute(function(error, results) {
-    process.stdout.write(util.inspect(argumenewTweetsStored, null, 40, true)+"\n");1
+    process.stdout.write(util.inspect(arguments, null, 40, true)+"\n");1
     });
   }
   catch (err){
@@ -1056,8 +1056,8 @@ app.post('/sparql', function (req, res, next) {
   }
   finally {
     var allResults = [ground, home_d, away_d, manager_h, manager_a, home_p, away_p];
-    return allResults;
-    res.render('queryInterface2.html', {sparql: allResults});
+    var alert = "Unforunately we were unable to display the results from the SPARQL query, the results can be found in the command line. To use the twitter form please press the back button."
+    res.render('queryInterface2.html', {sparql: alert});
   }
 })
 
