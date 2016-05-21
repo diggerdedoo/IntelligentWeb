@@ -7,8 +7,6 @@
         <script src="/javascripts/javascripts.js" type="text/javascript"></script>
 
         <script type="text/javascript">
-            // Server variable provided when the form is submitted, array containing all the geolocated tweets returned
-            
 
             // function for initalizing google maps on the page
             function initialize() {
@@ -165,8 +163,8 @@
                 }
                 
                 // Loop through the array of tweet coords & place each one on the map
-                console.log("Placing found tweet coordinates on the map");
-                console.log(coordAr.length+" locations received"); 
+                console.log(coordAr.length+" locations received."); 
+                console.log("Placing any found tweet coordinates on the map:");
                 for( i = 0; i < coordAr.length; i++ ) {
                     var position = new google.maps.LatLng(coordAr[i][0],coordAr[i][1]);
 
