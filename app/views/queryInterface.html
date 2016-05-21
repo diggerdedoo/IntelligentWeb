@@ -24,6 +24,7 @@
                 // Server variable provided when the form is submitted, array containing all the geolocated tweets returned
                 var coord = <%- geo %>; //<%- geo %>;["115.97453645,-31.94055131,115.97453645,-31.94055131"]
                 /*
+                var coord = ["115.97453645,-31.94055131,115.97453645,-31.94055131"];
                 var coordAr = [];
                 var coordstring = '',
 
@@ -49,7 +50,7 @@
                 // array for pushing the coordinates
                 var coords = [];
                 /*
-                coordi = [
+                coord = [
                  { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
                   { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
                   { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
@@ -101,11 +102,12 @@
                   { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
                   { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] } 
                 ];
-                */
+                
                 var coordAr = coord.map(function(o) {
                   return o.coordinates;
                 })
                 //console.log(coordArs);
+                */
                 
                 // array containing the locations of each premier league football teams stadium for markers
                 var markers = [
