@@ -8,7 +8,6 @@
         <script type="text/javascript">
             // Server variable provided when the form is submitted, array containing all the geolocated tweets returned
             var coord = <%- geo %>;
-            var length = coord.length;
 
             // function for initalizing google maps on the page
             function initialize() {
@@ -21,30 +20,92 @@
                 // Display the map on the page
                 map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
                 map.setTilt(45);
-                    
+                
                 // Server variable provided when the form is submitted, array containing all the geolocated tweets returned
-                var coord = <%- geo %>;
+                var coord = <%- geo %>; //<%- geo %>;["115.97453645,-31.94055131,115.97453645,-31.94055131"]
+                /*
+                var coordAr = [];
+                var coordstring = '',
 
-                if (coord == []){
-                    $('#map').append('<h2>No Geolocated tweets returned ... </h2>');
-                }
+                // split the string by the , characters
+                coord = coord.toString();
+                coord = coord.split(",");
 
-                // array for pushing the coordinates
-                var coords = [];
-
-                // function to check that coordinates have been returned by getTweets()
-                function checkCoord(){
-                    if (coordAr == []){
-                        return null;
+                // Convert the string into and array of arrays of the coordinates returned
+                for (var i=0; i < coord.length; i++){
+                    if (i == 0){
+                        coordstring = coordstring.concat("[" + coord[i]);
+                    } else if (i % 2 == 0) {
+                        coordstring = coordstring.concat("[" + coord[i]);
+                    } else if (i % 2 != 0 && i != (coord.length) -1 ){
+                        coordstring = coordstring.concat(", " + coord[i] + "],");
                     } else {
-                        return coordAr;
+                        coordstring = coordstring.concat(", " + coord[i] + "]");
                     }
                 }
 
-                // function for turning coords into just an array of coordinates
+                coordAr = JSON.parse("[" + coordstring + "]");
+                */
+                // array for pushing the coordinates
+                var coords = [];
+                /*
+                coordi = [
+                 { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
+                  { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
+                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                  { type: 'Point', coordinates: [ 53.4809685, -2.2328403 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
+                  { type: 'Point', coordinates: [ 53.430645, -2.309451 ] },
+                  { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
+                  { type: 'Point', coordinates: [ 53.25648692, -2.12422065 ] },
+                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                  { type: 'Point', coordinates: [ 53.28846045, -3.47088026 ] },
+                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                  { type: 'Point', coordinates: [ 53.41481911, -2.26520875 ] },
+                  { type: 'Point', coordinates: [ 53.5061265, -2.0240911 ] },
+                  { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
+                  { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] },
+                  { type: 'Point', coordinates: [ 53.4667, -2.2333 ] },
+                  { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
+                  { type: 'Point', coordinates: [ 52.809, -1.756 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.4822464, -2.2339807 ] },
+                  { type: 'Point', coordinates: [ 53.24289639, -2.12678539 ] },
+                  { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
+                  { type: 'Point', coordinates: [ 50.73873874, -1.82213708 ] },
+                  { type: 'Point', coordinates: [ 50.73410011, -1.83927035 ] },
+                  { type: 'Point', coordinates: [ 50.375254, -4.1124781 ] },
+                  { type: 'Point', coordinates: [ 50.72072072, -1.84989633 ] },
+                  { type: 'Point', coordinates: [ 50.3775494, -4.109164 ] },
+                  { type: 'Point', coordinates: [ 53.38683461, -2.26890536 ] },
+                  { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
+                  { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
+                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                  { type: 'Point', coordinates: [ 53.4809685, -2.2328403 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
+                  { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
+                  { type: 'Point', coordinates: [ 53.430645, -2.309451 ] },
+                  { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
+                  { type: 'Point', coordinates: [ 53.25648692, -2.12422065 ] },
+                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
+                  { type: 'Point', coordinates: [ 53.28846045, -3.47088026 ] },
+                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
+                  { type: 'Point', coordinates: [ 53.41481911, -2.26520875 ] },
+                  { type: 'Point', coordinates: [ 53.5061265, -2.0240911 ] },
+                  { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
+                  { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] } 
+                ];
+                */
                 var coordAr = coord.map(function(o) {
                   return o.coordinates;
                 })
+                //console.log(coordArs);
                 
                 // array containing the locations of each premier league football teams stadium for markers
                 var markers = [
@@ -116,7 +177,6 @@
                         }
                     })(marker, i));
                 }
-
                 // Loop through the array of tweet coords & place each one on the map  
                 for( i = 0; i < coordAr.length; i++ ) {
                     var position = new google.maps.LatLng(coordAr[i][0], coordAr[i][1]);
@@ -329,7 +389,7 @@
         <script type = "text/javascript">
 
             // indicate if any geolocated tweets were returned
-            if (length > 0){
+            if (coord.length > 0){
                 $('#map').append('<h2>' + length + ' geolocated tweets returned ... </h2>');
             } else {
                 $('#map').append('<h2>No geolocated tweets returned ... </h2>');
