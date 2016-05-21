@@ -70,7 +70,7 @@ $("#query").submit(function(event) {
       url = $form.attr( 'action' );
 
   // Send the data using post
-  var posting = $.post( url, { twitterProfile: $('#profile').val(), keywords: $('#keywords').val(), hashTags: $('#hashtags').val(), count: $('#count').val()} );
+  var posting = $.post( url, { twitterProfile: $('#profile').val(), keywords: $('#keywords').val(), hashTags: $('#hashtags').val(), count: $('#count').val(), dbonly: $('#dbonly').val(), playersonly: $('#playersonly').val()} );
 
 });
 
