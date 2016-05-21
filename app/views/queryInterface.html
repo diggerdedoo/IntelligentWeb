@@ -5,9 +5,10 @@
         <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
         <script src="/javascripts/javascripts.js" type="text/javascript"></script>
+
         <script type="text/javascript">
             // Server variable provided when the form is submitted, array containing all the geolocated tweets returned
-            var coord = <%- geo %>;
+            
 
             // function for initalizing google maps on the page
             function initialize() {
@@ -22,32 +23,15 @@
                 map.setTilt(45);
                 
                 // Server variable provided when the form is submitted, array containing all the geolocated tweets returned
-                var coord = <%- geo %>; //<%- geo %>;["115.97453645,-31.94055131,115.97453645,-31.94055131"]
-                /*
+                var rawCoords = <%- geo %>;
+                // initialise array
                 var coordAr = [];
-                var coordstring = '',
-
-                // split the string by the , characters
-                coord = coord.toString();
-                coord = coord.split(",");
-
-                // Convert the string into and array of arrays of the coordinates returned
-                for (var i=0; i < coord.length; i++){
-                    if (i == 0){
-                        coordstring = coordstring.concat("[" + coord[i]);
-                    } else if (i % 2 == 0) {
-                        coordstring = coordstring.concat("[" + coord[i]);
-                    } else if (i % 2 != 0 && i != (coord.length) -1 ){
-                        coordstring = coordstring.concat(", " + coord[i] + "],");
-                    } else {
-                        coordstring = coordstring.concat(", " + coord[i] + "]");
-                    }
+                //got through raw coords, split and place them into an array
+                for (var i = 0; i < rawCoords.length; i++){
+                  temp = rawCoords[i].toString().split(',');
+                  coordAr.push([temp[1],temp[0]]);
                 }
 
-                coordAr = JSON.parse("[" + coordstring + "]");
-                */
-                // array for pushing the coordinates
-                var coords = [];
                 /*
                 coordi = [
                  { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
@@ -101,13 +85,14 @@
                   { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
                   { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] } 
                 ];
-                */
-                var coordAr = coord.map(function(o) {
+                
+                var coordAr = coordi.map(function(o) {
                   return o.coordinates;
                 })
-                //console.log(coordArs);
-                
+                */
+
                 // array containing the locations of each premier league football teams stadium for markers
+
                 var markers = [
                   ['Arsenal', 51.555757,-0.108298],
                   ['AVFCOfficial', 52.509007,-1.884826],
@@ -129,7 +114,7 @@
                   ['WBAFCofficial', 52.509045,-1.963949],
                   ['whufc_official', 51.531950,0.039392],
                   ['WatfordFC', 51.649871,-0.401363],
-                ]
+                ];
 
                 // Info Window Content for each of the markers 
                 var infoWindowContent = [
@@ -159,14 +144,15 @@
                 var infoWindow = new google.maps.InfoWindow(), markers, i;
                 var infoWindowt = new google.maps.InfoWindow(), coordAr, i;
 
-                // Loop through the array of markers for stadiums & place each one on the map  
+                // Loop through the array of markers for stadiums & place each one on the map 
                 for( i = 0; i < markers.length; i++ ) {
                     var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
                     bounds.extend(position);
                     marker = new google.maps.Marker({
                         position: position,
                         map: map,
-                        title: markers[i][0]
+                        title: markers[i][0],
+                        icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
                     });
                     
                     // Allow each marker to have an info window    
@@ -177,16 +163,25 @@
                         }
                     })(marker, i));
                 }
-                // Loop through the array of tweet coords & place each one on the map  
+                
+                // Loop through the array of tweet coords & place each one on the map
+                console.log("Placing found tweet coordinates on the map");
+                console.log(coordAr.length+" locations received"); 
                 for( i = 0; i < coordAr.length; i++ ) {
-                    var position = new google.maps.LatLng(coordAr[i][0], coordAr[i][1]);
+                    var position = new google.maps.LatLng(coordAr[i][0],coordAr[i][1]);
+
+                    console.log("placing marker at "+coordAr[i][0]+" "+coordAr[i][1]);
+
                     bounds.extend(position);
+
                     marker = new google.maps.Marker({
                         position: position,
-                        map: map
+                        map: map,
+                        icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
                     });
 
-                    // Allow each marker to have an info window    
+                    // Allow each marker to have an info window   
+                    
                     google.maps.event.addListener(coordAr, 'click', (function(coordAr, i) {
                         return function() {
                             infoWindow.setContent('<div class="info_content">' + '<h4>Tweet</h4>' + '<p>Location of one of the tweets returned.</p>' + '</div>');
@@ -194,7 +189,7 @@
                         }
                     })(coordAr, i));
                 }
-
+                
                 // Center the map fitting all markers on the screen
                 map.fitBounds(bounds);
 
@@ -203,6 +198,7 @@
                     this.setZoom(5);
                     google.maps.event.removeListener(boundsListener);
                 });
+                
             }
         </script>
     </head>
@@ -387,14 +383,15 @@
             </div>
         </div>
         <script type = "text/javascript">
-
-            // indicate if any geolocated tweets were returned
-            if (coord.length > 0){
-                $('#map').append('<h2>' + length + ' geolocated tweets returned ... </h2>');
+            
+            // indicate if any geolocated tweets were returnedvar 
+            rawCoords = <%- geo %>;
+            if (rawCoords.length > 0){
+                $('#map').append('<h2>' + rawCoords.length + ' geolocated tweets returned. </h2>');
             } else {
-                $('#map').append('<h2>No geolocated tweets returned ... </h2>');
+                $('#map').append('<h2>No geolocated tweets returned. </h2>');
             }
-
+            
             // Server variables
             var tweets = <%- JSON.stringify(tweets) %> ;
             var users = <%- JSON.stringify(activeUsers) %>;

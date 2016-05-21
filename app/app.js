@@ -99,7 +99,7 @@ var server = app.listen(8081, function () {
 //Uncomment the below function if you want to reset the data or something
 //dropTables();
 
-//Drops all the tables
+//Drop all the tables
 function dropTables(){
   connection.query('DROP TABLE tweets', function (err, res){
     if(err) {
@@ -108,37 +108,8 @@ function dropTables(){
       console.log("Table tweets Dropped");
     }
   });
-  connection.query('DROP TABLE users', function (err, res){
-    if(err) {
-      console.log(err);
-    } else {
-      console.log("Table users Dropped");
-    }
-  });
 }
 
-//Check if the sql table 'users' exists, if not, create it.
-connection.query('SELECT 1 FROM users LIMIT 1', function (err, res){
-  //Query will throw error if the table doesn't exist
-  if(err) {
-    //Create the table
-    connection.query('CREATE TABLE users ('+
-      ' id bigint NOT NULL AUTO_INCREMENT,'+
-      ' name VARCHAR(30) NOT NULL,'+
-      ' salt VARCHAR(1000),'+
-      ' hash VARCHAR(1000),'+
-      ' PRIMARY KEY(id))', function (err, res){
-      if(err) {
-        console.log(err);
-      } else {
-        console.log("Table users Created");
-        //Initialise intial database values
-        createUserSQL('tj', 'foobar');
-        createUserSQL('a', 'a');
-      }
-    });
-  }
-});
 
 //Check if the sql table 'tweets' exists, if not, create it.
 connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
@@ -165,56 +136,30 @@ connection.query('SELECT 1 FROM tweets LIMIT 1', function (err, res){
   } 
 });
 
-// plaintext users database, for use before we set up the SQL for it, will then be deleted
+// plaintext database for storing website user login details
 var users = {};
 
 //Initialise some test users
 createUser('tj', 'foobar');
 createUser('a', 'a');
+createUser('David', '1234');
+createUser('Ryan','abcd');
 
-//add a new user to the database SQL'ed version below
+//add a new user to the database
 function createUser(name, pass){
   //intialise the user
   users[name] = {};
+  //put in name
   users[name].name = name;
   // when you create a user, generate a salt
   // and hash the password
   hash(pass, function (err, salt, hash){
     if (err) throw err;
-    // store the salt & hash in the plain text db *SQL NEEDED*
+    // store the salt & hash in the plaintext db
     users[name].salt = salt;
     users[name].hash = hash;
   });
 };
-
-//Create a new user, push it onto the sql server
-function createUserSQL(name, pass){
-  //Check if the username has already been taken
-  connection.query('SELECT 1 FROM users WHERE name = ? LIMIT 1;', name, function (err, result){
-    if (err) {
-      console.log(err);
-    } else if (result.length == 1){
-      //User already exists, do nothing
-      console.log("User '%s' already exists!", name);
-    } else {
-      // User doesn't exist, create it
-      // when you create a user, generate a salt
-      // and hash the password
-      hash(pass, function (err, salt, hash){
-        if (err) throw err;
-        // insert the user data into the sql server 
-        data = {name: name, salt: salt, hash: hash};
-        connection.query('INSERT INTO users SET ?', data, function (err, res){
-          if(err) {
-            console.log(err);
-          } else {
-            console.log("User '%s' Created", name);
-          }
-        });
-      });  
-    }
-  });
-}; 
 
 // check if user is logged in, if not redirect them to the index
 function requireLogin (req, res, next) {
@@ -225,7 +170,7 @@ function requireLogin (req, res, next) {
   }
 };
 
-// Authenticate using our plain-object database
+// Authenticate using our plaintext database
 function authenticate(name, pass, fn) {
   if (!module.parent) console.log('app.js Authenticating %s:%s', name, pass);
   var user = users[name];
@@ -353,18 +298,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
   };
 
   // Stoplist array: don't include these words when finding the most used words
-  var stoplist = ['','RT','a','A','I','i','The','the','and','And','or','Or','too','to','retweet','-','.',',',':',';','/'];
-
-  // Function to check which team is being searched so the geocode location for the teams stadium can be returned
-  function checkLocation(profile){
-    if (locations[profile]){
-      return locations[profile]; // match the location with the team name
-    } else if (locations[keywords]){
-      return locations[keywords]; // if no match then match with the keyword used
-    } else {
-      return null; // if the profile searched isnt in locations, then return null
-    }
-  }
+  var stoplist = ['','RT','a','A','I','i','The','the','and','And','in','In','for','from','at','this','of','on','or','Or','too','to','retweet','-','.',',',':',';','/'];
 
   // function to check which team is being search so as to return the players of that team on twitter
   function checkTeam(profile){
@@ -375,20 +309,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
-  // Function for checking a location was provided
-  function checkUserLoc(loc){
-    if ( loc == ''){
-      if ( checkLocation(profile) != null){
-        return checkLocation(profile); // If no location has been provided check it against locations 
-      } else {
-        return ''; // else keep loc as empty
-      }
-    } else {
-      console.log("No location provided."); // If a location has been provided, just use that
-    }
-  }
-
-  // Function for checking if a common word is stoplist
+  // Function for checking if a common word is in the stoplist
   function checkWord(string){
     var found = false;
     for (i = 0; i < stoplist.length && !found; i++) {
@@ -396,16 +317,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         found = true;
         return true;
       }
-    }
-  }
- 
-  // Function for handling the friends/profiles
-  function handleFriends(err, data){
-    if (err) {
-      console.error('Get error', err);
-    }  
-    else {
-      sortProfile(data);
     }
   }
 
@@ -445,9 +356,8 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         } else {
           //now we have all the tweets we want
           if(type != "SQL"){
-            logQuery(tweetsReturned); //Store some metadata about the query
             tweetsReturned = convertData(tweetsReturned); //Convert the raw twitter data into something more usable
-            storeTweets(tweetsReturned); // Store the tweets in the SQL db
+            //storeTweets(tweetsReturned); // Store the tweets in the SQL db
           } 
           sortTweets(tweetsReturned); // sort the tweet data
           top = getTopWords(); // then find the most frequent words in the data
@@ -455,8 +365,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           getUserswords();
           return res.render('queryInterface.html', {tweets: JSON.stringify(tweetobj), activeUsers: JSON.stringify(topu), commonWords: JSON.stringify(top), usersCommon: JSON.stringify(userobj), geo: JSON.stringify(tweetloc)}); // Send the data to the client
         }
-      }
-        
+      } 
     }
   }
 
@@ -494,15 +403,6 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       }
     }
     return words;
-  }
-
-  // Function for searching through twitter profiles using the specified data
-  function getProfile() {
-    return client.get('friends/list', { 
-      screen_name: profile, 
-      count: count 
-    },
-    handleFriends);
   }
 
   // Function for returning the tweets of the players returned 
@@ -691,8 +591,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           console.log(err);
         } else {
           //We got the results, now to send them to the html
-          console.log(res);
-          console.log(res.length+" tweets found in total.");
+          console.log(res.length+" tweets returned from the database.");
           console.log("Queried with "+queryString);
           handleTweets(err, res, "SQL");
         }
@@ -741,25 +640,10 @@ app.post('/queryinterface', restrict, function (req, res, next) {
     }
   }
 
-  //Store the query data in the plain-text database
-  function logQuery(data){
-    //Store the query
-
-    //Store the highest ID reached 
-  }
-
   // Function for creating an object of users tweets, takes the object the key and the data asociated with that key and returns an object 
   function pushToobject(obj, key, data) {
      if (!Array.isArray(obj[key])) obj[key] = [];
      return obj[key].push(data);
-  }
-
-  // Function for sorting through the twitter profile to return relevant information
-  function sortProfile(data) {
-    for (var indx in data.statuses){
-      var tweet = data.statuses[indx];
-      console.log('@' + tweet.user.screen_name +'\n\n');
-    }
   }
 
   // Function for sorting through the tweets to return relevant information
@@ -769,11 +653,9 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       tweettxt.push(tweet.tweetText); // push the tweet text so it can be sorted for the most frequent words
       users.push(tweet.userName); // push the twitter user screen name so it can be sorted to find the most frequent users
       pushToobject(tweetobj, tweet.userName, tweet.tweetText); // Call the pushToobject to create an object containing each screen name and their collection of tweets
-      if (tweet.geo != null){
-        tweetloc.push(tweet.geo); // push the twitter geo location so that the locations can be displayed on a map, if geocode is present
-      } else {
-        //console.log('No Tweet location available.'); // If no tweet location log it in the console. 
-      }
+      if (tweet.coordinates != null){
+        tweetloc.push(tweet.coordinates); // push the twitter geo location so that the locations can be displayed on a map, if geocode is present
+      } 
     }
   }
 
@@ -828,12 +710,12 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         //Is a retweet
         tweetData = {
           id: tweet.id,
-          userName: tweet.retweeted_status.user.name,
-          userHandle: tweet.retweeted_status.user.screen_name,
-          userProfilePicture: tweet.retweeted_status.user.profile_image_url,
+          userName: tweet.user.screen_name,
+          userHandle: tweet.user.name,
+          userProfilePicture: tweet.user.profile_image_url,
           createdAt: tweet.created_at,
-          retweetedBy: tweet.user.screen_name,
-          tweetText: tweet.retweeted_status.text,
+          retweetedBy: tweet.retweeted_status.user.screen_name,
+          tweetText: tweet.text,
           hashtags: hashtagData,
           userMentions: userMentionsData,
           coordinates: coordinatesData
@@ -882,7 +764,9 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         } else {
           //Tweet doesn't exist in db, store it
 
-
+           if(tweet.isRetweet){
+              totalRetweets++;
+            }
           //Only add every seventh Retweet to prevent excessive duplication
           if( tweet.isRetweet && ((totalRetweets % 7) != 0) ){
             //Throw out every seventh tweet 
@@ -893,7 +777,7 @@ app.post('/queryinterface', restrict, function (req, res, next) {
               storedRetweets++;
             }
             //Store the data in the db
-            connection.query('INSERT INTO tweets SET ?', tweetData, function (err, res){
+            connection.query('INSERT INTO tweets SET ?', tweet, function (err, res){
               if (err) {
                 console.log(err);
               } else {
