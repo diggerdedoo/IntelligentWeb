@@ -30,67 +30,7 @@
                   coordAr.push([temp[1],temp[0]]);
                 }
 
-                /*
-                coordi = [
-                 { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
-                  { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
-                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
-                  { type: 'Point', coordinates: [ 53.4809685, -2.2328403 ] },
-                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                  { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
-                  { type: 'Point', coordinates: [ 53.430645, -2.309451 ] },
-                  { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
-                  { type: 'Point', coordinates: [ 53.25648692, -2.12422065 ] },
-                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
-                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
-                  { type: 'Point', coordinates: [ 53.28846045, -3.47088026 ] },
-                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
-                  { type: 'Point', coordinates: [ 53.41481911, -2.26520875 ] },
-                  { type: 'Point', coordinates: [ 53.5061265, -2.0240911 ] },
-                  { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
-                  { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] },
-                  { type: 'Point', coordinates: [ 53.4667, -2.2333 ] },
-                  { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
-                  { type: 'Point', coordinates: [ 52.809, -1.756 ] },
-                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                  { type: 'Point', coordinates: [ 53.4822464, -2.2339807 ] },
-                  { type: 'Point', coordinates: [ 53.24289639, -2.12678539 ] },
-                  { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
-                  { type: 'Point', coordinates: [ 50.73873874, -1.82213708 ] },
-                  { type: 'Point', coordinates: [ 50.73410011, -1.83927035 ] },
-                  { type: 'Point', coordinates: [ 50.375254, -4.1124781 ] },
-                  { type: 'Point', coordinates: [ 50.72072072, -1.84989633 ] },
-                  { type: 'Point', coordinates: [ 50.3775494, -4.109164 ] },
-                  { type: 'Point', coordinates: [ 53.38683461, -2.26890536 ] },
-                  { type: 'Point', coordinates: [ 53.43887641, -2.26581926 ] },
-                  { type: 'Point', coordinates: [ 53.260671, -2.12337785 ] },
-                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
-                  { type: 'Point', coordinates: [ 53.4809685, -2.2328403 ] },
-                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                  { type: 'Point', coordinates: [ 53.48140416, -2.19272908 ] },
-                  { type: 'Point', coordinates: [ 53.48118582, -2.19197047 ] },
-                  { type: 'Point', coordinates: [ 53.430645, -2.309451 ] },
-                  { type: 'Point', coordinates: [ 53.48314268, -2.20046282 ] },
-                  { type: 'Point', coordinates: [ 53.25648692, -2.12422065 ] },
-                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
-                  { type: 'Point', coordinates: [ 53.44815087, -2.22897913 ] },
-                  { type: 'Point', coordinates: [ 53.28846045, -3.47088026 ] },
-                  { type: 'Point', coordinates: [ 53.48329123, -2.20054605 ] },
-                  { type: 'Point', coordinates: [ 53.41481911, -2.26520875 ] },
-                  { type: 'Point', coordinates: [ 53.5061265, -2.0240911 ] },
-                  { type: 'Point', coordinates: [ 53.57085753, -2.29129693 ] },
-                  { type: 'Point', coordinates: [ 53.38878594, -2.28376868 ] } 
-                ];
-                
-                var coordAr = coordi.map(function(o) {
-                  return o.coordinates;
-                })
-                */
-
                 // array containing the locations of each premier league football teams stadium for markers
-
                 var markers = [
                   ['Arsenal', 51.555757,-0.108298],
                   ['AVFCOfficial', 52.509007,-1.884826],
@@ -168,10 +108,7 @@
                 for( i = 0; i < coordAr.length; i++ ) {
                     var position = new google.maps.LatLng(coordAr[i][0],coordAr[i][1]);
 
-                    console.log("placing marker at "+coordAr[i][0]+" "+coordAr[i][1]);
-
-                    bounds.extend(position);
-
+                    console.log("Placing marker at "+coordAr[i][0]+" "+coordAr[i][1]);
                     marker = new google.maps.Marker({
                         position: position,
                         map: map,
@@ -179,7 +116,6 @@
                     });
 
                     // Allow each marker to have an info window   
-                    
                     google.maps.event.addListener(coordAr, 'click', (function(coordAr, i) {
                         return function() {
                             infoWindow.setContent('<div class="info_content">' + '<h4>Tweet</h4>' + '<p>Location of one of the tweets returned.</p>' + '</div>');

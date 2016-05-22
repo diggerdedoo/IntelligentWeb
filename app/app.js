@@ -40,7 +40,6 @@ app.use(express.static(__dirname + 'public'));
 app.use("/stylesheets",  express.static(__dirname + '/public/stylesheets'));
 app.use("/images",  express.static(__dirname + '/public/images'));
 app.use("/javascripts",  express.static(__dirname + '/public/javascripts'));
-//app.set('/views', express.static(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
@@ -96,7 +95,7 @@ var server = app.listen(8081, function () {
   console.log("Listening at http://localhost:%s", port);
 });
 
-//Uncomment the below function if you want to reset the data or something
+//Uncomment the below function if you want to reset the sql data
 //dropTables();
 
 //Drop all the tables
@@ -322,18 +321,18 @@ app.post('/queryinterface', restrict, function (req, res, next) {
 
   // Function for handling the tweets
   function handleTweets(err, data, type) {
+    //where did we get these tweets from?
     if(type != "SQL"){
       data = data.statuses;
     }
 
-    //check if err
     if (err) {
       console.error('Get error', err);
     } else {
       //If the search returns nothing AND tweetsReturned is empty, then Twitter didn't find anything at all
       if ((data.length == 0) && (tweetsReturned.length == 0)) {
         //Say so
-        console.log("No tweets returned, try less specific search criteria.");
+        console.log("No tweets returned, try to use less specific search criteria.");
       } else {
         //Alright, we've got a batch of data
         //Push every status found onto the stack
@@ -354,15 +353,16 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           getTweets(count-tweetsReturned.length, maxid);
 
         } else {
-          //now we have all the tweets we want
+          //we have all the tweets we want, or can actually get
           if(type != "SQL"){
             tweetsReturned = convertData(tweetsReturned); //Convert the raw twitter data into something more usable
-            //storeTweets(tweetsReturned); // Store the tweets in the SQL db
+            storeTweets(tweetsReturned); // Store the new tweets in the SQL db
           } 
           sortTweets(tweetsReturned); // sort the tweet data
           top = getTopWords(); // then find the most frequent words in the data
           topu = getTopUsers(); // then find the most frequent users
           getUserswords();
+          // Send this data to the html page
           return res.render('queryInterface.html', {tweets: JSON.stringify(tweetobj), activeUsers: JSON.stringify(topu), commonWords: JSON.stringify(top), usersCommon: JSON.stringify(userobj), geo: JSON.stringify(tweetloc)}); // Send the data to the client
         }
       } 
@@ -591,9 +591,9 @@ app.post('/queryinterface', restrict, function (req, res, next) {
           console.log(err);
         } else {
           //We got the results, now to send them to the html
-          console.log(res.length+" tweets returned from the database.");
           console.log("Queried with "+queryString);
-          handleTweets(err, res, "SQL");
+          console.log(res.length+" tweets returned from the database.");
+          handleTweets(err, res, "SQL");r
         }
       });
     } 
@@ -759,28 +759,33 @@ app.post('/queryinterface', restrict, function (req, res, next) {
         } else if (result.length == 1){
           //Tweet already exists, do nothing
           alreadyStoredTweets++;
+          console.log("Tweet id "+tweet.id+" already exists.");
           //exit loop
           callback();
         } else {
           //Tweet doesn't exist in db, store it
-
-           if(tweet.isRetweet){
-              totalRetweets++;
-            }
+          var isRetweet = false;
+          if(tweet.hasOwnProperty("retweetedBy")){
+            totalRetweets++;
+            isRetweet = true;
+          }
           //Only add every seventh Retweet to prevent excessive duplication
-          if( tweet.isRetweet && ((totalRetweets % 7) != 0) ){
-            //Throw out every seventh tweet 
+          if( isRetweet && ((totalRetweets % 7) != 0) ){
+            //Throw out every seventh retweet so we don't flood the database with the same tweet forever
+            console.log("Tweet id "+tweet.id+" was thrown out.");
             callback();
           } else {
-            //Store the tweet in the SQL database
-            if(tweet.isRetweet){
+
+            if(isRetweet){
               storedRetweets++;
+
             }
             //Store the data in the db
             connection.query('INSERT INTO tweets SET ?', tweet, function (err, res){
               if (err) {
                 console.log(err);
               } else {
+                console.log("Tweet id "+tweet.id+" was successfully stored.")
                 newTweetsStored++;
                 callback();
               }
@@ -790,10 +795,14 @@ app.post('/queryinterface', restrict, function (req, res, next) {
       });
     }, function(err){ 
       //Do this after every tweet has been stored
-      console.log(tweets.length+' total tweets found.');
-      console.log((totalRetweets+1)+' total retweets found.');
-      console.log(alreadyStoredTweets+' tweets already in database.');
-      console.log(newTweetsStored+" new tweets stored in the database, of which "+storedRetweets+" are retweets.");
+      if (err){
+        console.log(err)
+      } else {
+        console.log(tweets.length+' total tweets found.');
+        console.log((totalRetweets+1)+' total retweets found.');
+        console.log(alreadyStoredTweets+' tweets already in database.');
+        console.log(newTweetsStored+" new tweets stored in the database, of which "+storedRetweets+" are retweets.");
+      }
     });
   }
 
